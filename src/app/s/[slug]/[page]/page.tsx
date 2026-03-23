@@ -1,0 +1,107 @@
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { createServiceClient } from "@/lib/supabase/server";
+import { AboutRenderer } from "@/components/pages/about-renderer";
+import { FAQRenderer } from "@/components/pages/faq-renderer";
+import { BlogRenderer } from "@/components/pages/blog-renderer";
+import { ReviewsRenderer } from "@/components/pages/reviews-renderer";
+import type { PageType } from "@/types/database";
+
+const VALID_PAGES: PageType[] = ["about", "faq", "blog", "reviews"];
+
+interface Props {
+  params: Promise<{ slug: string; page: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug, page: pageSlug } = await params;
+
+  if (!VALID_PAGES.includes(pageSlug as PageType)) {
+    return { title: "Not Found" };
+  }
+
+  const supabase = createServiceClient();
+
+  const { data: project } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (!project) return { title: "Not Found" };
+
+  const { data: page } = await supabase
+    .from("pages")
+    .select("*")
+    .eq("project_id", project.id)
+    .eq("page_type", pageSlug)
+    .eq("is_published", true)
+    .single();
+
+  return {
+    title: page?.title || `${project.product_name} - ${pageSlug}`,
+    description: page?.meta_description || project.product_description,
+    openGraph: {
+      title: page?.title || `${project.product_name} - ${pageSlug}`,
+      description: page?.meta_description || project.product_description,
+      type: pageSlug === "blog" ? "article" : "website",
+    },
+  };
+}
+
+export default async function SubPage({ params }: Props) {
+  const { slug, page: pageSlug } = await params;
+
+  if (!VALID_PAGES.includes(pageSlug as PageType)) {
+    notFound();
+  }
+
+  const supabase = createServiceClient();
+
+  const { data: project } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (!project) notFound();
+
+  const { data: page } = await supabase
+    .from("pages")
+    .select("*")
+    .eq("project_id", project.id)
+    .eq("page_type", pageSlug)
+    .eq("is_published", true)
+    .single();
+
+  if (!page) notFound();
+
+  const content = page.content as Record<string, unknown>;
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(page.schema_markup),
+        }}
+      />
+      {pageSlug === "about" && (
+        <AboutRenderer
+          content={content}
+          productName={project.product_name}
+          slug={project.slug}
+        />
+      )}
+      {pageSlug === "faq" && (
+        <FAQRenderer content={content} slug={project.slug} />
+      )}
+      {pageSlug === "blog" && (
+        <BlogRenderer content={content} slug={project.slug} />
+      )}
+      {pageSlug === "reviews" && (
+        <ReviewsRenderer content={content} slug={project.slug} />
+      )}
+    </>
+  );
+}
