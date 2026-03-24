@@ -38,10 +38,10 @@ const navSections = [
   {
     title: "Premium",
     items: [
-      { href: "/dashboard/premium/10x", label: "10x", icon: Rocket },
-      { href: "/dashboard/premium/automation", label: "Automation", icon: Wrench },
-      { href: "/dashboard/premium/infinite", label: "Infinite", icon: Infinity },
-      { href: "/dashboard/premium/dfy", label: "DFY", icon: Sparkles },
+      { href: "/dashboard/10x", label: "10x", icon: Rocket },
+      { href: "/dashboard/automation", label: "Automation", icon: Wrench },
+      { href: "/dashboard/infinite", label: "Infinite", icon: Infinity },
+      { href: "/dashboard/dfy", label: "DFY", icon: Sparkles },
     ],
   },
   {
