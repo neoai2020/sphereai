@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 const FEATURE_CONFIG: Record<string, { title: string, icon: any, color: string }> = {
   "10x": { title: "10X Power Tool", icon: Zap, color: "text-indigo-600" },
   "automation": { title: "Traffic Machine", icon: MousePointer2, color: "text-emerald-600" },
