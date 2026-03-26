@@ -2,7 +2,6 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { Sparkles, CheckCircle2, Lock, Loader2, ArrowRight, ShieldCheck, Mail, Zap, MousePointer2, Layout } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -38,63 +37,26 @@ function ActivateContent() {
 
     setLoading(true);
     setStatus("idle");
-    const supabase = createClient();
 
     try {
-      // 1. Check if token is valid and not used
-      const { data: token, error: tokenErr } = await supabase
-        .from("access_tokens")
-        .select("*")
-        .eq("code", code.toUpperCase())
-        .eq("is_used", false)
-        .single();
+      const response = await fetch("/api/activate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, email }),
+      });
 
-      if (tokenErr || !token) {
-        throw new Error("Invalid or already used activation code.");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Activation failed.");
       }
 
-      setFeatureActivated(token.feature);
-
-      // 2. Check if user exists in profiles table
-      const { data: profile, error: profileErr } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("email", email.toLowerCase())
-        .single();
-
-      if (profileErr || !profile) {
-        throw new Error("User account not found. Please sign up first with this email.");
-      }
-
-      // 3. Grant access: Update the relevant feature flag
-      const featureColumn = `has_${token.feature}`;
-      const upgradeData: any = {
-        user_id: profile.id,
-        status: "active",
-      };
-      upgradeData[featureColumn] = true;
-
-      const { error: subErr } = await supabase
-        .from("user_subscriptions")
-        .upsert(upgradeData, { onConflict: "user_id" });
-
-      if (subErr) throw new Error("Could not update subscription: " + subErr.message);
-
-      // 4. Mark token as used
-      await supabase
-        .from("access_tokens")
-        .update({ 
-          is_used: true, 
-          used_by_email: email.toLowerCase(),
-          used_by_user_id: profile.id 
-        })
-        .eq("id", token.id);
-
+      setFeatureActivated(data.feature);
       setStatus("success");
-      setMessage(`Successfully activated ${FEATURE_CONFIG[token.feature]?.title || token.feature.toUpperCase()}!`);
+      setMessage(`Successfully activated ${FEATURE_CONFIG[data.feature]?.title || data.feature.toUpperCase()}!`);
       
       setTimeout(() => {
-        router.push(`/dashboard/${token.feature === 'infinite' ? 'infinite' : token.feature}`);
+        router.push(`/dashboard/${data.feature === 'infinite' ? 'infinite' : data.feature}`);
       }, 3000);
     } catch (err: any) {
       console.error(err);
