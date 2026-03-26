@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Plus, ExternalLink } from "lucide-react";
+import { Plus, ExternalLink, Settings } from "lucide-react";
 
 export default async function ProjectsPage() {
   const supabase = await createClient();
@@ -26,13 +26,22 @@ export default async function ProjectsPage() {
             Manage your high-value AI generation assets
           </p>
         </div>
-        <Link
-          href="/dashboard/projects/new"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium transition-colors"
-        >
-          <Plus size={18} />
-          Site Forge
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard/settings"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 text-gray-600 font-medium hover:bg-gray-50 transition-colors"
+          >
+            <Settings size={18} />
+            Manage Subscription
+          </Link>
+          <Link
+            href="/dashboard/projects/new"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium transition-colors"
+          >
+            <Plus size={18} />
+            Site Forge
+          </Link>
+        </div>
       </div>
 
       {!projects || projects.length === 0 ? (

@@ -188,28 +188,6 @@ export default async function DashboardPage() {
         {/* 5. Sidebar */}
         <div className="lg:col-span-4 space-y-8">
             {/* Account Status at the top */}
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-200/30 p-8 overflow-hidden relative">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="font-black text-gray-900 text-xl tracking-tight">Active Plan</h2>
-                <div className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600 border border-brand-100">
-                  <ShieldCheck size={20} />
-                </div>
-              </div>
-              <div className="p-5 rounded-2xl bg-gradient-to-br from-brand-50 to-white border border-brand-100 mb-6">
-                <div className="flex items-baseline gap-2 mb-1">
-                  <span className="text-xs font-bold text-brand-600 uppercase tracking-widest">Standard Tier</span>
-                  <div className="h-1 w-1 rounded-full bg-brand-300" />
-                </div>
-                <p className="text-2xl font-black text-gray-900">Verified Account</p>
-                <div className="flex items-center gap-2 mt-4 text-[10px] font-bold text-gray-400">
-                  <Clock size={12} /> Renewal in 24 days
-                </div>
-              </div>
-              <Link href="/dashboard/settings" className="block w-full py-4 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-black text-sm text-center transition-all shadow-xl shadow-brand-200 hover:-translate-y-1">
-                Manage Subscription
-              </Link>
-            </div>
-
             {/* Quick Actions */}
             <div className="bg-white rounded-3xl p-8 shadow-xl shadow-gray-200/30 border border-gray-100 relative overflow-hidden">
               <h2 className="text-gray-900 font-black text-xl mb-8 flex items-center gap-3">
