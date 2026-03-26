@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Sparkles, CheckCircle2, Lock, Loader2, ArrowRight, ShieldCheck, Mail, Zap, MousePointer2, Layout } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -13,7 +13,7 @@ const FEATURE_CONFIG: Record<string, { title: string, icon: any, color: string }
   "dfy": { title: "DFY Library", icon: Layout, color: "text-blue-600" },
 };
 
-export default function ActivatePage() {
+function ActivateContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [code, setCode] = useState(searchParams.get("code") || "");
@@ -204,5 +204,17 @@ export default function ActivatePage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function ActivatePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <Loader2 className="animate-spin text-indigo-600" size={32} />
+      </div>
+    }>
+      <ActivateContent />
+    </Suspense>
   );
 }
