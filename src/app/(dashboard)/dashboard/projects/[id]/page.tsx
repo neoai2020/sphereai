@@ -12,7 +12,10 @@ import {
   Info,
   Palette,
   Layout,
-  LayoutDashboard
+  LayoutDashboard,
+  Layers,
+  Sparkles,
+  Settings2
 } from "lucide-react";
 import { SiteCustomizer } from "@/components/dashboard/projects/SiteCustomizer";
 import { cn } from "@/lib/utils";
@@ -61,49 +64,61 @@ export default async function ProjectDetailPage({
 
   return (
     <div className="max-w-6xl mx-auto space-y-10 pb-20">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4">
-        <div>
-           <Link
-            href="/dashboard/projects"
-            className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-600 mb-4 transition-colors"
-          >
-            <ArrowLeft size={14} />
-            Back to Asset Vault
-          </Link>
-          <div className="flex items-center gap-4 mb-2">
-            <h1 className="text-4xl font-black text-gray-900 tracking-tight">{project.name}</h1>
-            <span
-              className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                project.status === "published"
-                  ? "bg-green-100 text-green-700"
-                  : project.status === "generating"
-                  ? "bg-yellow-100 text-yellow-700 animate-pulse"
-                  : project.status === "error"
-                  ? "bg-red-100 text-red-700"
-                  : "bg-gray-100 text-gray-700"
-              }`}
+      <div className="flex flex-col gap-8 px-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+             <Link
+              href="/dashboard/projects"
+              className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-brand-600 mb-4 transition-colors"
             >
-              • {project.status}
-            </span>
+              <ArrowLeft size={14} />
+              Back to Asset Vault
+            </Link>
+            <div className="flex items-center gap-4 mb-2">
+              <h1 className="text-4xl font-black text-gray-900 tracking-tight">{project.name}</h1>
+              <span
+                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                  project.status === "published"
+                    ? "bg-green-100 text-green-700"
+                    : project.status === "generating"
+                    ? "bg-yellow-100 text-yellow-700 animate-pulse"
+                    : project.status === "error"
+                    ? "bg-red-100 text-red-700"
+                    : "bg-gray-100 text-gray-700"
+                }`}
+              >
+                • {project.status}
+              </span>
+            </div>
+            <p className="text-gray-500 font-medium text-lg">{project.product_name}</p>
           </div>
-          <p className="text-gray-500 font-medium text-lg">{project.product_name}</p>
+
+          <div className="flex items-center gap-3">
+             <Link 
+              href={`/software/user/${project.id}`} 
+              target="_blank"
+              className="px-6 py-3 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all flex items-center gap-3 shadow-xl"
+            >
+              <Globe size={16} /> View Production Site
+            </Link>
+          </div>
         </div>
         
-        <div className="flex bg-gray-100/80 p-1 rounded-2xl border border-gray-200 shadow-sm self-start">
+        <div className="flex items-center gap-2 bg-gray-100/80 p-1.5 rounded-[1.5rem] border border-gray-200 shadow-sm self-start">
           {[
-            { id: "pages", label: "Pages Feed", icon: LayoutDashboard },
-            { id: "customize", label: "Customizer", icon: Palette },
-            { id: "details", label: "Project Info", icon: Info },
+            { id: "pages", label: "Pages Gallery", icon: Layers },
+            { id: "customize", label: "Site Customizer", icon: Sparkles },
+            { id: "details", label: "Project Details", icon: Settings2 },
           ].map((t) => (
             <Link
               key={t.id}
               href={`/dashboard/projects/${id}?tab=${t.id}`}
               className={cn(
-                "flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
-                tab === t.id ? "bg-white text-brand-600 shadow-sm" : "text-gray-500 hover:text-gray-900"
+                "flex items-center gap-3 px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.1em] transition-all whitespace-nowrap",
+                tab === t.id ? "bg-white text-brand-600 shadow-md ring-1 ring-gray-200" : "text-gray-500 hover:text-gray-900 hover:bg-white/50"
               )}
             >
-              <t.icon size={16} />
+              <t.icon size={18} className={cn(tab === t.id ? "text-brand-600" : "text-gray-400")} />
               {t.label}
             </Link>
           ))}
@@ -114,16 +129,9 @@ export default async function ProjectDetailPage({
         <div className="space-y-6 px-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
           <div className="flex items-center justify-between">
             <h2 className="font-black text-gray-900 text-2xl tracking-tight flex items-center gap-3">
-              <FileText size={24} className="text-brand-600" /> Site Pages
+              <FileText size={24} className="text-brand-600" /> Site Pages Feed
               <span className="text-sm font-bold text-gray-400">({pages?.length || 0}/5)</span>
             </h2>
-            <Link 
-              href={`/software/${user.id}/${project.id}`} 
-              target="_blank"
-              className="px-6 py-3 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all flex items-center gap-3 shadow-xl"
-            >
-              <Globe size={16} /> View Production Site
-            </Link>
           </div>
 
           {!pages || pages.length === 0 ? (
