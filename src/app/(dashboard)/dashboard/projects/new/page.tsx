@@ -332,55 +332,55 @@ export default function NewProjectPage() {
 
           {/* Step 2: Data Input */}
           {step === 2 && (
-            <div className="space-y-8">
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
               <div className="text-center">
-                <h2 className="text-3xl font-black text-gray-900 mb-2">
+                <h2 className="text-2xl font-black text-gray-900 mb-2">
                   {form.projectType === "affiliate" ? "Product Blueprint" : "Project Specs"}
                 </h2>
-                <p className="text-gray-500 font-medium">Feed the AI the core information it needs.</p>
+                <p className="text-gray-400 text-sm font-medium">Feed the AI the core information it needs.</p>
               </div>
               
               {form.projectType === "affiliate" ? (
-                <div className="space-y-8">
+                <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-black text-gray-800 uppercase tracking-widest mb-3">Product / Affiliate URL</label>
-                    <div className="flex gap-4">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Product / Affiliate URL</label>
+                    <div className="flex gap-3">
                       <input
                         type="url"
                         value={form.productUrl}
                         onChange={(e) => updateField("productUrl", e.target.value)}
-                        className="flex-1 px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-4 focus:ring-brand-500/20 outline-none text-lg font-medium shadow-inner"
+                        className="flex-1 px-5 py-3.5 rounded-xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:ring-4 focus:ring-brand-500/5 focus:border-brand-200 outline-none text-base font-medium transition-all"
                         placeholder="https://example.com/product"
                       />
                       <button 
                         onClick={handleScrape} 
                         disabled={scraping || !form.productUrl}
-                        className="px-10 py-4 bg-gray-900 text-white rounded-2xl font-black hover:bg-black disabled:opacity-50 transition-all active:scale-95 flex items-center gap-3 shadow-xl"
+                        className="px-8 py-3.5 bg-gray-900 text-white rounded-xl font-bold hover:bg-black disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 text-sm"
                       >
-                        {scraping ? <Loader2 size={24} className="animate-spin" /> : <Search size={24} />}
+                        {scraping ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
                         Scrape
                       </button>
                     </div>
                   </div>
                   {(form.productName || form.productDescription) && (
-                    <div className="p-8 bg-brand-50/50 border border-brand-100 rounded-3xl space-y-6">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
-                        <span className="text-[10px] font-black text-brand-600 uppercase tracking-widest">AI Extracted Data</span>
+                    <div className="p-6 bg-brand-50/30 border border-brand-100/50 rounded-2xl space-y-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
+                        <span className="text-[9px] font-black text-brand-600 uppercase tracking-widest">AI Extracted Data</span>
                       </div>
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                          <input 
                            type="text" 
                            value={form.productName} 
                            onChange={(e) => updateField("productName", e.target.value)}
-                           className="w-full bg-white px-6 py-4 rounded-2xl border border-brand-100 text-lg font-black text-gray-900 shadow-sm outline-none focus:ring-2 focus:ring-brand-500/20" 
+                           className="w-full bg-white px-5 py-3.5 rounded-xl border border-brand-100/50 text-base font-black text-gray-900 outline-none focus:ring-2 focus:ring-brand-500/5 transition-all" 
                            placeholder="Product Name"
                          />
                          <textarea 
                            value={form.productDescription} 
                            onChange={(e) => updateField("productDescription", e.target.value)}
-                           rows={4} 
-                           className="w-full bg-white px-6 py-4 rounded-2xl border border-brand-100 text-gray-700 font-medium shadow-sm outline-none focus:ring-2 focus:ring-brand-500/20" 
+                           rows={3} 
+                           className="w-full bg-white px-5 py-3.5 rounded-xl border border-brand-100/50 text-sm text-gray-600 font-medium outline-none focus:ring-2 focus:ring-brand-500/5 transition-all resize-none" 
                            placeholder="Product Description"
                          />
                       </div>
@@ -388,50 +388,50 @@ export default function NewProjectPage() {
                   )}
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-5">
                   <div>
-                    <label className="block text-sm font-black text-gray-800 uppercase tracking-widest mb-3">Project Title</label>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2.5">Project Title</label>
                     <input
                       type="text"
                       value={form.name}
                       onChange={(e) => updateField("name", e.target.value)}
-                      className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-4 focus:ring-brand-500/20 outline-none text-lg font-black shadow-inner"
+                      className="w-full px-5 py-3.5 rounded-xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:ring-4 focus:ring-brand-500/5 focus:border-brand-200 outline-none text-base font-black transition-all"
                       placeholder="My Professional Agency"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-black text-gray-800 uppercase tracking-widest mb-3">Service Name</label>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2.5">Service Name</label>
                     <input
                       type="text"
                       value={form.productName}
                       onChange={(e) => updateField("productName", e.target.value)}
-                      className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-4 focus:ring-brand-500/20 outline-none text-lg font-black shadow-inner"
+                      className="w-full px-5 py-3.5 rounded-xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:ring-4 focus:ring-brand-500/5 focus:border-brand-200 outline-none text-base font-black transition-all"
                       placeholder="e.g. Acme Marketing"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-black text-gray-800 uppercase tracking-widest mb-3">Full Business Description</label>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2.5">Full Business Description</label>
                     <textarea
                       value={form.productDescription}
                       onChange={(e) => updateField("productDescription", e.target.value)}
-                      rows={6}
-                      className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-4 focus:ring-brand-500/20 outline-none text-lg font-medium shadow-inner"
+                      rows={5}
+                      className="w-full px-5 py-3.5 rounded-xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:ring-4 focus:ring-brand-500/5 focus:border-brand-200 outline-none text-base font-medium transition-all resize-none"
                       placeholder="Be as detailed as possible. The AI uses this to write all 5 pages..."
                     />
                   </div>
                 </div>
               )}
-
-              <div className="flex justify-between pt-10 border-t border-gray-50">
-                <button onClick={() => setStep(1)} className="flex items-center gap-2 px-8 py-4 text-gray-500 font-black hover:text-gray-900 transition-colors uppercase tracking-widest text-xs">
-                  <ArrowLeft size={18} /> Back
+ 
+              <div className="flex justify-between items-center pt-8 border-t border-gray-50">
+                <button onClick={() => setStep(1)} className="flex items-center gap-2 px-6 py-3 text-gray-400 font-black hover:text-gray-900 transition-colors uppercase tracking-[0.2em] text-[10px]">
+                  <ArrowLeft size={16} /> Back
                 </button>
                 <button 
                   onClick={() => setStep(3)} 
                   disabled={!form.productName || !form.productDescription}
-                  className="px-10 py-5 bg-brand-600 text-white rounded-2xl font-black hover:bg-brand-700 disabled:opacity-50 transition-all active:scale-95 flex items-center gap-3 shadow-xl shadow-brand-200"
+                  className="px-10 py-3.5 bg-brand-600 text-white rounded-xl font-black hover:bg-brand-700 disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 shadow-lg shadow-brand-500/10 text-sm"
                 >
-                  Continue <ArrowRight size={20} />
+                  Continue <ArrowRight size={18} />
                 </button>
               </div>
             </div>
