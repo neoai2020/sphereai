@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
 
 const FEATURE_CONFIG: Record<string, { title: string, icon: any, color: string }> = {
   "10x": { title: "10X Power Tool", icon: Zap, color: "text-indigo-600" },
@@ -18,12 +17,17 @@ const FEATURE_CONFIG: Record<string, { title: string, icon: any, color: string }
 function ActivateContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [code, setCode] = useState(searchParams.get("code") || "");
+  const [code, setCode] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [featureActivated, setFeatureActivated] = useState<string | null>(null);
+
+  useEffect(() => {
+    const c = searchParams.get("code");
+    if (c) setCode(c);
+  }, [searchParams]);
 
   const handleActivate = async (e: React.FormEvent) => {
     e.preventDefault();
