@@ -113,9 +113,12 @@ export function Sidebar() {
                 <div className="absolute inset-0 bg-gradient-to-tr from-brand-400/5 via-transparent to-amber-400/5 animate-pulse pointer-events-none" />
               )}
               {section.items.map((item) => {
-                const isActive =
-                  pathname === item.href ||
-                  (item.href !== "/dashboard" && pathname.startsWith(item.href));
+                const isActive = 
+                  pathname === item.href || 
+                  (item.href !== "/dashboard" && 
+                   pathname.startsWith(item.href + "/") && 
+                   !(item.href === "/dashboard/projects" && pathname.startsWith("/dashboard/projects/new")));
+                
                 return (
                   <Link
                     key={item.href}
