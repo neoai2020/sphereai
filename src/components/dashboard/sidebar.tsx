@@ -32,8 +32,8 @@ const navSections = [
   {
     title: "Resources",
     items: [
-      { href: "/dashboard/support", label: "Support", icon: MessagesSquare },
       { href: "/dashboard/training", label: "Training", icon: GraduationCap },
+      { href: "/dashboard/support", label: "Support", icon: MessagesSquare },
     ],
   },
   {
