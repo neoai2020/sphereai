@@ -12,12 +12,12 @@ export default function SignUpProPage() {
             <div className="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center">
               <span className="text-white font-bold text-lg">S</span>
             </div>
-            <span className="text-2xl font-bold text-gray-900">SphereAI Pro</span>
+            <span className="text-2xl font-bold text-gray-900">SphereAI</span>
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Create your Pro account</h1>
-          <p className="text-gray-500 mt-1">Start generating AI-optimized pages at scale</p>
+          <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
+          <p className="text-gray-500 mt-1">Start generating AI-optimized pages</p>
         </div>
-        <RegisterForm />
+        <RegisterForm plan="pro" />
       </div>
     </div>
   );
