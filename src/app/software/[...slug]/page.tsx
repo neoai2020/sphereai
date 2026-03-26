@@ -2,6 +2,8 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { LandingRenderer } from "@/components/pages/landing-renderer";
+
+export const dynamic = "force-dynamic";
 import { AboutRenderer } from "@/components/pages/about-renderer";
 import { FAQRenderer } from "@/components/pages/faq-renderer";
 import { BlogRenderer } from "@/components/pages/blog-renderer";
@@ -74,19 +76,25 @@ export default async function SoftwarePage({ params }: Props) {
     .or(`id.eq.${projectIdOrSlug},slug.eq.${projectIdOrSlug}`)
     .single();
 
-  if (!project) notFound();
+  if (!project) {
+    console.error("Project not found for slug:", projectIdOrSlug);
+    notFound();
+  }
 
   const activePageType = (pageType || "landing") as PageType;
 
-  const { data: page } = await supabase
+  // Try to find the page, even if not explicitly marked as published
+  const { data: page, error: pageErr } = await supabase
     .from("pages")
     .select("*")
     .eq("project_id", project.id)
     .eq("page_type", activePageType)
-    .eq("is_published", true)
     .single();
 
-  if (!page) notFound();
+  if (pageErr || !page) {
+    console.error("Page not found for project:", project.id, "type:", activePageType, "error:", pageErr);
+    notFound();
+  }
 
   const content = page.content as Record<string, unknown>;
 

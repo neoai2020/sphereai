@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { LandingRenderer } from "@/components/pages/landing-renderer";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
@@ -48,17 +50,22 @@ export default async function LandingPage({ params }: Props) {
     .eq("slug", slug)
     .single();
 
-  if (!project) notFound();
+  if (!project) {
+    console.error("s/ Project not found for slug:", slug);
+    notFound();
+  }
 
-  const { data: page } = await supabase
+  const { data: page, error: pageErr } = await supabase
     .from("pages")
     .select("*")
     .eq("project_id", project.id)
     .eq("page_type", "landing")
-    .eq("is_published", true)
     .single();
 
-  if (!page) notFound();
+  if (pageErr || !page) {
+    console.error("s/ Page not found for project:", project.id, "error:", pageErr);
+    notFound();
+  }
 
   return (
     <>
