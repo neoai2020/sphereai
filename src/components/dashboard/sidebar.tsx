@@ -11,7 +11,7 @@ import {
   Settings,
   LogOut,
   Globe,
-  Magnet,
+
   Rocket,
   Wrench,
   Infinity,
@@ -26,15 +26,10 @@ const navSections = [
     items: [
       { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { href: "/dashboard/projects", label: "Asset Vault", icon: FolderOpen },
-      { href: "/dashboard/projects/new", label: "New Project", icon: Plus },
+      { href: "/dashboard/projects/new", label: "Site Forge", icon: Plus },
     ],
   },
-  {
-    title: "Tools",
-    items: [
-      { href: "/dashboard/traffic-magnet", label: "Traffic Magnet", icon: Magnet },
-    ],
-  },
+
   {
     title: "Premium",
     items: [

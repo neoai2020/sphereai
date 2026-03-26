@@ -124,6 +124,27 @@ export async function POST(request: NextRequest) {
 
         results.push({ pageType: type, success: true });
       } catch (err) {
+        // Insert a minimal fallback page so the URL doesn't 404
+        try {
+          const fallbackContent = buildFallbackContent(type, productInfo);
+          await supabase
+            .from("pages")
+            .upsert(
+              {
+                project_id: projectId,
+                page_type: type,
+                title: `${productInfo.productName} - ${type}`,
+                meta_description: productInfo.productDescription.slice(0, 155),
+                content: fallbackContent,
+                slug: type === "landing" ? "" : type,
+                is_published: true,
+                schema_markup: {},
+              },
+              { onConflict: "project_id,page_type", ignoreDuplicates: false }
+            );
+        } catch (fallbackErr) {
+          console.error(`Fallback insert for ${type} also failed:`, fallbackErr);
+        }
         results.push({
           pageType: type,
           success: false,
@@ -133,9 +154,9 @@ export async function POST(request: NextRequest) {
     }
 
     const isLastOne = pageType ? PAGE_TYPES.indexOf(pageType as PageType) === PAGE_TYPES.length - 1 : true;
-    const allProcessed = results.every(r => r.success);
 
-    if (allProcessed && isLastOne) {
+    // Always mark as published (partial is better than stuck at "generating")
+    if (isLastOne) {
        await Promise.all([
         supabase.from("generations").insert({
           user_id: user.id,
@@ -148,6 +169,8 @@ export async function POST(request: NextRequest) {
       ]);
     }
 
+    const allProcessed = results.every(r => r.success);
+
     return NextResponse.json({ results, status: allProcessed ? "published" : "partial" });
   } catch (err) {
     return NextResponse.json(
@@ -155,4 +178,56 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+function buildFallbackContent(
+  type: PageType,
+  product: { productName: string; productDescription: string; productUrl: string | null; keywords: string[]; targetAudience: string }
+): Record<string, unknown> {
+  const fallbacks: Record<PageType, Record<string, unknown>> = {
+    landing: {
+      hero: {
+        headline: product.productName,
+        subheadline: product.productDescription.slice(0, 200),
+        ctaText: "Get Started",
+      },
+      features: [{ title: "Coming Soon", description: "Full content is being generated.", icon: "sparkles" }],
+      benefits: [{ title: "Quality Content", description: "AI-optimized pages are on their way." }],
+      socialProof: { headline: "Trusted Solution", stats: [{ value: "AI", label: "Powered" }] },
+      cta: { headline: "Get Started Today", description: "Check back soon for the full experience.", buttonText: "Learn More" },
+    },
+    about: {
+      story: { headline: `About ${product.productName}`, paragraphs: [product.productDescription] },
+      mission: { headline: "Our Mission", text: `Providing the best ${product.productName} experience.` },
+      values: [{ title: "Quality", description: "We deliver excellence." }],
+      team: { headline: "Our Team", description: "Passionate experts behind the product." },
+    },
+    faq: {
+      headline: "Frequently Asked Questions",
+      description: `Common questions about ${product.productName}.`,
+      faqs: [
+        { question: `What is ${product.productName}?`, answer: product.productDescription },
+        { question: "How do I get started?", answer: "Visit our website to learn more and sign up." },
+      ],
+    },
+    blog: {
+      headline: `Everything You Need to Know About ${product.productName}`,
+      author: "SphereAI Team",
+      publishDate: new Date().toISOString().split("T")[0],
+      readTime: "3 min read",
+      introduction: product.productDescription,
+      sections: [{ heading: "Overview", paragraphs: [product.productDescription], bulletPoints: [] }],
+      conclusion: "Stay tuned for more updates.",
+    },
+    reviews: {
+      headline: "Customer Reviews",
+      description: `See what people say about ${product.productName}.`,
+      overallRating: 4.5,
+      totalReviews: 0,
+      reviews: [],
+      summary: { headline: "Growing Community", text: "Reviews are being collected." },
+    },
+  };
+
+  return fallbacks[type] || {};
 }

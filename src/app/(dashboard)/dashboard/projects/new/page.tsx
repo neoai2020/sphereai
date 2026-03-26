@@ -17,7 +17,7 @@ import {
   Play,
   Zap,
   Globe,
-  Target,
+
   ChevronRight
 } from "lucide-react";
 import type { PageType } from "@/types/database";
@@ -49,8 +49,16 @@ export default function NewProjectPage() {
     productDescription: "",
     productUrl: "",
     keywords: "",
-    targetAudience: "",
   });
+
+  // Auto-trigger SEO suggestion when entering step 3
+  const [seoTriggered, setSeoTriggered] = useState(false);
+  useEffect(() => {
+    if (step === 3 && !seoTriggered && form.productName && form.productDescription) {
+      setSeoTriggered(true);
+      suggestSEO();
+    }
+  }, [step]);
 
   useEffect(() => {
     fetchRemaining();
@@ -122,7 +130,6 @@ export default function NewProjectPage() {
         setForm(prev => ({
           ...prev,
           keywords: data.keywords.join(", "),
-          targetAudience: data.targetAudience
         }));
       } else {
         setError(data.error || "AI Suggestion failed.");
@@ -168,7 +175,7 @@ export default function NewProjectPage() {
             .split(",")
             .map((k) => k.trim())
             .filter(Boolean),
-          target_audience: form.targetAudience,
+          target_audience: "",
           status: "draft",
         })
         .select()
@@ -434,52 +441,54 @@ export default function NewProjectPage() {
           {step === 3 && (
             <div className="space-y-10">
               <div className="text-center">
-                <h2 className="text-3xl font-black text-gray-900 mb-2">Authority Planning</h2>
-                <p className="text-gray-500 font-medium">Fine-tune how AI search engines will find you.</p>
+                <h2 className="text-3xl font-black text-gray-900 mb-2">Plan with Site Forge</h2>
+                <p className="text-gray-500 font-medium">SiteForge AI is planning your SEO strategy.</p>
               </div>
 
-              <div className="flex flex-col items-center mb-4">
-                <button
-                   onClick={suggestSEO}
-                   disabled={loading}
-                   className="group relative flex items-center gap-3 px-10 py-5 rounded-2xl bg-gradient-to-r from-brand-600 to-indigo-600 text-white font-black shadow-2xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
-                >
-                  {loading ? <Loader2 size={24} className="animate-spin" /> : <Sparkles size={24} className="text-brand-300" />}
-                  Plan with SiteForge AI
-                  <div className="absolute inset-x-0 -bottom-1 h-1 bg-brand-900/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
-                </button>
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-4">Highly Recommended for AI SEO</p>
-              </div>
-
-              <div className="grid grid-cols-1 gap-8">
-                <div className="relative group">
-                  <label className="flex items-center gap-2 text-sm font-black text-gray-800 uppercase tracking-widest mb-3">
-                    <Globe size={16} className="text-brand-600" /> SEO Keywords
-                  </label>
+              {loading ? (
+                <div className="flex flex-col items-center py-10 gap-4">
                   <div className="relative">
-                    <input
-                      type="text"
-                      value={form.keywords}
-                      onChange={(e) => updateField("keywords", e.target.value)}
-                      className="w-full px-6 py-5 rounded-2xl bg-gray-50 border-none focus:ring-4 focus:ring-brand-500/20 outline-none text-lg font-bold shadow-inner"
-                      placeholder="AI, automation, productivity..."
-                    />
-                    <div className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-300 font-black text-[10px] uppercase tracking-tighter">comma separated</div>
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-r from-brand-600 to-indigo-600 flex items-center justify-center shadow-2xl animate-pulse">
+                      <Sparkles size={32} className="text-white" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-brand-600 font-black text-lg">
+                    <Loader2 className="animate-spin" size={20} />
+                    Planning with SiteForge AI...
+                  </div>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Analyzing your product for optimal SEO keywords</p>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  <div className="flex flex-col items-center mb-4">
+                    <button
+                       onClick={suggestSEO}
+                       disabled={loading}
+                       className="group relative flex items-center gap-3 px-10 py-5 rounded-2xl bg-gradient-to-r from-brand-600 to-indigo-600 text-white font-black shadow-2xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                    >
+                      <Sparkles size={24} className="text-brand-300" />
+                      Re-generate Keywords
+                      <div className="absolute inset-x-0 -bottom-1 h-1 bg-brand-900/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                  </div>
+
+                  <div className="relative group">
+                    <label className="flex items-center gap-2 text-sm font-black text-gray-800 uppercase tracking-widest mb-3">
+                      <Globe size={16} className="text-brand-600" /> SEO Keywords
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={form.keywords}
+                        onChange={(e) => updateField("keywords", e.target.value)}
+                        className="w-full px-6 py-5 rounded-2xl bg-gray-50 border-none focus:ring-4 focus:ring-brand-500/20 outline-none text-lg font-bold shadow-inner"
+                        placeholder="AI, automation, productivity..."
+                      />
+                      <div className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-300 font-black text-[10px] uppercase tracking-tighter">comma separated</div>
+                    </div>
                   </div>
                 </div>
-                <div className="relative group">
-                  <label className="flex items-center gap-2 text-sm font-black text-gray-800 uppercase tracking-widest mb-3">
-                    <Target size={16} className="text-brand-600" /> Target Audience Profile
-                  </label>
-                  <textarea
-                    value={form.targetAudience}
-                    onChange={(e) => updateField("targetAudience", e.target.value)}
-                    rows={5}
-                    className="w-full px-6 py-5 rounded-2xl bg-gray-50 border-none focus:ring-4 focus:ring-brand-500/20 outline-none text-lg font-medium shadow-inner"
-                    placeholder="Describe exactly who this is for. Pain points, desires, demographics..."
-                  />
-                </div>
-              </div>
+              )}
 
               <div className="flex justify-between pt-10 border-t border-gray-50">
                 <button onClick={() => setStep(2)} className="flex items-center gap-2 px-8 py-4 text-gray-500 font-black hover:text-gray-900 transition-colors uppercase tracking-widest text-xs">
@@ -487,7 +496,7 @@ export default function NewProjectPage() {
                 </button>
                 <button 
                   onClick={() => setStep(4)} 
-                  disabled={!form.keywords || !form.targetAudience}
+                  disabled={!form.keywords}
                   className="px-10 py-5 bg-brand-600 text-white rounded-2xl font-black hover:bg-brand-700 disabled:opacity-50 transition-all active:scale-95 flex items-center gap-3 shadow-xl shadow-brand-200"
                 >
                   Next Step <ArrowRight size={20} />

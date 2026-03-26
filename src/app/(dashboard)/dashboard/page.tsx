@@ -63,7 +63,7 @@ export default async function DashboardPage() {
             className="group flex items-center gap-2 px-8 py-4 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-bold transition-all shadow-xl shadow-brand-200 hover:-translate-y-1 active:scale-95"
           >
             <Plus size={20} className="group-hover:rotate-90 transition-transform" />
-            New Project
+             Site Forge
           </Link>
         </div>
       </div>
@@ -217,9 +217,8 @@ export default async function DashboardPage() {
               </h2>
               <div className="grid grid-cols-1 gap-3">
                 {[
-                  { label: "New Project", href: "/dashboard/projects/new", icon: Plus, color: "brand" },
-                  { label: "Traffic Magnet", href: "/dashboard/traffic-magnet", icon: Search, color: "purple" },
-                  { label: "Training Center", href: "/dashboard/training", icon: Play, color: "orange" },
+                   { label: "Site Forge", href: "/dashboard/projects/new", icon: Plus, color: "brand" },
+                   { label: "Training Center", href: "/dashboard/training", icon: Play, color: "orange" },
                   { label: "Contact Support", href: "/dashboard/support", icon: MessageSquare, color: "green" },
                 ].map((action, i) => (
                   <Link 

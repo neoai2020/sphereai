@@ -31,7 +31,7 @@ export default async function ProjectsPage() {
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium transition-colors"
         >
           <Plus size={18} />
-          New Project
+          Site Forge
         </Link>
       </div>
 
@@ -48,7 +48,7 @@ export default async function ProjectsPage() {
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium transition-colors"
           >
             <Plus size={18} />
-            Create Project
+            Create with Site Forge
           </Link>
         </div>
       ) : (

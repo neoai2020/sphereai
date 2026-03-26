@@ -7,31 +7,49 @@ interface AIResponse {
   status: boolean;
 }
 
-async function callAI(prompt: string): Promise<string> {
-  const response = await fetch(RAPIDAPI_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-rapidapi-host": "chatgpt-42.p.rapidapi.com",
-      "x-rapidapi-key": process.env.RAPIDAPI_KEY!,
-    },
-    body: JSON.stringify({
-      messages: [{ role: "user", content: prompt }],
-      system_prompt: "",
-      temperature: 0.7,
-      top_k: 5,
-      top_p: 0.9,
-      max_tokens: 3000,
-      web_access: false,
-    }),
-  });
+async function callAI(prompt: string, retries = 1): Promise<string> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 60000); // 60s timeout
 
-  if (!response.ok) {
-    throw new Error(`RapidAPI error: ${response.status} ${response.statusText}`);
+      const response = await fetch(RAPIDAPI_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-rapidapi-host": "chatgpt-42.p.rapidapi.com",
+          "x-rapidapi-key": process.env.RAPIDAPI_KEY!,
+        },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: prompt }],
+          system_prompt: "",
+          temperature: 0.7,
+          top_k: 5,
+          top_p: 0.9,
+          max_tokens: 3000,
+          web_access: false,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        throw new Error(`RapidAPI error: ${response.status} ${response.statusText}`);
+      }
+
+      const data: AIResponse = await response.json();
+      if (!data.result) throw new Error("Empty AI response");
+      return data.result;
+    } catch (err) {
+      if (attempt < retries) {
+        console.warn(`AI call attempt ${attempt + 1} failed, retrying...`, err);
+        continue;
+      }
+      throw err;
+    }
   }
-
-  const data: AIResponse = await response.json();
-  return data.result;
+  throw new Error("AI call failed after all retries");
 }
 
 function extractJSON(text: string): Record<string, unknown> {

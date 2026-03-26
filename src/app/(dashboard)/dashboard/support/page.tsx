@@ -19,7 +19,7 @@ export default function SupportPage() {
   const faqs = [
     {
       question: "How do I create my first project?",
-      answer: "Go to the 'New Project' tab, enter your product details or an affiliate link, and click generate. SphereAI will create 5 optimized pages for you.",
+      answer: "Go to the 'Site Forge' tab, enter your product details or an affiliate link, and click generate. SphereAI will create 5 optimized pages for you.",
     },
     {
       question: "What is AI Search Optimization?",
