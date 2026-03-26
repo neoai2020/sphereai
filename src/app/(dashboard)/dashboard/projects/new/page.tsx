@@ -300,31 +300,31 @@ export default function NewProjectPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <button
                   onClick={() => { updateField("projectType", "affiliate"); setStep(2); }}
-                  className={`group p-8 rounded-3xl border-2 text-left transition-all hover:-translate-y-1 ${
-                    form.projectType === "affiliate" ? "border-brand-600 bg-brand-50 shadow-xl shadow-brand-100" : "border-gray-50 bg-gray-50/50 hover:border-brand-200 hover:bg-white"
+                  className={`group p-6 rounded-2xl border text-left transition-all hover:bg-white ${
+                    form.projectType === "affiliate" ? "border-brand-500 bg-brand-50/50 shadow-sm shadow-brand-500/10" : "border-gray-100 bg-white hover:border-brand-200"
                   }`}
                 >
-                  <div className="w-16 h-16 rounded-2xl bg-brand-100 flex items-center justify-center mb-6 shadow-brand-100/50 group-hover:scale-110 transition-transform">
-                    <LinkIcon className="text-brand-600" size={32} />
+                  <div className="w-12 h-12 rounded-xl bg-brand-100 flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+                    <LinkIcon className="text-brand-600" size={24} />
                   </div>
-                  <h3 className="text-xl font-black text-gray-900 mb-2 flex items-center justify-between">
-                    Affiliate Empire <ChevronRight size={18} className="opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1" />
+                  <h3 className="text-lg font-black text-gray-900 mb-1.5 flex items-center justify-between">
+                    Affiliate Empire <ChevronRight size={16} className="text-brand-500 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1" />
                   </h3>
-                  <p className="text-sm text-gray-500 font-bold leading-relaxed">I have a product link (e.g. Amazon, ClickBank) and want an optimized promotional engine.</p>
+                  <p className="text-xs text-gray-500 font-medium leading-relaxed">I have a product link (e.g. Amazon, ClickBank) and want an optimized promotional engine.</p>
                 </button>
                 <button
                   onClick={() => { updateField("projectType", "service"); setStep(2); }}
-                  className={`group p-8 rounded-3xl border-2 text-left transition-all hover:-translate-y-1 ${
-                    form.projectType === "service" ? "border-purple-600 bg-purple-50 shadow-xl shadow-purple-100" : "border-gray-50 bg-gray-50/50 hover:border-purple-200 hover:bg-white"
+                  className={`group p-6 rounded-2xl border text-left transition-all hover:bg-white ${
+                    form.projectType === "service" ? "border-purple-500 bg-purple-50/50 shadow-sm shadow-purple-500/10" : "border-gray-100 bg-white hover:border-purple-200"
                   }`}
                 >
-                  <div className="w-16 h-16 rounded-2xl bg-purple-100 flex items-center justify-center mb-6 shadow-purple-100/50 group-hover:scale-110 transition-transform">
-                    <Briefcase className="text-purple-600" size={32} />
+                  <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+                    <Briefcase className="text-purple-600" size={24} />
                   </div>
-                  <h3 className="text-xl font-black text-gray-900 mb-2 flex items-center justify-between">
-                    Agency / Soloist <ChevronRight size={18} className="opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1" />
+                  <h3 className="text-lg font-black text-gray-900 mb-1.5 flex items-center justify-between">
+                    Agency / Soloist <ChevronRight size={16} className="text-purple-500 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1" />
                   </h3>
-                  <p className="text-sm text-gray-500 font-bold leading-relaxed">I have a service and want description-based AI sites that convert like crazy.</p>
+                  <p className="text-xs text-gray-500 font-medium leading-relaxed">I have a service and want description-based AI sites that convert like crazy.</p>
                 </button>
               </div>
             </div>
