@@ -28,13 +28,6 @@ export default async function ProjectsPage() {
         </div>
         <div className="flex items-center gap-3">
           <Link
-            href="/dashboard/settings"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 text-gray-600 font-medium hover:bg-gray-50 transition-colors"
-          >
-            <Settings size={18} />
-            Manage Subscription
-          </Link>
-          <Link
             href="/dashboard/projects/new"
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium transition-colors"
           >

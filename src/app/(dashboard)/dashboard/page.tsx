@@ -120,7 +120,7 @@ export default async function DashboardPage() {
               <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-lg transition-all relative overflow-hidden group border-b-4 border-b-transparent hover:border-b-brand-500">
                 {stat.locked && (
                   <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center p-4">
-                    <Link href="/dashboard/settings" className="px-4 py-1.5 bg-brand-600 text-white text-[10px] font-black rounded-full uppercase tracking-widest shadow-xl hover:scale-105 transition-transform">Upgrade Now</Link>
+                    <span className="px-4 py-1.5 bg-brand-600 text-white text-[10px] font-black rounded-full uppercase tracking-widest shadow-xl cursor-default">Pro Feature</span>
                   </div>
                 )}
                 <div className="flex items-center justify-between mb-4">
@@ -279,7 +279,7 @@ export default async function DashboardPage() {
                           {item.value}
                         </span>
                         {item.locked && (
-                          <Link href="/dashboard/settings" className="text-[10px] font-black text-brand-600 hover:underline">UPGRADE</Link>
+                          <span className="text-[10px] font-black text-brand-600 cursor-default">PRO</span>
                         )}
                       </div>
                     </div>
