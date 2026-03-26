@@ -34,13 +34,6 @@ export default async function ProjectsPage() {
             <Settings size={18} />
             Manage Subscription
           </Link>
-          <Link
-            href="/dashboard/projects/new"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium transition-colors"
-          >
-            <Plus size={18} />
-            Site Forge
-          </Link>
         </div>
       </div>
 
@@ -57,7 +50,7 @@ export default async function ProjectsPage() {
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium transition-colors"
           >
             <Plus size={18} />
-            Create with Site Forge
+            Create Project
           </Link>
         </div>
       ) : (

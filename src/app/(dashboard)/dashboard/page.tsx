@@ -57,15 +57,7 @@ export default async function DashboardPage() {
             Your AI-optimized portfolio is growing. Here&apos;s your current status.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/dashboard/projects/new"
-            className="group flex items-center gap-2 px-8 py-4 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-bold transition-all shadow-xl shadow-brand-200 hover:-translate-y-1 active:scale-95"
-          >
-            <Plus size={20} className="group-hover:rotate-90 transition-transform" />
-             Site Forge
-          </Link>
-        </div>
+
       </div>
 
       <div className="grid lg:grid-cols-12 gap-10">
@@ -195,7 +187,6 @@ export default async function DashboardPage() {
               </h2>
               <div className="grid grid-cols-1 gap-3">
                 {[
-                   { label: "Site Forge", href: "/dashboard/projects/new", icon: Plus, color: "brand" },
                    { label: "Training Center", href: "/dashboard/training", icon: Play, color: "orange" },
                   { label: "Contact Support", href: "/dashboard/support", icon: MessageSquare, color: "green" },
                 ].map((action, i) => (
