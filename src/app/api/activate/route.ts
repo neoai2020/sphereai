@@ -17,16 +17,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing code or email" }, { status: 400 });
     }
 
-    // 1. Check if token is valid and not used
+    // 1. Check if token exists
     const { data: token, error: tokenErr } = await supabaseAdmin
       .from("access_tokens")
       .select("*")
-      .eq("code", code.toUpperCase())
-      .eq("is_used", false)
+      .eq("code", code.trim().toUpperCase())
       .single();
 
     if (tokenErr || !token) {
-      return NextResponse.json({ error: "Invalid or already used activation code." }, { status: 400 });
+      console.error("Token lookup error:", tokenErr);
+      return NextResponse.json({ error: "Invalid activation code. Please check for typos." }, { status: 400 });
+    }
+
+    if (token.is_used) {
+      return NextResponse.json({ error: "This code has already been used and cannot be reused." }, { status: 400 });
     }
 
     // 2. Check if user exists in profiles table
