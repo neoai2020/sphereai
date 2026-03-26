@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -43,7 +44,6 @@ const navSections = [
     items: [
       { href: "/dashboard/support", label: "Support", icon: HelpCircle },
       { href: "/dashboard/training", label: "Training", icon: GraduationCap },
-      { href: "/dashboard/settings", label: "Settings", icon: Settings },
     ],
   },
 ];
@@ -52,6 +52,16 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function getUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) setUserEmail(user.email ?? null);
+    }
+    getUser();
+  }, [supabase]);
+
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -102,7 +112,13 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-gray-100 shrink-0">
+      <div className="p-4 border-t border-gray-100 shrink-0 space-y-2">
+        {userEmail && (
+          <div className="px-3 py-1">
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Logged in as</p>
+            <p className="text-sm font-medium text-gray-900 truncate">{userEmail}</p>
+          </div>
+        )}
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors w-full"
