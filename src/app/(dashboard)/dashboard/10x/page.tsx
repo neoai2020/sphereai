@@ -22,11 +22,13 @@ import {
   Copy,
   Check
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PremiumOverlay } from "@/components/dashboard/premium-overlay";
+import { createClient } from "@/lib/supabase/client";
 
 export default function TenXPage() {
-  const [isSubscribed, setIsSubscribed] = useState(true);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [checkingAccess, setCheckingAccess] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [posts, setPosts] = useState<string[]>([]);
@@ -36,6 +38,28 @@ export default function TenXPage() {
     name: "",
     url: "",
   });
+
+  useEffect(() => {
+    async function checkAccess() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setCheckingAccess(false);
+        return;
+      }
+
+      const { data: sub } = await supabase
+        .from("user_subscriptions")
+        .select("has_10x")
+        .eq("user_id", user.id)
+        .single();
+      
+      const hasAccess = sub?.has_10x || user.user_metadata?.plan === 'infinite';
+      setIsSubscribed(hasAccess);
+      setCheckingAccess(false);
+    }
+    checkAccess();
+  }, []);
 
   const features = [
     {
@@ -128,6 +152,15 @@ export default function TenXPage() {
     setTimeout(() => setCopiedIndex(null), 2000);
   }
 
+  if (checkingAccess) {
+    return (
+      <div className="max-w-6xl mx-auto flex flex-col items-center justify-center py-40 gap-4">
+        <Loader2 className="animate-spin text-indigo-600" size={40} />
+        <p className="text-gray-400 font-black uppercase tracking-widest text-xs animate-pulse">Checking Permissions...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-20">
       
@@ -174,7 +207,8 @@ export default function TenXPage() {
           <PremiumOverlay 
             title="10X Mode Locked"
             description="Upgrade to the 10x plan to unlock unlimited Facebook post generation and advanced marketing tools."
-            onUpgrade={() => setIsSubscribed(true)}
+            buttonText="Activate My Access"
+            onUpgrade={() => window.location.href = "/activate"}
           />
         )}
         

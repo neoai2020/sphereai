@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sparkles, Filter, CheckCircle2, ChevronRight, Layout, Zap, Rocket, Lock, ArrowRight, ExternalLink } from "lucide-react";
+import { Sparkles, Filter, CheckCircle2, ChevronRight, Layout, Zap, Rocket, Lock, ArrowRight, ExternalLink, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { PremiumOverlay } from "@/components/dashboard/premium-overlay";
 import Link from "next/link";
 
 const TYPES = [
@@ -97,16 +98,31 @@ const ALL_SITES = Array.from({ length: 180 }).map((_, i) => {
 });
 
 export default function DFYPage() {
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [checkingAccess, setCheckingAccess] = useState(true);
   const [activeType, setActiveType] = useState<string>("All");
   const [visibleCount, setVisibleCount] = useState(12);
   const [claimedIds, setClaimedIds] = useState<Set<string>>(new Set());
   const [claiming, setClaiming] = useState<string | null>(null);
 
   useEffect(() => {
-    async function checkClaimed() {
+    async function checkAccess() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setCheckingAccess(false);
+        return;
+      }
+
+      const { data: sub } = await supabase
+        .from("user_subscriptions")
+        .select("has_dfy")
+        .eq("user_id", user.id)
+        .single();
+      
+      const hasAccess = sub?.has_dfy || user.user_metadata?.plan === 'infinite';
+      setIsSubscribed(hasAccess);
+      setCheckingAccess(false);
 
       const { data } = await supabase
         .from("projects")
@@ -114,12 +130,13 @@ export default function DFYPage() {
         .eq("user_id", user.id);
       
       if (data) {
-        const ids = new Set(data.map(p => p.slug.replace("dfy-", "dfy-key-")));
-        // This is a bit arbitrary, but we'll use slug to track if it's already claimed from DFY
-        // In a real app we'd have a specific column
+        setClaimedIds(new Set(data.map(p => {
+            const match = p.slug.match(/dfy-(dfy-\d+)-/);
+            return match ? match[1] : "";
+        }).filter(id => id)));
       }
     }
-    checkClaimed();
+    checkAccess();
   }, []);
 
   const filteredSites = activeType === "All" 
@@ -155,7 +172,7 @@ export default function DFYPage() {
       
       if (pError || !project) throw pError || new Error("Project creation failed");
 
-      // 2. Insert Landing Page (CRITICAL move to avoid 404)
+      // 2. Insert Landing Page
       const { error: pgError } = await supabase.from("pages").insert({
         project_id: project.id,
         title: site.name,
@@ -190,6 +207,15 @@ export default function DFYPage() {
     }
   };
 
+  if (checkingAccess) {
+    return (
+      <div className="max-w-7xl mx-auto flex flex-col items-center justify-center py-40 gap-4">
+        <Loader2 className="animate-spin text-indigo-600" size={40} />
+        <p className="text-gray-400 font-black uppercase tracking-widest text-xs animate-pulse">Syncing DFY Library...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto space-y-12 pb-20">
       {/* Header */}
@@ -207,112 +233,123 @@ export default function DFYPage() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-2 pb-4 border-b border-gray-100">
-        <button
-          onClick={() => { setActiveType("All"); setVisibleCount(12); }}
-          className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all ${
-            activeType === "All" 
-              ? "bg-gray-900 text-white shadow-xl scale-105" 
-              : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-100"
-          }`}
-        >
-          All Sites
-        </button>
-        {TYPES.map((type) => (
-          <button
-            key={type}
-            onClick={() => { setActiveType(type); setVisibleCount(12); }}
-            className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all ${
-              activeType === type 
-                ? `${TYPE_COLORS[type]} text-white shadow-xl scale-105` 
-                : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-100"
-            }`}
-          >
-            {type}
-          </button>
-        ))}
-      </div>
+      <div className="relative">
+        {!isSubscribed && (
+          <PremiumOverlay 
+            title="DFY Library Locked"
+            description="Unlock 180+ ready-to-launch websites with pre-written content, SEO optimization, and premium designs."
+            buttonText="Activate My Access"
+            onUpgrade={() => window.location.href = "/activate"}
+          />
+        )}
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {visibleSites.map((site) => {
-          const isClaimed = claimedIds.has(site.id);
-          return (
-            <div 
-              key={site.id} 
-              className="group relative bg-white rounded-[32px] border border-gray-100 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col"
+        <div className={`space-y-8 ${!isSubscribed ? 'opacity-30 blur-[4px] pointer-events-none' : ''}`}>
+          {/* Filters */}
+          <div className="flex flex-wrap gap-2 pb-4 border-b border-gray-100">
+            <button
+              onClick={() => { setActiveType("All"); setVisibleCount(12); }}
+              className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all ${
+                activeType === "All" 
+                  ? "bg-gray-900 text-white shadow-xl scale-105" 
+                  : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-100"
+              }`}
             >
-              {/* Image */}
-              <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
-                <img 
-                  src={site.image} 
-                  alt={site.name} 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute top-4 left-4">
-                  <span className={`px-4 py-1.5 rounded-full text-[10px] font-black text-white uppercase tracking-wider ${TYPE_COLORS[site.type]}`}>
-                    {site.type}
-                  </span>
-                </div>
-                {isClaimed && (
-                  <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-6 text-center">
-                    <div className="space-y-4">
-                      <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center mx-auto">
-                        <CheckCircle2 className="text-white" size={24} />
+              All Sites
+            </button>
+            {TYPES.map((type) => (
+              <button
+                key={type}
+                onClick={() => { setActiveType(type); setVisibleCount(12); }}
+                className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all ${
+                  activeType === type 
+                    ? `${TYPE_COLORS[type]} text-white shadow-xl scale-105` 
+                    : "bg-white text-gray-500 hover:bg-gray-50 border border-gray-100"
+                }`}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+
+          {/* Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {visibleSites.map((site) => {
+              const isClaimed = claimedIds.has(site.id);
+              return (
+                <div 
+                  key={site.id} 
+                  className="group relative bg-white rounded-[32px] border border-gray-100 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col"
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+                    <img 
+                      src={site.image} 
+                      alt={site.name} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    <div className="absolute top-4 left-4">
+                      <span className={`px-4 py-1.5 rounded-full text-[10px] font-black text-white uppercase tracking-wider ${TYPE_COLORS[site.type]}`}>
+                        {site.type}
+                      </span>
+                    </div>
+                    {isClaimed && (
+                      <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-6 text-center">
+                        <div className="space-y-4">
+                          <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center mx-auto">
+                            <CheckCircle2 className="text-white" size={24} />
+                          </div>
+                          <p className="text-white font-black text-xl">Already Claimed</p>
+                          <Link href="/dashboard/projects" className="inline-flex items-center gap-2 text-white/80 hover:text-white font-bold text-sm">
+                            View in Asset Vault <ChevronRight size={16} />
+                          </Link>
+                        </div>
                       </div>
-                      <p className="text-white font-black text-xl">Already Claimed</p>
-                      <Link href="/dashboard/projects" className="inline-flex items-center gap-2 text-white/80 hover:text-white font-bold text-sm">
-                        View in Asset Vault <ChevronRight size={16} />
-                      </Link>
+                    )}
+                  </div>
+
+                  <div className="p-6 flex flex-col flex-1 gap-4">
+                    <div className="space-y-1">
+                      <h3 className="font-bold text-gray-900 text-lg line-clamp-1">{site.name}</h3>
+                      <p className="text-xs text-indigo-600 font-black uppercase tracking-widest">{site.niche}</p>
+                    </div>
+                    <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">
+                      {site.description}
+                    </p>
+                    
+                    <div className="pt-4 mt-auto flex items-center justify-between border-t border-gray-50">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] text-gray-400 font-black uppercase tracking-tighter">Content</span>
+                        <span className="text-sm font-black text-gray-900">{site.posts} Posts</span>
+                      </div>
+                      {!isClaimed && (
+                        <button
+                          onClick={() => handleClaim(site)}
+                          disabled={claiming === site.id}
+                          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gray-900 hover:bg-indigo-600 text-white text-sm font-bold transition-all disabled:opacity-50"
+                        >
+                          {claiming === site.id ? "Claiming..." : "Claim Now"}
+                          <ArrowRight size={16} />
+                        </button>
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              );
+            })}
+          </div>
 
-              {/* Content */}
-              <div className="p-6 flex flex-col flex-1 gap-4">
-                <div className="space-y-1">
-                  <h3 className="font-bold text-gray-900 text-lg line-clamp-1">{site.name}</h3>
-                  <p className="text-xs text-indigo-600 font-black uppercase tracking-widest">{site.niche}</p>
-                </div>
-                <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">
-                  {site.description}
-                </p>
-                
-                <div className="pt-4 mt-auto flex items-center justify-between border-t border-gray-50">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] text-gray-400 font-black uppercase tracking-tighter">Content</span>
-                    <span className="text-sm font-black text-gray-900">{site.posts} Posts</span>
-                  </div>
-                  {!isClaimed && (
-                    <button
-                      onClick={() => handleClaim(site)}
-                      disabled={claiming === site.id}
-                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gray-900 hover:bg-indigo-600 text-white text-sm font-bold transition-all disabled:opacity-50"
-                    >
-                      {claiming === site.id ? "Claiming..." : "Claim Now"}
-                      <ArrowRight size={16} />
-                    </button>
-                  )}
-                </div>
-              </div>
+          {/* Load More */}
+          {visibleSites.length < filteredSites.length && (
+            <div className="text-center pt-8">
+              <button
+                onClick={() => setVisibleCount(p => p + 12)}
+                className="px-10 py-4 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 text-gray-900 font-bold transition-all hover:scale-105 shadow-sm"
+              >
+                Load More Websites
+              </button>
             </div>
-          );
-        })}
-      </div>
-
-      {/* Load More */}
-      {visibleSites.length < filteredSites.length && (
-        <div className="text-center pt-8">
-          <button
-            onClick={() => setVisibleCount(p => p + 12)}
-            className="px-10 py-4 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 text-gray-900 font-bold transition-all hover:scale-105 shadow-sm"
-          >
-            Load More Websites
-          </button>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Features Bottom */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-20 border-t border-gray-100">
@@ -327,7 +364,7 @@ export default function DFYPage() {
             </div>
             <div className="space-y-1">
               <h4 className="font-black text-gray-900">{feat.title}</h4>
-              <p className="text-gray-500 mt-1">Generate high-value forum replies that drive traffic to your assets in the Vault.</p>
+              <p className="text-gray-500 mt-1">Ready-to-use assets optimized for high performance across all devices.</p>
             </div>
           </div>
         ))}

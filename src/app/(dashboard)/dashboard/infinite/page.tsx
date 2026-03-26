@@ -33,16 +33,15 @@ export default function InfinitePage() {
       // Check if user has infinite plan access
       const { data: sub } = await supabase
         .from("user_subscriptions")
-        .select("plan")
+        .select("has_infinite") // Changed from "plan"
         .eq("user_id", user.id)
         .single();
       
-      const userPlan = sub?.plan || user.user_metadata?.plan || null;
-      const infiniteAccess = userPlan === "infinite" || userPlan === "pro" || userPlan === "enterprise";
-      setHasAccess(infiniteAccess);
+      const accessGranted = sub?.has_infinite || user.user_metadata?.plan === 'infinite';
+      setHasAccess(accessGranted);
       setCheckingAccess(false);
 
-      if (infiniteAccess) {
+      if (accessGranted) {
         const { data } = await supabase
           .from("projects")
           .select("*")

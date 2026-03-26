@@ -52,12 +52,11 @@ export default function AutomationPage() {
 
       const { data: sub } = await supabase
         .from("user_subscriptions")
-        .select("plan")
+        .select("has_automation")
         .eq("user_id", user.id)
         .single();
       
-      const userPlan = sub?.plan || user.user_metadata?.plan || null;
-      const hasAccess = ["pro", "infinite", "enterprise"].includes(userPlan);
+      const hasAccess = sub?.has_automation || user.user_metadata?.plan === 'infinite';
       setIsSubscribed(hasAccess);
       setCheckingAccess(false);
     }
