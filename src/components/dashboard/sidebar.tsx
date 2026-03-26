@@ -106,9 +106,12 @@ export function Sidebar() {
             </div>
             
             <div className={cn(
-              "space-y-1",
-              section.isPremium && "p-2 rounded-2xl bg-gradient-to-b from-brand-50/50 to-amber-50/30 border border-brand-100/50"
+              "space-y-1 relative",
+              section.isPremium && "p-2 rounded-2xl bg-gradient-to-b from-brand-50 to-amber-50/50 border border-brand-100 shadow-[0_0_20px_rgba(79,70,229,0.1)] overflow-hidden"
             )}>
+              {section.isPremium && (
+                <div className="absolute inset-0 bg-gradient-to-tr from-brand-400/5 via-transparent to-amber-400/5 animate-pulse pointer-events-none" />
+              )}
               {section.items.map((item) => {
                 const isActive =
                   pathname === item.href ||
