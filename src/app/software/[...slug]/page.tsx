@@ -13,6 +13,7 @@ import type { PageType } from "@/types/database";
 
 interface Props {
   params: Promise<{ slug: string[] }>;
+  searchParams?: Promise<Record<string, string>>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -68,8 +69,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function SoftwarePage({ params }: Props) {
+export default async function SoftwarePage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const sp = searchParams ? await searchParams : {};
   if (!slug || slug.length < 2) notFound();
 
   const [username, projectIdOrSlug, pageType] = slug;
@@ -107,8 +109,13 @@ export default async function SoftwarePage({ params }: Props) {
   const content = page.content as Record<string, unknown>;
   const baseUrl = `/software/${username}/${projectIdOrSlug}`;
 
+  // URL param overrides for live customizer preview (prefixed with __)
+  const effectiveThemeId = sp.__theme || project.theme_id;
+  const effectiveColor = sp.__color ? decodeURIComponent(sp.__color) : project.primary_color;
+  const effectiveProductUrl = sp.__url ? decodeURIComponent(sp.__url) : project.product_url;
+
   return (
-    <WebsiteLayout project={project} activePath={`${baseUrl}/${pageType || ""}`}>
+    <WebsiteLayout project={{ ...project, theme_id: effectiveThemeId, primary_color: effectiveColor }} activePath={`${baseUrl}/${pageType || ""}`}>
       {/* AI Semantic Markup */}
       <script
         type="application/ld+json"
@@ -125,15 +132,15 @@ export default async function SoftwarePage({ params }: Props) {
           }),
         }}
       />
-      
+
       {activePageType === "landing" && (
         <LandingRenderer
           content={content as any}
-          productUrl={project.product_url}
+          productUrl={effectiveProductUrl}
           slug={project.slug}
           productName={project.product_name}
-          themeId={project.theme_id}
-          primaryColor={project.primary_color}
+          themeId={effectiveThemeId}
+          primaryColor={effectiveColor}
           heroImage={(project.custom_images as any)?.hero}
         />
       )}
@@ -142,32 +149,32 @@ export default async function SoftwarePage({ params }: Props) {
           content={content as any}
           productName={project.product_name}
           slug={project.slug}
-          themeId={project.theme_id}
-          primaryColor={project.primary_color}
+          themeId={effectiveThemeId}
+          primaryColor={effectiveColor}
         />
       )}
       {activePageType === "faq" && (
-        <FAQRenderer 
-          content={content as any} 
-          slug={project.slug} 
-          themeId={project.theme_id}
-          primaryColor={project.primary_color}
+        <FAQRenderer
+          content={content as any}
+          slug={project.slug}
+          themeId={effectiveThemeId}
+          primaryColor={effectiveColor}
         />
       )}
       {activePageType === "blog" && (
-        <BlogRenderer 
-          content={content as any} 
-          slug={project.slug} 
-          themeId={project.theme_id}
-          primaryColor={project.primary_color}
+        <BlogRenderer
+          content={content as any}
+          slug={project.slug}
+          themeId={effectiveThemeId}
+          primaryColor={effectiveColor}
         />
       )}
       {activePageType === "reviews" && (
-        <ReviewsRenderer 
-          content={content as any} 
-          slug={project.slug} 
-          themeId={project.theme_id}
-          primaryColor={project.primary_color}
+        <ReviewsRenderer
+          content={content as any}
+          slug={project.slug}
+          themeId={effectiveThemeId}
+          primaryColor={effectiveColor}
         />
       )}
     </WebsiteLayout>

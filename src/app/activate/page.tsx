@@ -117,7 +117,7 @@ function ActivateContent() {
                 </div>
               )}
 
-              <div className="space-y-8">
+              <div className="space-y-6">
                 <div className="space-y-2.5">
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Target Account Email</label>
                   <div className="relative group">
@@ -130,7 +130,7 @@ function ActivateContent() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="e.g. user@domain.com"
-                      className="w-full h-14 bg-gray-50/50 border border-gray-100 rounded-2xl pl-12 pr-6 text-gray-900 font-bold placeholder:text-gray-300 focus:bg-white focus:border-gray-950 focus:ring-4 focus:ring-gray-950/5 transition-all outline-none"
+                      className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-4 pl-12 pr-6 text-gray-900 font-bold placeholder:text-gray-300 focus:bg-white focus:border-gray-900 focus:ring-4 focus:ring-gray-950/5 transition-all outline-none"
                     />
                   </div>
                 </div>
@@ -147,7 +147,7 @@ function ActivateContent() {
                       value={code}
                       onChange={(e) => setCode(e.target.value)}
                       placeholder="XXXX-XXXX-XXXX"
-                      className="w-full h-14 bg-gray-50/50 border border-gray-100 rounded-2xl pl-12 pr-6 text-gray-900 font-bold placeholder:text-gray-300 focus:bg-white focus:border-gray-950 focus:ring-4 focus:ring-gray-950/5 transition-all outline-none uppercase tracking-[0.1em]"
+                      className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-4 pl-12 pr-6 text-gray-900 font-bold placeholder:text-gray-300 focus:bg-white focus:border-gray-900 focus:ring-4 focus:ring-gray-950/5 transition-all outline-none uppercase tracking-[0.1em]"
                     />
                   </div>
                 </div>
