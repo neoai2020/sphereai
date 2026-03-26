@@ -109,20 +109,15 @@ export default async function DashboardPage() {
           </div>
 
 
-          {/* 3. Statistics Panel */}
+          {/* 3. Software Statistics Panel */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
-              { icon: FolderOpen, label: "Asset Vault", value: totalProjects, color: "brand", trend: "+2 this week" },
-              { icon: Globe, label: "Published Pages", value: published, color: "green", trend: "Live & Active" },
-              { icon: BarChart3, label: "Generated Assets", value: totalPages, color: "purple", trend: "Optimized" },
-              { icon: Users, label: "AI Citations", value: "Locked", color: "orange", trend: "Pro feature", locked: true },
+              { icon: Users, label: "Platform Users", value: "3,842", color: "brand", trend: "+124 today" },
+              { icon: Zap, label: "Total Assets", value: "12,940", color: "purple", trend: "High Velocity" },
+              { icon: TrendingUp, label: "Revenue Impact", value: "$1.2M", color: "green", trend: "Network Total" },
+              { icon: Search, label: "AI Search Reach", value: "248k", color: "orange", trend: "Optimized" },
             ].map((stat, i) => (
               <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-lg transition-all relative overflow-hidden group border-b-4 border-b-transparent hover:border-b-brand-500">
-                {stat.locked && (
-                  <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center p-4">
-                    <span className="px-4 py-1.5 bg-brand-600 text-white text-[10px] font-black rounded-full uppercase tracking-widest shadow-xl cursor-default">Pro Feature</span>
-                  </div>
-                )}
                 <div className="flex items-center justify-between mb-4">
                   <div className={`w-12 h-12 rounded-xl bg-${stat.color}-50 flex items-center justify-center text-${stat.color}-600 group-hover:scale-110 transition-transform`}>
                     <stat.icon size={24} />
