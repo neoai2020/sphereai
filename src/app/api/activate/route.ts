@@ -23,6 +23,10 @@ export async function POST(request: Request) {
       "TRAFFIC-MODE-999": "automation",
       "INF-MODE-999": "infinite",
       "DFY-MODE-999": "dfy",
+      "AUTO-TRAFFIC-888": "automation",
+      "DFY-LIB-666": "dfy",
+      "INF-POWER-777": "infinite",
+      "10X-POWER-555": "10x",
     };
 
     const normalizedCode = code.trim().toUpperCase();

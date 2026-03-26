@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { NetworkActivity } from "@/components/dashboard/network-activity";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { 
@@ -227,77 +228,7 @@ export default async function DashboardPage() {
               </div>
             </div>
 
-            {/* Live Network Activity */}
-            <div className="bg-white rounded-3xl p-8 shadow-xl shadow-gray-200/30 border border-gray-100 overflow-hidden relative">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-gray-900 font-black text-xl flex items-center gap-3">
-                  <Globe size={22} className="text-brand-600" /> Network Activity
-                </h2>
-                <div className="flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">Live</span>
-                </div>
-              </div>
-
-              <div className="space-y-6 relative">
-                {/* Visual Connector Line */}
-                <div className="absolute left-[1.125rem] top-2 bottom-2 w-px bg-gradient-to-b from-brand-100 via-gray-100 to-transparent" />
-                
-                {[
-                  { user: "Ahmed", action: "generated", value: "$420", product: "Keto Affiliate", time: "just now", color: "brand" },
-                  { user: "Sarah", action: "published", value: "$1,200", product: "AI SEO tool", time: "2m ago", color: "green" },
-                  { user: "Marc", action: "earned", value: "$850", product: "Blogging SaaS", time: "5m ago", color: "purple" },
-                  { user: "Emma", action: "cited", value: "Locked", product: "ChatGPT ranking", time: "12m ago", color: "orange", locked: true },
-                  { user: "Omar", action: "scaled", value: "$2,100", product: "Infinite module", time: "15m ago", color: "blue" },
-                ].map((item, i) => (
-                  <div key={i} className="flex gap-4 relative group">
-                    <div className={cn(
-                      "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 z-10 shadow-sm transition-transform group-hover:scale-110",
-                      item.locked ? "bg-gray-100 text-gray-400" : `bg-${item.color}-50 text-${item.color}-600 border border-${item.color}-100`
-                    )}>
-                      {item.locked ? <ShieldCheck size={18} /> : <div className="font-black text-xs">{item.user[0]}</div>}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <p className="text-sm font-bold text-gray-900 truncate">
-                          {item.user} <span className="font-medium text-gray-500">{item.action}</span>
-                        </p>
-                        <span className="text-[10px] font-bold text-gray-400 uppercase whitespace-nowrap">{item.time}</span>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-0.5 font-medium truncate italic text-brand-600/80">
-                        {item.product}
-                      </p>
-                      <div className="mt-2 flex items-center justify-between">
-                        <span className={cn(
-                          "text-[11px] font-black px-2 py-0.5 rounded-md",
-                          item.locked ? "bg-gray-100 text-gray-400" : "bg-green-100 text-green-700"
-                        )}>
-                          {item.value}
-                        </span>
-                        {item.locked && (
-                          <span className="text-[10px] font-black text-brand-600 cursor-default">PRO</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Network Stats at the bottom */}
-              <div className="mt-8 pt-8 border-t border-gray-50 flex items-center justify-between">
-                <div className="text-center flex-1">
-                  <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Global Earnings</p>
-                  <p className="text-lg font-black text-gray-900">$24,942</p>
-                </div>
-                <div className="w-px h-8 bg-gray-100" />
-                <div className="text-center flex-1">
-                  <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Active Now</p>
-                  <p className="text-lg font-black text-brand-600 flex items-center justify-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-brand-600" /> 124
-                  </p>
-                </div>
-              </div>
-            </div>
+            <NetworkActivity />
         </div>
 
       </div>

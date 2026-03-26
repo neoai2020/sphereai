@@ -14,7 +14,7 @@ export async function PATCH(
   }
 
   const body = await req.json();
-  const { theme_id, primary_color, secondary_color, font_family, navigation_style, site_logo, custom_images, name } = body;
+  const { theme_id, primary_color, secondary_color, font_family, navigation_style, site_logo, custom_images, name, product_url } = body;
 
   const updatePayload: Record<string, any> = {
     theme_id,
@@ -29,6 +29,10 @@ export async function PATCH(
 
   if (name) {
     updatePayload.name = name;
+  }
+
+  if (product_url !== undefined) {
+    updatePayload.product_url = product_url || null;
   }
 
   const { data, error } = await supabase
