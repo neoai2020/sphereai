@@ -25,7 +25,7 @@ export default function SupportPage() {
     setTimeout(() => setSubmitted(false), 5000);
   };
 
-  const supportPortalUrl = "https://sphereai.freshdesk.com";
+  const supportPortalUrl = "https://neoaifreshdesk-sphereai.freshdesk.com/support/home";
   const supportEmail = "sphere@neoai.freshdesk.com";
 
   const faqs = [
