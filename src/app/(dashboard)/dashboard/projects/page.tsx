@@ -84,10 +84,7 @@ export default async function ProjectsPage() {
                     {project.product_description.slice(0, 120)}
                     {project.product_description.length > 120 ? "..." : ""}
                   </p>
-                  <div className="flex items-center gap-4 text-sm">
-                    <span className="text-gray-400">
-                      URL: <span className="text-brand-600 font-bold">/software/site/{project.slug}</span>
-                    </span>
+                  <div className="flex items-center gap-4 text-sm mt-3">
                     <span className="text-gray-400">
                       Created:{" "}
                       <span className="text-gray-600">
