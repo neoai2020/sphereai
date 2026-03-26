@@ -22,15 +22,20 @@ import {
   MousePointer2,
   Lock,
   Clock,
-  ArrowRight
+  ArrowRight,
+  Check
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { PremiumOverlay } from "@/components/dashboard/premium-overlay";
 
 export default function AutomationPage() {
   const [isSubscribed, setIsSubscribed] = useState(true);
   const [expandedSource, setExpandedSource] = useState<string | null>(null);
   const [completedSources, setCompletedSources] = useState<string[]>([]);
+  const [userLink, setUserLink] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
 
   const toggleSource = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -47,12 +52,12 @@ export default function AutomationPage() {
 
   const categories = [
     { id: 'all', label: 'All', count: 60, icon: Sparkles, color: 'text-blue-600', bg: 'bg-blue-600' },
-    { id: 'weight-loss', label: 'Weight Loss', count: 10, icon: Flame, color: 'text-orange-500', bg: 'bg-orange-50' },
-    { id: 'mmo', label: 'Make Money Online', count: 10, icon: Wallet, color: 'text-green-500', bg: 'bg-green-50' },
-    { id: 'health', label: 'Health & Fitness', count: 10, icon: HeartPulse, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-    { id: 'beauty', label: 'Beauty & Skincare', count: 10, icon: Sparkles, color: 'text-pink-500', bg: 'bg-pink-50' },
-    { id: 'pets', label: 'Pets', count: 10, icon: PawPrint, color: 'text-slate-500', bg: 'bg-slate-50' },
-    { id: 'home', label: 'Home & Garden', count: 10, icon: Home, color: 'text-lime-600', bg: 'bg-lime-50' },
+    { id: 'Weight Loss', label: 'Weight Loss', count: 10, icon: Flame, color: 'text-orange-500', bg: 'bg-orange-50' },
+    { id: 'Make Money Online', label: 'Make Money Online', count: 10, icon: Wallet, color: 'text-green-500', bg: 'bg-green-50' },
+    { id: 'Health & Fitness', label: 'Health & Fitness', count: 10, icon: HeartPulse, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    { id: 'Beauty & Skincare', label: 'Beauty & Skincare', count: 10, icon: Sparkles, color: 'text-pink-500', bg: 'bg-pink-50' },
+    { id: 'Pets', label: 'Pets', count: 10, icon: PawPrint, color: 'text-slate-500', bg: 'bg-slate-50' },
+    { id: 'Home & Garden', label: 'Home & Garden', count: 10, icon: Home, color: 'text-lime-600', bg: 'bg-lime-50' },
   ];
 
   const steps = [
@@ -61,81 +66,58 @@ export default function AutomationPage() {
     { id: '03', title: 'Paste Snippet', desc: 'COPY THE SYNCED MARKETING MESSAGE AND POST IT INSTANTLY.' },
   ];
 
-  const sources = [
+  const rawSources = [
     // Weight Loss (1-10)
-    { id: '1', name: 'MyFitnessPal Community', type: 'FORUM', visitors: '200-500/mo', time: '10 min', niche: 'Weight Loss', steps: ['Join the community and introduce yourself', 'Research popular threads in this niche', 'Write a value-driven response', 'Add your synced affiliate link naturally'], snippet: 'Hey! Looking at the discussion, I found this system to be a game-changer for Weight Loss. It really simplified my workflow. You can check it out here: https://your-affiliate-link.com/ref=you' },
-    { id: '2', name: 'LoseIt Reddit', type: 'SOCIAL', visitors: '300-800/mo', time: '5 min', niche: 'Weight Loss', steps: ['Navigate to r/loseit', 'Find a help request thread', 'Share your success story or tips', 'Link your resource as a solution'], snippet: 'I struggled with this too until I found this tool. It helped me stay consistent. Hope it helps you on your journey! See it here: https://your-affiliate-link.com/ref=you' },
-    { id: '3', name: 'Weight Loss Support Group (FB)', type: 'SOCIAL', visitors: '400-1k/mo', time: '15 min', niche: 'Weight Loss' },
-    { id: '4', name: 'Quora Weight Loss', type: 'Q&A', visitors: '500-1.2k/mo', time: '10 min', niche: 'Weight Loss' },
-    { id: '5', name: 'r/WeightLossAdvice', type: 'SOCIAL', visitors: '200-600/mo', time: '5 min', niche: 'Weight Loss' },
-    { id: '6', name: 'SparkPeople Forums', type: 'FORUM', visitors: '150-400/mo', time: '10 min', niche: 'Weight Loss' },
-    { id: '7', name: '30 Day Weight Loss Challenge', type: 'SOCIAL', visitors: '600-1.5k/mo', time: '12 min', niche: 'Weight Loss' },
-    { id: '8', name: 'Weight Watchers Community', type: 'FORUM', visitors: '300-700/mo', time: '20 min', niche: 'Weight Loss' },
-    { id: '9', name: 'Pinterest Weight Loss Boards', type: 'SOCIAL', visitors: '1k-3k/mo', time: '8 min', niche: 'Weight Loss' },
-    { id: '10', name: 'Bodybuilding.com Fat Loss Forum', type: 'FORUM', visitors: '400-900/mo', time: '15 min', niche: 'Weight Loss' },
+    { id: '1', name: 'MyFitnessPal Community', type: 'FORUM', visitors: '200-500/mo', time: '10 min', niche: 'Weight Loss', steps: ['Join the community and introduce yourself', 'Research popular threads in this niche', 'Write a value-driven response', 'Add your synced affiliate link naturally'], snippet: 'Hey! Looking at the discussion, I found this system to be a game-changer for Weight Loss. It really simplified my workflow. You can check it out here: [LINK]' },
+    { id: '2', name: 'LoseIt Reddit', type: 'SOCIAL', visitors: '300-800/mo', time: '5 min', niche: 'Weight Loss', steps: ['Navigate to r/loseit', 'Find a help request thread', 'Share your success story or tips', 'Link your resource as a solution'], snippet: 'I struggled with this too until I found this tool. It helped me stay consistent. Hope it helps you on your journey! See it here: [LINK]' },
+    { id: '3', name: 'Weight Loss Support Group (FB)', type: 'SOCIAL', visitors: '400-1k/mo', time: '15 min', niche: 'Weight Loss', steps: ['Join the group', 'Interact with 5 posts', 'Share a tip', 'Mention your link in comments'], snippet: 'I found this really useful for staying on track: [LINK]' },
+    { id: '4', name: 'Quora Weight Loss', type: 'Q&A', visitors: '500-1.2k/mo', time: '10 min', niche: 'Weight Loss', steps: ['Find a high-traffic question', 'Write a detailed answer', 'Insert your link at the end'], snippet: 'If you want to see the exact plan I used, it\'s here: [LINK]' },
+    { id: '5', name: 'r/WeightLossAdvice', type: 'SOCIAL', visitors: '200-600/mo', time: '5 min', niche: 'Weight Loss', steps: ['Search for "struggling"', 'Offer encouraging words', 'Provide your link as a resource'], snippet: 'This tool was a lifesaver for me: [LINK]' },
+    { id: '6', name: 'SparkPeople Forums', type: 'FORUM', visitors: '150-400/mo', time: '10 min', niche: 'Weight Loss', steps: ['Create an account', 'Join the main forum', 'Reply to a newer member'], snippet: 'Welcome! I highly recommend checking this out: [LINK]' },
+    { id: '7', name: '30 Day Weight Loss Challenge', type: 'SOCIAL', visitors: '600-1.5k/mo', time: '12 min', niche: 'Weight Loss', steps: ['Go to the latest challenge post', 'Tell them you are starting', 'Share your tools'], snippet: 'Starting today with this system: [LINK]' },
+    { id: '8', name: 'Weight Watchers Community', type: 'FORUM', visitors: '300-700/mo', time: '20 min', niche: 'Weight Loss', steps: ['Login to community', 'Find "General Discussion"', 'Start a thread about consistency'], snippet: 'Here is how I stay consistent: [LINK]' },
+    { id: '9', name: 'Pinterest Weight Loss Boards', type: 'SOCIAL', visitors: '1k-3k/mo', time: '8 min', niche: 'Weight Loss', steps: ['Create a pin', 'Use a high-quality image', 'Direct link to your asset'], snippet: 'Check this weight loss asset: [LINK]' },
+    { id: '10', name: 'Bodybuilding.com Fat Loss Forum', type: 'FORUM', visitors: '400-900/mo', time: '15 min', niche: 'Weight Loss', steps: ['Find fat loss sub-forum', 'Look for "Help with plateau"', 'Reply with value'], snippet: 'This helped me break my plateau: [LINK]' },
 
     // Make Money Online (11-20)
-    { id: '11', name: 'Warrior Forum', type: 'FORUM', visitors: '500-1.5k/mo', time: '15 min', niche: 'Make Money Online' },
-    { id: '12', name: 'BlackHatWorld', type: 'FORUM', visitors: '1k-3k/mo', time: '20 min', niche: 'Make Money Online' },
-    { id: '13', name: 'r/PassiveIncome', type: 'SOCIAL', visitors: '500-1k/mo', time: '10 min', niche: 'Make Money Online' },
-    { id: '14', name: 'r/SideHustle', type: 'SOCIAL', visitors: '400-900/mo', time: '5 min', niche: 'Make Money Online' },
-    { id: '15', name: 'Quora MMO Spaces', type: 'Q&A', visitors: '400-1.2k/mo', time: '10 min', niche: 'Make Money Online' },
-    { id: '16', name: 'Digital Point Forums', type: 'FORUM', visitors: '200-500/mo', time: '15 min', niche: 'Make Money Online' },
-    { id: '17', name: 'AffiliateFix', type: 'FORUM', visitors: '300-800/mo', time: '12 min', niche: 'Make Money Online' },
-    { id: '18', name: 'LinkedIn Marketing Groups', type: 'SOCIAL', visitors: '200-600/mo', time: '15 min', niche: 'Make Money Online' },
-    { id: '19', name: 'YouTube Comment Automation', type: 'SOCIAL', visitors: '500-2k/mo', time: '15 min', niche: 'Make Money Online' },
-    { id: '20', name: 'Facebook Ad Community', type: 'SOCIAL', visitors: '400-1k/mo', time: '12 min', niche: 'Make Money Online' },
+    { id: '11', name: 'Warrior Forum', type: 'FORUM', visitors: '500-1.5k/mo', time: '15 min', niche: 'Make Money Online', steps: ['Search for "Traffic"', 'Provide 3 free tips', 'Link your automation tool'], snippet: 'I automated my traffic using this: [LINK]' },
+    { id: '12', name: 'BlackHatWorld', type: 'FORUM', visitors: '1k-3k/mo', time: '20 min', niche: 'Make Money Online', steps: ['Search "My Journey"', 'Comment on a post', 'Invite them to see your setup'], snippet: 'My current setup is right here: [LINK]' },
+    { id: '13', name: 'r/PassiveIncome', type: 'SOCIAL', visitors: '500-1k/mo', time: '10 min', niche: 'Make Money Online', steps: ['Filter by "Top"', 'Reply to a comment', 'Share your passive link'], snippet: 'One of my favorite passive sources: [LINK]' },
+    { id: '14', name: 'r/SideHustle', type: 'SOCIAL', visitors: '400-900/mo', time: '5 min', niche: 'Make Money Online', steps: ['Answer a question', 'Tell them what you use', 'Link the asset'], snippet: 'I use this for my side hustle: [LINK]' },
+    { id: '15', name: 'Quora MMO Spaces', type: 'Q&A', visitors: '400-1.2k/mo', time: '10 min', niche: 'Make Money Online', steps: ['Answer 2 questions', 'Provide a link'], snippet: 'You can see the full system here: [LINK]' },
+    { id: '16', name: 'Digital Point Forums', type: 'FORUM', visitors: '200-500/mo', time: '15 min', niche: 'Make Money Online', steps: ['Go to Market section', 'Talk about free tools', 'Link yours'], snippet: 'Best free tool I found: [LINK]' },
+    { id: '17', name: 'AffiliateFix', type: 'FORUM', visitors: '300-800/mo', time: '12 min', niche: 'Make Money Online', steps: ['Introduce yourself', 'Link to your case study/link'], snippet: 'Check my recent progress here: [LINK]' },
+    { id: '18', name: 'LinkedIn Marketing Groups', type: 'SOCIAL', visitors: '200-600/mo', time: '15 min', niche: 'Make Money Online', steps: ['Find a marketing group', 'Post a "Win"', 'Add link in first comment'], snippet: 'Here is how I did it: [LINK]' },
+    { id: '19', name: 'YouTube Comment Automation', type: 'SOCIAL', visitors: '500-2k/mo', time: '15 min', niche: 'Make Money Online', steps: ['Find latest MMO videos', 'Useful comment', 'Link to asset'], snippet: 'More details on this system here: [LINK]' },
+    { id: '20', name: 'Facebook Ad Community', type: 'SOCIAL', visitors: '400-1k/mo', time: '12 min', niche: 'Make Money Online', steps: ['Help someone with an ad error', 'Provide your link as a better alternative'], snippet: 'Try this instead of ads: [LINK]' },
 
     // Health & Fitness (21-30)
-    { id: '21', name: 'Healthline Community', type: 'FORUM', visitors: '1k-5k/mo', time: '10 min', niche: 'Health & Fitness' },
-    { id: '22', name: 'r/Fitness', type: 'SOCIAL', visitors: '2k-10k/mo', time: '5 min', niche: 'Health & Fitness' },
-    { id: '23', name: 'r/Biohacking', type: 'SOCIAL', visitors: '500-2k/mo', time: '8 min', niche: 'Health & Fitness' },
-    { id: '24', name: 'Men\'s Health Forum', type: 'FORUM', visitors: '1.2k-4k/mo', time: '15 min', niche: 'Health & Fitness' },
-    { id: '25', name: 'Women\'s Health Community', type: 'FORUM', visitors: '1k-3.5k/mo', time: '15 min', niche: 'Health & Fitness' },
-    { id: '26', name: 'Self.com Community', type: 'SOCIAL', visitors: '800-2k/mo', time: '12 min', niche: 'Health & Fitness' },
-    { id: '27', name: 'Yoga Journal Forum', type: 'FORUM', visitors: '300-900/mo', time: '10 min', niche: 'Health & Fitness' },
-    { id: '28', name: 'Livestrong Forums', type: 'FORUM', visitors: '500-1.5k/mo', time: '15 min', niche: 'Health & Fitness' },
-    { id: '29', name: 'HealthUnlimited (FB)', type: 'SOCIAL', visitors: '600-2k/mo', time: '10 min', niche: 'Health & Fitness' },
-    { id: '30', name: 'VeryWell Health Forum', type: 'FORUM', visitors: '400-1k/mo', time: '12 min', niche: 'Health & Fitness' },
-
-    // Beauty & Skincare (31-40)
-    { id: '31', name: 'SkincareAddiction Reddit', type: 'SOCIAL', visitors: '3k-15k/mo', time: '5 min', niche: 'Beauty & Skincare' },
-    { id: '32', name: 'r/MakeupAddiction', type: 'SOCIAL', visitors: '2.5k-10k/mo', time: '5 min', niche: 'Beauty & Skincare' },
-    { id: '33', name: 'Sephora Community', type: 'FORUM', visitors: '5k-20k/mo', time: '8 min', niche: 'Beauty & Skincare' },
-    { id: '34', name: 'Ulta Beauty Insider', type: 'FORUM', visitors: '2k-8k/mo', time: '10 min', niche: 'Beauty & Skincare' },
-    { id: '35', name: 'MakeupAlley', type: 'FORUM', visitors: '1.5k-5k/mo', time: '15 min', niche: 'Beauty & Skincare' },
-    { id: '36', name: 'RealSelf Forum', type: 'FORUM', visitors: '1k-3k/mo', time: '12 min', niche: 'Beauty & Skincare' },
-    { id: '37', name: 'Glossier Community (FB)', type: 'SOCIAL', visitors: '500-1.5k/mo', time: '10 min', niche: 'Beauty & Skincare' },
-    { id: '38', name: 'Paula\'s Choice Community', type: 'FORUM', visitors: '600-2k/mo', time: '15 min', niche: 'Beauty & Skincare' },
-    { id: '39', name: 'The Ordinary Enthusiasts', type: 'SOCIAL', visitors: '800-2.5k/mo', time: '10 min', niche: 'Beauty & Skincare' },
-    { id: '40', name: 'BeautyBay Community', type: 'FORUM', visitors: '300-1k/mo', time: '12 min', niche: 'Beauty & Skincare' },
-
-    // Pets (41-50)
-    { id: '41', name: 'The Cat Site Forums', type: 'FORUM', visitors: '500-2k/mo', time: '15 min', niche: 'Pets' },
-    { id: '42', name: 'DogForums.com', type: 'FORUM', visitors: '400-1.5k/mo', time: '15 min', niche: 'Pets' },
-    { id: '43', name: 'r/Dogs', type: 'SOCIAL', visitors: '2k-8k/mo', time: '5 min', niche: 'Pets' },
-    { id: '44', name: 'r/Cats', type: 'SOCIAL', visitors: '3k-12k/mo', time: '5 min', niche: 'Pets' },
-    { id: '45', name: 'r/Aquariums', type: 'SOCIAL', visitors: '800-3k/mo', time: '8 min', niche: 'Pets' },
-    { id: '46', name: 'PetSmart Community', type: 'FORUM', visitors: '1k-4k/mo', time: '12 min', niche: 'Pets' },
-    { id: '47', name: 'Petco Insider', type: 'FORUM', visitors: '800-3k/mo', time: '12 min', niche: 'Pets' },
-    { id: '48', name: 'The Honest Kitchen (FB)', type: 'SOCIAL', visitors: '300-1k/mo', time: '10 min', niche: 'Pets' },
-    { id: '49', name: 'Dog Owners Collective', type: 'SOCIAL', visitors: '500-2k/mo', time: '10 min', niche: 'Pets' },
-    { id: '50', name: 'Chewy.com Community', type: 'FORUM', visitors: '2k-10k/mo', time: '8 min', niche: 'Pets' },
-
-    // Home & Garden (51-60)
-    { id: '51', name: 'GardenWeb Forums', type: 'FORUM', visitors: '1k-4k/mo', time: '20 min', niche: 'Home & Garden' },
-    { id: '52', name: 'Houzz Community', type: 'FORUM', visitors: '5k-25k/mo', time: '15 min', niche: 'Home & Garden' },
-    { id: '53', name: 'r/Gardening', type: 'SOCIAL', visitors: '4k-15k/mo', time: '5 min', niche: 'Home & Garden' },
-    { id: '54', name: 'r/InteriorDesign', type: 'SOCIAL', visitors: '2k-7k/mo', time: '8 min', niche: 'Home & Garden' },
-    { id: '55', name: 'r/HomeImprovement', type: 'SOCIAL', visitors: '3k-12k/mo', time: '5 min', niche: 'Home & Garden' },
-    { id: '56', name: 'DIY Network Forum', type: 'FORUM', visitors: '800-3k/mo', time: '15 min', niche: 'Home & Garden' },
-    { id: '57', name: 'Better Homes & Gardens', type: 'SOCIAL', visitors: '2k-8k/mo', time: '10 min', niche: 'Home & Garden' },
-    { id: '58', name: 'Apartment Therapy Community', type: 'FORUM', visitors: '3k-10k/mo', time: '12 min', niche: 'Home & Garden' },
-    { id: '59', name: 'Potted Plant Society (FB)', type: 'SOCIAL', visitors: '500-2k/mo', time: '10 min', niche: 'Home & Garden' },
-    { id: '60', name: 'Homesteading Today Forum', type: 'FORUM', visitors: '300-1.2k/mo', time: '20 min', niche: 'Home & Garden' },
+    { id: '21', name: 'Healthline Community', type: 'FORUM', visitors: '1k-5k/mo', time: '10 min', niche: 'Health & Fitness', steps: ['Find any fitness topic', 'Give advice', 'Mention your link'], snippet: 'I hope this link helps you: [LINK]' },
+    { id: '22', name: 'r/Fitness', type: 'SOCIAL', visitors: '2k-10k/mo', time: '5 min', niche: 'Health & Fitness', steps: ['Reply to a Daily Thread', 'Be helpful', 'Link your resource'], snippet: 'Check out this fitness resource: [LINK]' }
   ];
 
-  const progressPercent = Math.round((completedSources.length / sources.length) * 100);
+  const filteredSources = useMemo(() => {
+    return rawSources.filter(s => {
+      const matchSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          s.niche.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchCategory = selectedCategory === 'all' || s.niche === selectedCategory;
+      return matchSearch && matchCategory;
+    });
+  }, [searchQuery, selectedCategory]);
+
+  const progressPercent = Math.round((completedSources.length / rawSources.length) * 100);
+
+  const getSnippet = (rawSnippet: string) => {
+    const link = userLink || "https://your-asset.com/link";
+    return rawSnippet.replace(/\[LINK\]/g, link);
+  };
+
+  const handleCopySnippet = (rawSnippet: string, id: string) => {
+    const text = getSnippet(rawSnippet);
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(id);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-20">
@@ -170,7 +152,7 @@ export default function AutomationPage() {
           <div className="hidden md:flex flex-col items-end">
              <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">STATUS</span>
              <div className="px-5 py-2 rounded-2xl bg-indigo-600 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-200">
-               {completedSources.length} of {sources.length} Sources Launched
+               {completedSources.length} of {rawSources.length} Sources Launched
              </div>
           </div>
         </div>
@@ -240,6 +222,8 @@ export default function AutomationPage() {
                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" size={20} />
                <input 
                  type="text"
+                 value={searchQuery}
+                 onChange={(e) => setSearchQuery(e.target.value)}
                  placeholder="Search traffic sources..."
                  className="w-full bg-white border border-gray-200 rounded-2xl pl-14 pr-6 py-4 text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all shadow-sm"
                />
@@ -248,8 +232,10 @@ export default function AutomationPage() {
                <LinkIcon className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" size={20} />
                <input 
                  type="url"
-                 placeholder="https://your-affiliate-link.com/ref=you"
-                 className="w-full bg-white border border-gray-200 rounded-2xl pl-14 pr-6 py-4 text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all shadow-sm"
+                 value={userLink}
+                 onChange={(e) => setUserLink(e.target.value)}
+                 placeholder="Link your asset here (e.g. https://your-site.com)"
+                 className="w-full bg-emerald-50 border-2 border-emerald-100 rounded-2xl pl-14 pr-6 py-4 text-gray-900 font-black focus:outline-none focus:ring-4 focus:ring-emerald-600/5 focus:border-emerald-600 transition-all shadow-sm placeholder:text-emerald-300"
                />
             </div>
           </div>
@@ -259,10 +245,14 @@ export default function AutomationPage() {
             {categories.map((cat, i) => (
               <button 
                 key={i} 
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all border ${cat.id === 'all' ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-100' : 'bg-white text-gray-500 border-gray-100 hover:border-indigo-100 hover:bg-gray-50'}`}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all border ${selectedCategory === cat.id ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-100' : 'bg-white text-gray-500 border-gray-100 hover:border-indigo-100 hover:bg-gray-50'}`}
               >
-                <cat.icon size={14} className={cat.id === 'all' ? 'text-white' : cat.color} />
-                {cat.label} <span className={`ml-1 opacity-50 ${cat.id === 'all' ? 'text-white' : ''}`}>{cat.count}</span>
+                <cat.icon size={14} className={selectedCategory === cat.id ? 'text-white' : cat.color} />
+                {cat.label} 
+                <span className={`ml-1 opacity-50 ${selectedCategory === cat.id ? 'text-white' : ''}`}>
+                   {cat.id === 'all' ? rawSources.length : rawSources.filter(s => s.niche === cat.id).length}
+                </span>
               </button>
             ))}
           </div>
@@ -270,7 +260,7 @@ export default function AutomationPage() {
           {/* Progress */}
           <div className="space-y-3">
              <div className="flex items-center justify-between">
-               <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">PROGRESS: <span className="text-gray-900">{completedSources.length} OF {sources.length} SOURCES COMPLETED</span></span>
+               <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">PROGRESS: <span className="text-gray-900">{completedSources.length} OF {rawSources.length} SOURCES COMPLETED</span></span>
                <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">{progressPercent}%</span>
              </div>
              <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
@@ -283,13 +273,15 @@ export default function AutomationPage() {
 
           {/* Sources List */}
           <div className="space-y-4">
-            {sources.map((source, i) => {
+            {filteredSources.map((source, i) => {
               const checked = completedSources.includes(source.id);
+              const isExpanded = expandedSource === source.id;
+              
               return (
-                <div key={i} className={`bg-white border border-gray-100 rounded-[32px] overflow-hidden shadow-sm group transition-all ${checked ? 'opacity-60' : ''}`}>
+                <div key={source.id} className={`bg-white border border-gray-100 rounded-[32px] overflow-hidden shadow-sm group transition-all ${checked ? 'opacity-60' : ''}`}>
                   <div 
                     className="p-6 cursor-pointer flex items-center justify-between"
-                    onClick={() => setExpandedSource(expandedSource === source.id ? null : source.id)}
+                    onClick={() => setExpandedSource(isExpanded ? null : source.id)}
                   >
                     <div className="flex items-center gap-6">
                       <button 
@@ -312,10 +304,10 @@ export default function AutomationPage() {
                         </div>
                       </div>
                     </div>
-                    <ChevronDown className={`text-gray-300 transition-transform ${expandedSource === source.id ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`text-gray-300 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                   </div>
 
-                  {expandedSource === source.id && source.steps && (
+                  {isExpanded && source.steps && (
                     <div className="px-8 pb-8 pt-4 border-t border-gray-50 animate-in fade-in slide-in-from-top-2 duration-300">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-6">
                         <div className="space-y-6">
@@ -338,11 +330,14 @@ export default function AutomationPage() {
                             <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">MARKETING SNIPPET</h4>
                           </div>
                           <div className="relative group/snippet">
-                            <div className="p-6 rounded-2xl bg-gray-50 border border-gray-100 text-sm font-medium italic text-gray-500 leading-relaxed pr-12">
-                              "{source.snippet}"
+                            <div className={`p-6 rounded-2xl border text-sm font-medium italic leading-relaxed pr-12 transition-all ${userLink ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-gray-50 border-gray-100 text-gray-500'}`}>
+                              "{getSnippet(source.snippet)}"
                             </div>
-                            <button className="absolute right-4 top-4 p-2 rounded-xl bg-white border border-gray-100 text-indigo-600 shadow-sm hover:indigo-50 transition-colors">
-                              <Copy size={16} />
+                            <button 
+                              onClick={() => handleCopySnippet(source.snippet, source.id)}
+                              className={`absolute right-4 top-4 p-2.5 rounded-xl shadow-sm transition-all flex items-center justify-center ${copiedIndex === source.id ? 'bg-emerald-600 text-white' : 'bg-white border border-gray-100 text-indigo-600 hover:bg-gray-900 hover:text-white'}`}
+                            >
+                              {copiedIndex === source.id ? <Check size={16} /> : <Copy size={16} />}
                             </button>
                           </div>
                           <div className="flex gap-4">
@@ -353,9 +348,9 @@ export default function AutomationPage() {
                                {checked ? 'COMPLETED' : 'MARK AS DONE'}
                                <CheckCircle2 size={16} />
                             </button>
-                            <button className="flex-1 bg-gray-900 text-white font-black py-4 rounded-2xl shadow-xl hover:black transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2 border border-gray-800">
-                               INSPECT SOURCE
-                               <ExternalLink size={16} />
+                            <button className="flex-1 bg-gray-900 text-white font-black py-4 rounded-2xl shadow-xl hover:bg-black transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2 border border-gray-800">
+                                INSPECT SOURCE
+                                <ExternalLink size={16} />
                             </button>
                           </div>
                         </div>

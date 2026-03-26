@@ -57,7 +57,12 @@ interface ProductInfo {
 export async function generatePageContent(
   pageType: PageType,
   product: ProductInfo
-): Promise<{ content: Record<string, unknown>; title: string; metaDescription: string }> {
+): Promise<{ 
+  content: Record<string, unknown>; 
+  title: string; 
+  metaDescription: string;
+  schemaMarkup: Record<string, any> | null;
+}> {
   const prompts: Record<PageType, string> = {
     landing: `Generate a landing page for the following product. Return ONLY valid JSON.
 
@@ -89,11 +94,18 @@ Return JSON with this exact structure:
     "description": "urgency text",
     "buttonText": "action text"
   },
+  "schemaMarkup": {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "product name",
+    "description": "seo description",
+    "brand": { "@type": "Brand", "name": "brand name" }
+  },
   "title": "SEO page title (60 chars max)",
   "metaDescription": "SEO meta description (155 chars max)"
 }
 
-Make it persuasive, benefit-driven, and optimized for AI search engines. Use natural language that AI assistants would cite.`,
+Make it persuasive, benefit-driven, and optimized for AI search engines. Use natural language that AI assistants would cite. Include full JSON LD schema markup.`,
 
     about: `Generate an About page for the following product/company. Return ONLY valid JSON.
 
@@ -118,11 +130,20 @@ Return JSON with this exact structure:
     "headline": "Why Trust Us",
     "description": "credibility paragraph"
   },
+  "schemaMarkup": {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "mainEntity": {
+       "@type": "Organization",
+       "name": "comp name",
+       "description": "mission"
+    }
+  },
   "title": "SEO page title (60 chars max)",
   "metaDescription": "SEO meta description (155 chars max)"
 }
 
-Write authoritative, trustworthy content optimized for AI search citations.`,
+Write authoritative, trustworthy content optimized for AI search citations. Include full JSON LD schema markup.`,
 
     faq: `Generate a comprehensive FAQ page for the following product. Return ONLY valid JSON.
 
@@ -138,11 +159,18 @@ Return JSON with this exact structure:
   "faqs": [
     { "question": "clear question?", "answer": "detailed, helpful answer" }
   ],
+  "schemaMarkup": {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "q1", "acceptedAnswer": { "@type": "Answer", "text": "a1" } }
+    ]
+  },
   "title": "SEO page title (60 chars max)",
   "metaDescription": "SEO meta description (155 chars max)"
 }
 
-Generate 8-10 FAQs. Write questions as real users would ask them. Answers should be comprehensive, factual, and in a format that AI assistants would directly cite. This is the most important page for AI search optimization.`,
+Generate 8-10 FAQs. Write questions as real users would ask them. Answers should be comprehensive, factual, and in a format that AI assistants would directly cite. This is the most important page for AI search optimization. Include full JSON LD schema markup.`,
 
     blog: `Generate a long-form blog article for the following product. Return ONLY valid JSON.
 
@@ -166,11 +194,18 @@ Return JSON with this exact structure:
     }
   ],
   "conclusion": "concluding paragraph with CTA",
+  "schemaMarkup": {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "headline",
+    "author": { "@type": "Person", "name": "SphereAI Team" },
+    "datePublished": "2024-XX-XX"
+  },
   "title": "SEO page title (60 chars max)",
   "metaDescription": "SEO meta description (155 chars max)"
 }
 
-Write 4-5 sections. Content should be informative, well-structured, and optimized for AI search engines to cite as authoritative content.`,
+Write 4-5 sections. Content should be informative, well-structured, and optimized for AI search engines to cite as authoritative content. Include full JSON LD schema markup.`,
 
     reviews: `Generate a reviews/testimonials page for the following product. Return ONLY valid JSON.
 
@@ -197,11 +232,18 @@ Return JSON with this exact structure:
     "headline": "summary headline",
     "text": "paragraph summarizing why customers love the product"
   },
+  "schemaMarkup": {
+     "@context": "https://schema.org",
+     "@type": "Review",
+     "itemReviewed": { "@type": "Product", "name": "product name" },
+     "reviewRating": { "@type": "Rating", "ratingValue": "5" },
+     "author": { "@type": "Person", "name": "Reviewer" }
+  },
   "title": "SEO page title (60 chars max)",
   "metaDescription": "SEO meta description (155 chars max)"
 }
 
-Generate 6 realistic, detailed reviews. Make them sound authentic and varied. Optimized for AI search engines to cite.`,
+Generate 6 realistic, detailed reviews. Make them sound authentic and varied. Optimized for AI search engines to cite. Include full JSON LD schema markup.`,
   };
 
   const rawResponse = await callAI(prompts[pageType]);
@@ -211,10 +253,12 @@ Generate 6 realistic, detailed reviews. Make them sound authentic and varied. Op
   const metaDescription =
     (parsed.metaDescription as string) || product.productDescription.slice(0, 155);
 
+  const schemaMarkup = (parsed.schemaMarkup as Record<string, unknown>) || null;
   delete parsed.title;
   delete parsed.metaDescription;
+  delete parsed.schemaMarkup;
 
-  return { content: parsed, title, metaDescription };
+  return { content: parsed, title, metaDescription, schemaMarkup };
 }
 export async function generateForumReply(
   forumTopic: string,
@@ -236,4 +280,57 @@ export async function generateForumReply(
   Do NOT include the website link in the text; I will add it separately. Just the text of the reply.`;
 
   return await callAI(prompt);
+}
+
+export async function generateSEO(
+  productName: string,
+  productDescription: string
+): Promise<{ keywords: string[]; targetAudience: string }> {
+  const prompt = `Based on the following product details, suggest 10 SEO keywords and a clear target audience description.
+  
+  Product: ${productName}
+  Description: ${productDescription}
+  
+  Guidelines:
+  - Keywords should be optimized for both Google and AI search engines (ChatGPT, Perplexity).
+  - Target audience should be specific and detail their pain points.
+  
+  Return ONLY valid JSON in this structure:
+  {
+    "keywords": ["keyword1", "keyword2", ...],
+    "targetAudience": "detailed target audience description"
+  }`;
+
+  const rawResponse = await callAI(prompt);
+  const parsed = extractJSON(rawResponse);
+  
+  return {
+    keywords: (parsed.keywords as string[]) || [],
+    targetAudience: (parsed.targetAudience as string) || ""
+  };
+}
+
+export async function generateFacebookPosts(
+  productName: string,
+  productDescription: string
+): Promise<string[]> {
+  const prompt = `Based on the following product details, generate 10 unique, high-converting Facebook posts.
+  
+  Product: ${productName}
+  Description: ${productDescription}
+  
+  Guidelines:
+  - Each post must have a different marketing angle (e.g., Storytelling, Curiosity, Pain Point, Direct Benefit, Social Proof, FOMO, Educational, Controversy/Myth-Busting, Comparative, Personal Invite).
+  - Use emojis sparingly but effectively.
+  - Include placeholders for links like [YOUR LINK HERE].
+  - Keep each post between 50 and 150 words.
+  - Return ONLY a valid JSON array of strings.
+  
+  Expected Output Format:
+  ["Post 1 body...", "Post 2 body...", ... "Post 10 body..."]`;
+
+  const rawResponse = await callAI(prompt);
+  const parsed = extractJSON(rawResponse);
+  
+  return Array.isArray(parsed) ? parsed : [];
 }

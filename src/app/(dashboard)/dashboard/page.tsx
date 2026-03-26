@@ -97,7 +97,7 @@ export default async function DashboardPage() {
           {/* 3. Statistics Panel */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
-              { icon: FolderOpen, label: "Total Projects", value: totalProjects, color: "brand", trend: "+2 this week" },
+              { icon: FolderOpen, label: "Asset Vault", value: totalProjects, color: "brand", trend: "+2 this week" },
               { icon: Globe, label: "Published Pages", value: published, color: "green", trend: "Live & Active" },
               { icon: BarChart3, label: "Generated Assets", value: totalPages, color: "purple", trend: "Optimized" },
               { icon: Users, label: "AI Citations", value: "Locked", color: "orange", trend: "Pro feature", locked: true },

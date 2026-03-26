@@ -11,22 +11,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const { data: projects } = await supabase
     .from("projects")
-    .select("slug, updated_at")
+    .select("id, slug, user_id, updated_at")
     .eq("status", "published");
 
   const projectPages: MetadataRoute.Sitemap = (projects || []).flatMap(
     (project) => [
       {
-        url: `${baseUrl}/s/${project.slug}`,
+        url: `${baseUrl}/software/${project.user_id}/${project.id}`,
+        lastModified: new Date(project.updated_at),
+        changeFrequency: "weekly" as const,
+        priority: 0.9,
+      },
+      ...["about", "faq", "blog", "reviews"].map((page) => ({
+        url: `${baseUrl}/software/${project.user_id}/${project.id}/${page}`,
         lastModified: new Date(project.updated_at),
         changeFrequency: "weekly" as const,
         priority: 0.8,
-      },
-      ...["about", "faq", "blog", "reviews"].map((page) => ({
-        url: `${baseUrl}/s/${project.slug}/${page}`,
-        lastModified: new Date(project.updated_at),
-        changeFrequency: "weekly" as const,
-        priority: 0.7,
       })),
     ]
   );

@@ -4,10 +4,13 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 export function generateSchemaMarkup(
   pageType: PageType,
-  page: Page,
-  project: Project
+  page: Omit<Page, "id" | "created_at" | "updated_at">,
+  project: Project,
+  userId?: string
 ): Record<string, unknown> {
-  const pageUrl = `${BASE_URL}/s/${project.slug}${pageType === "landing" ? "" : `/${pageType}`}`;
+  const userSegment = userId || project.user_id;
+  const baseUrl = `${BASE_URL}/software/${userSegment}/${project.id}`;
+  const pageUrl = `${baseUrl}${pageType === "landing" ? "" : `/${pageType}`}`;
 
   const breadcrumb = {
     "@type": "BreadcrumbList",
@@ -16,7 +19,7 @@ export function generateSchemaMarkup(
         "@type": "ListItem",
         position: 1,
         name: project.product_name,
-        item: `${BASE_URL}/s/${project.slug}`,
+        item: baseUrl,
       },
       ...(pageType !== "landing"
         ? [
@@ -64,7 +67,7 @@ export function generateSchemaMarkup(
           "@type": "Organization",
           name: project.product_name,
           description: project.product_description,
-          url: project.product_url || `${BASE_URL}/s/${project.slug}`,
+          url: project.product_url || baseUrl,
         },
         breadcrumb,
       ],
@@ -105,7 +108,7 @@ export function generateSchemaMarkup(
             "@type": "Organization",
             name: project.product_name,
           },
-          datePublished: (page.content as { publishDate?: string }).publishDate || page.created_at,
+          datePublished: (page.content as { publishDate?: string }).publishDate || new Date().toISOString(),
           publisher: {
             "@type": "Organization",
             name: project.product_name,

@@ -25,7 +25,7 @@ const navSections = [
     title: "Main",
     items: [
       { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/dashboard/projects", label: "Projects", icon: FolderOpen },
+      { href: "/dashboard/projects", label: "Asset Vault", icon: FolderOpen },
       { href: "/dashboard/projects/new", label: "New Project", icon: Plus },
     ],
   },

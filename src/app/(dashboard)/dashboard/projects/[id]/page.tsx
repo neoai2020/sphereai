@@ -58,7 +58,7 @@ export default async function ProjectDetailPage({
         className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-6"
       >
         <ArrowLeft size={16} />
-        Back to projects
+        Back to Asset Vault
       </Link>
 
       <div className="flex items-start justify-between mb-8">
@@ -111,9 +111,9 @@ export default async function ProjectDetailPage({
               </dd>
             </div>
             <div>
-              <dt className="text-gray-500">URL Slug</dt>
-              <dd className="text-gray-900 mt-0.5 font-mono text-xs">
-                /s/{project.slug}
+              <dt className="text-gray-500">Public Hosting URL</dt>
+              <dd className="text-brand-600 mt-0.5 font-bold text-xs select-all">
+                /software/{user.id}/{project.id}
               </dd>
             </div>
           </dl>
@@ -134,7 +134,7 @@ export default async function ProjectDetailPage({
               path: `/${page.page_type}`,
             };
             const Icon = config.icon;
-            const publicUrl = `/s/${project.slug}${config.path}`;
+            const publicUrl = `/software/${user.id}/${project.id}${config.path}`;
 
             return (
               <div

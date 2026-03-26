@@ -102,7 +102,7 @@ export default function TrafficMagnetPage() {
             <Magnet className="text-brand-600" size={32} />
             Traffic Magnet
           </h1>
-          <p className="text-gray-500 mt-1">Generate high-value forum replies that drive traffic to your projects.</p>
+          <p className="text-gray-500 mt-1">Generate high-value forum replies that drive traffic to your assets in the Vault.</p>
         </div>
       </div>
 

@@ -181,7 +181,7 @@ export default function DFYPage() {
       });
 
       setClaimedIds(prev => new Set(prev).add(site.id));
-      alert("Website successfully claimed! You can find it in your Projects.");
+      alert("Website successfully claimed! You can find it in your Asset Vault.");
     } catch (error) {
       console.error(error);
       alert("Failed to claim website. Please try again.");
@@ -263,7 +263,7 @@ export default function DFYPage() {
                       </div>
                       <p className="text-white font-black text-xl">Already Claimed</p>
                       <Link href="/dashboard/projects" className="inline-flex items-center gap-2 text-white/80 hover:text-white font-bold text-sm">
-                        View in Projects <ChevronRight size={16} />
+                        View in Asset Vault <ChevronRight size={16} />
                       </Link>
                     </div>
                   </div>
@@ -327,7 +327,7 @@ export default function DFYPage() {
             </div>
             <div className="space-y-1">
               <h4 className="font-black text-gray-900">{feat.title}</h4>
-              <p className="text-sm text-gray-500 font-medium leading-relaxed">{feat.text}</p>
+              <p className="text-gray-500 mt-1">Generate high-value forum replies that drive traffic to your assets in the Vault.</p>
             </div>
           </div>
         ))}

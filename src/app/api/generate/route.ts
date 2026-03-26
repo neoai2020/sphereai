@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { projectId } = await request.json();
+    const { projectId, pageType } = await request.json();
 
     const { data: project, error: projectError } = await supabase
       .from("projects")
@@ -47,6 +47,8 @@ export async function POST(request: NextRequest) {
     if (projectError || !project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
+
+    const typesToGenerate = pageType ? [pageType as PageType] : PAGE_TYPES;
 
     await supabase
       .from("projects")
@@ -63,18 +65,18 @@ export async function POST(request: NextRequest) {
 
     const results: { pageType: PageType; success: boolean; error?: string }[] = [];
 
-    for (const pageType of PAGE_TYPES) {
+    for (const type of typesToGenerate) {
       try {
-        const { content, title, metaDescription } = await generatePageContent(
-          pageType,
+        const { content, title, metaDescription, schemaMarkup: aiSchema } = await generatePageContent(
+          type,
           productInfo
         );
 
-        const slug = pageType === "landing" ? "" : pageType;
+        const slug = type === "landing" ? "" : type;
 
         const pageData = {
           project_id: projectId,
-          page_type: pageType,
+          page_type: type,
           title,
           meta_description: metaDescription,
           content,
@@ -90,11 +92,15 @@ export async function POST(request: NextRequest) {
           schema_markup: {},
         } as Page;
 
-        const schemaMarkup = generateSchemaMarkup(
-          pageType,
-          tempPage,
-          project as Project
-        );
+        const schemaMarkup = {
+          ...generateSchemaMarkup(
+            type,
+            tempPage,
+            project as Project,
+            user.id
+          ),
+          ...(aiSchema || {})
+        };
 
         pageData.schema_markup = schemaMarkup;
 
@@ -111,24 +117,26 @@ export async function POST(request: NextRequest) {
             .insert(pageData);
 
           if (fallbackError) {
-            results.push({ pageType, success: false, error: fallbackError.message });
+            results.push({ pageType: type, success: false, error: fallbackError.message });
             continue;
           }
         }
 
-        results.push({ pageType, success: true });
+        results.push({ pageType: type, success: true });
       } catch (err) {
         results.push({
-          pageType,
+          pageType: type,
           success: false,
           error: err instanceof Error ? err.message : "Unknown error",
         });
       }
     }
 
-    const allSuccess = results.every((r) => r.success);
-    if (allSuccess) {
-      await Promise.all([
+    const isLastOne = pageType ? PAGE_TYPES.indexOf(pageType as PageType) === PAGE_TYPES.length - 1 : true;
+    const allProcessed = results.every(r => r.success);
+
+    if (allProcessed && isLastOne) {
+       await Promise.all([
         supabase.from("generations").insert({
           user_id: user.id,
           project_id: projectId,
@@ -138,14 +146,9 @@ export async function POST(request: NextRequest) {
           .update({ status: "published" })
           .eq("id", projectId),
       ]);
-    } else {
-      await supabase
-        .from("projects")
-        .update({ status: "partial" })
-        .eq("id", projectId);
     }
 
-    return NextResponse.json({ results, status: allSuccess ? "published" : "partial" });
+    return NextResponse.json({ results, status: allProcessed ? "published" : "partial" });
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },

@@ -21,9 +21,9 @@ export default async function ProjectsPage() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Asset Vault</h1>
           <p className="text-gray-500 mt-1">
-            Manage your AI-generated page projects
+            Manage your high-value AI generation assets
           </p>
         </div>
         <Link
@@ -84,7 +84,7 @@ export default async function ProjectsPage() {
                   </p>
                   <div className="flex items-center gap-4 text-sm">
                     <span className="text-gray-400">
-                      Slug: <span className="text-gray-600">/s/{project.slug}</span>
+                      URL: <span className="text-brand-600 font-bold">/software/{user.id}/{project.id}</span>
                     </span>
                     <span className="text-gray-400">
                       Created:{" "}
@@ -97,7 +97,7 @@ export default async function ProjectsPage() {
                 <div className="flex items-center gap-2 ml-4">
                   {project.status === "published" && (
                     <Link
-                      href={`/s/${project.slug}`}
+                      href={`/software/${user.id}/${project.id}`}
                       target="_blank"
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
                     >

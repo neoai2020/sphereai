@@ -17,14 +17,25 @@ import {
   MessageSquare,
   ShieldCheck,
   MousePointer2,
-  ChevronRight
+  ChevronRight,
+  Loader2,
+  Copy,
+  Check
 } from "lucide-react";
 import { useState } from "react";
 import { PremiumOverlay } from "@/components/dashboard/premium-overlay";
 
 export default function TenXPage() {
   const [isSubscribed, setIsSubscribed] = useState(true);
-  const [productUrl, setProductUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [posts, setPosts] = useState<string[]>([]);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  const [form, setForm] = useState({
+    name: "",
+    url: "",
+  });
 
   const features = [
     {
@@ -72,6 +83,50 @@ export default function TenXPage() {
       ]
     }
   ];
+
+  async function handleGenerate() {
+    if (!form.name || !form.url) {
+      setError("Please provide both a link name and a promotional link.");
+      return;
+    }
+
+    setError("");
+    setLoading(true);
+    setPosts([]);
+
+    try {
+      const res = await fetch("/api/ai/10x", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productName: form.name,
+          productDescription: `Promotional link for ${form.name}. The target landing page URL is ${form.url}. Generate 10 high-converting Facebook posts to drive traffic.`
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Inject the actual link instead of placeholders
+        const processedPosts = data.posts.map((p: string) => 
+          p.replace(/\[YOUR LINK HERE\]/g, form.url)
+        );
+        setPosts(processedPosts);
+      } else {
+        setError(data.error || "Generation failed. Please try again.");
+      }
+    } catch (err) {
+      setError("Failed to connect to AI service.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleCopy(text: string, index: number) {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-20">
@@ -138,13 +193,23 @@ export default function TenXPage() {
               </div>
             </div>
 
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 text-red-600 text-sm p-5 border border-red-100 rounded-2xl flex items-center gap-3 font-bold">
+                <Info size={18} />
+                {error}
+              </div>
+            )}
+
             {/* Form Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
-                <label className="text-sm font-black text-gray-900 uppercase tracking-widest ml-1">Link Name</label>
+                <label className="text-sm font-black text-gray-900 uppercase tracking-widest ml-1">Link Name/Goal</label>
                 <input 
                   type="text"
-                  placeholder="e.g. My Fitness eBook, Water Filter System, etc."
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="e.g. My Website, My New Product, eBook Launch"
                   className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium"
                 />
               </div>
@@ -156,7 +221,9 @@ export default function TenXPage() {
                   </div>
                   <input 
                     type="url"
-                    placeholder="https://example.com/product?ref=your-id"
+                    value={form.url}
+                    onChange={(e) => setForm({ ...form, url: e.target.value })}
+                    placeholder="https://example.com/product"
                     className="w-full bg-gray-50 border border-gray-200 rounded-2xl pl-12 pr-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium"
                   />
                 </div>
@@ -164,13 +231,62 @@ export default function TenXPage() {
             </div>
 
             {/* Generate Button */}
-            <button className="w-full group relative overflow-hidden bg-gray-900 hover:bg-black text-white font-black py-5 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm hover:scale-[1.01] active:scale-[0.99]">
-              <Sparkles size={20} className="text-amber-400 fill-amber-400/20" />
-              Generate 10 Intelligent Posts
+            <button 
+              onClick={handleGenerate}
+              disabled={loading}
+              className="w-full group relative overflow-hidden bg-gray-900 hover:bg-black text-white font-black py-5 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <Loader2 size={24} className="animate-spin text-indigo-400" />
+              ) : (
+                <Sparkles size={20} className="text-amber-400 fill-amber-400/20" />
+              )}
+              {loading ? "AI Crafting your posts..." : "Generate 10 Intelligent Posts"}
             </button>
           </div>
         </div>
       </div>
+
+      {/* Generated Posts Section */}
+      {posts.length > 0 && (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
+          <div className="flex items-center justify-between px-2">
+             <h2 className="text-2xl font-black text-gray-900">Your AI-Generated Content Suite</h2>
+             <span className="text-xs font-black text-gray-400 uppercase tracking-widest">10 Results Ready</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {posts.map((post, i) => (
+              <div key={i} className="group bg-white border border-gray-100 rounded-[32px] p-8 shadow-sm hover:shadow-xl transition-all relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="flex items-center justify-between mb-6">
+                   <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-xs">
+                        {i + 1}
+                      </div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Angle {i + 1}</span>
+                   </div>
+                   <button 
+                    onClick={() => handleCopy(post, i)}
+                    className={`p-2.5 rounded-xl transition-all flex items-center gap-2 text-xs font-bold ${
+                      copiedIndex === i 
+                        ? "bg-emerald-50 text-emerald-600" 
+                        : "bg-gray-50 text-gray-500 hover:bg-gray-900 hover:text-white"
+                    }`}
+                   >
+                     {copiedIndex === i ? <Check size={16} /> : <Copy size={16} />}
+                     {copiedIndex === i ? "Copied" : "Copy Post"}
+                   </button>
+                </div>
+                <div className="prose prose-sm max-w-none">
+                   <p className="text-gray-700 font-medium whitespace-pre-wrap leading-relaxed italic">
+                     {post}
+                   </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Pro Tips Section */}
       <div className="bg-white border border-gray-100 rounded-[40px] p-8 md:p-12 shadow-sm space-y-12">
@@ -213,35 +329,6 @@ export default function TenXPage() {
             </p>
           </div>
         </div>
-      </div>
-
-      {/* Footer Quick Links */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <button className="bg-white border border-gray-100 p-8 rounded-[32px] flex items-center justify-between group shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all">
-          <div className="flex items-center gap-6">
-            <div className="w-16 h-16 rounded-2xl bg-gray-50 text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 flex items-center justify-center transition-colors">
-              <FileText size={32} />
-            </div>
-            <div className="text-left">
-              <h3 className="font-black text-gray-900 text-lg">Create Full Article</h3>
-              <p className="text-sm text-gray-500 font-medium">Write a long-form SEO article instead</p>
-            </div>
-          </div>
-          <ChevronRight size={24} className="text-gray-300 group-hover:text-indigo-600 transition-colors" />
-        </button>
-        
-        <button className="bg-white border border-gray-100 p-8 rounded-[32px] flex items-center justify-between group shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all">
-          <div className="flex items-center gap-6">
-            <div className="w-16 h-16 rounded-2xl bg-gray-50 text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 flex items-center justify-center transition-colors">
-              <LinkIcon size={32} />
-            </div>
-            <div className="text-left">
-              <h3 className="font-black text-gray-900 text-lg">My Portfolio</h3>
-              <p className="text-sm text-gray-500 font-medium">Manage your saved links & articles</p>
-            </div>
-          </div>
-          <ChevronRight size={24} className="text-gray-300 group-hover:text-indigo-600 transition-colors" />
-        </button>
       </div>
 
     </div>
