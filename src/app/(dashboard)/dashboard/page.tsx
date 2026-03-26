@@ -85,6 +85,28 @@ export default async function DashboardPage() {
                 </div>
               </div>
           </div>
+          
+          {/* 6. Live Success (Moved under video) */}
+          <div className="bg-white rounded-2xl p-1 border border-gray-100 shadow-sm overflow-hidden my-6">
+            <div className="bg-gray-50/80 backdrop-blur-sm rounded-xl p-4 flex items-center overflow-hidden">
+              <div className="flex gap-20 animate-scroll whitespace-nowrap">
+                {[...successStories, ...successStories, ...successStories].map((story, i) => (
+                  <div key={i} className="flex items-center gap-4 text-gray-700">
+                    <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 text-[10px] font-black border border-brand-200">
+                      {story.name[0]}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-gray-900">{story.name}</span>
+                      <span className="text-green-600 font-bold">{story.profit}</span>
+                      <span className="h-1 w-1 rounded-full bg-gray-300" />
+                      <span className="text-gray-400 text-xs font-bold italic truncate max-w-[400px] tracking-tight">&quot;{story.story}&quot;</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
 
           {/* 3. Statistics Panel */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -209,26 +231,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* 6. Live Success (Bottom Ticker) */}
-      <div className="bg-white rounded-2xl p-1 border border-gray-100 shadow-sm overflow-hidden mt-12 mb-8">
-        <div className="bg-gray-50/80 backdrop-blur-sm rounded-xl p-5 flex items-center overflow-hidden">
-          <div className="flex gap-20 animate-scroll whitespace-nowrap">
-            {[...successStories, ...successStories, ...successStories].map((story, i) => (
-              <div key={i} className="flex items-center gap-4 text-gray-700">
-                <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 text-[10px] font-black border border-brand-200">
-                  {story.name[0]}
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-gray-900">{story.name}</span>
-                  <span className="text-green-600 font-bold">{story.profit}</span>
-                  <span className="h-1 w-1 rounded-full bg-gray-300" />
-                  <span className="text-gray-400 text-xs font-bold italic truncate max-w-[400px] tracking-tight">&quot;{story.story}&quot;</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 }
