@@ -88,19 +88,36 @@ export default async function SubPage({ params }: Props) {
       />
       {pageSlug === "about" && (
         <AboutRenderer
-          content={content}
+          content={content as any}
           productName={project.product_name}
           slug={project.slug}
+          themeId={project.theme_id}
+          primaryColor={project.primary_color}
         />
       )}
       {pageSlug === "faq" && (
-        <FAQRenderer content={content} slug={project.slug} />
+        <FAQRenderer 
+          content={content as any} 
+          slug={project.slug} 
+          themeId={project.theme_id}
+          primaryColor={project.primary_color}
+        />
       )}
       {pageSlug === "blog" && (
-        <BlogRenderer content={content} slug={project.slug} />
+        <BlogRenderer 
+          content={content as any} 
+          slug={project.slug} 
+          themeId={project.theme_id}
+          primaryColor={project.primary_color}
+        />
       )}
       {pageSlug === "reviews" && (
-        <ReviewsRenderer content={content} slug={project.slug} />
+        <ReviewsRenderer 
+          content={content as any} 
+          slug={project.slug} 
+          themeId={project.theme_id}
+          primaryColor={project.primary_color}
+        />
       )}
     </>
   );
