@@ -52,15 +52,23 @@ async function callAI(prompt: string, retries = 1): Promise<string> {
   throw new Error("AI call failed after all retries");
 }
 
-function extractJSON(text: string): Record<string, unknown> {
-  const jsonMatch = text.match(/```json\s*([\s\S]*?)```/);
+function extractJSON(text: string): any {
+  // 1. Try to find json block
+  const jsonCodeBlock = text.match(/```json\s*([\s\S]*?)```/);
+  if (jsonCodeBlock) {
+    try {
+      return JSON.parse(jsonCodeBlock[1].trim());
+    } catch (e) {}
+  }
+
+  // 2. Try to find anything starting with [ or { and ending with ] or }
+  const jsonMatch = text.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
   if (jsonMatch) {
-    return JSON.parse(jsonMatch[1].trim());
+    try {
+      return JSON.parse(jsonMatch[0].trim());
+    } catch (e) {}
   }
-  const braceMatch = text.match(/\{[\s\S]*\}/);
-  if (braceMatch) {
-    return JSON.parse(braceMatch[0]);
-  }
+
   throw new Error("Could not extract JSON from AI response");
 }
 
