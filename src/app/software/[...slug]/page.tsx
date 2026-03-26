@@ -43,7 +43,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .select("*")
     .eq("project_id", project.id)
     .eq("page_type", activePageType)
-    .eq("is_published", true)
     .single();
 
   return {
@@ -81,7 +80,7 @@ export default async function SoftwarePage({ params }: Props) {
 
   const { data: project, error: projectErr } = await supabase
     .from("projects")
-    .select("*, users!inner(full_name)")
+    .select("*")
     .eq(isUuid ? "id" : "slug", projectIdOrSlug)
     .single();
 
@@ -132,8 +131,10 @@ export default async function SoftwarePage({ params }: Props) {
           content={content as any}
           productUrl={project.product_url}
           slug={project.slug}
+          productName={project.product_name}
           themeId={project.theme_id}
           primaryColor={project.primary_color}
+          heroImage={(project.custom_images as any)?.hero}
         />
       )}
       {activePageType === "about" && (

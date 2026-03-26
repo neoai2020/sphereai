@@ -1,20 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { 
-  Palette, 
-  Layout, 
-  ArrowRight, 
-  Image as ImageIcon, 
-  Type, 
-  Check, 
-  Zap, 
-  Monitor,
-  Phone,
-  Smartphone,
-  Save,
-  Loader2,
-  Globe
+import { useState, useRef, useCallback } from "react";
+import {
+  Palette, Layout, Zap, Monitor, Smartphone, Save,
+  Loader2, Check, Globe, Upload, RefreshCw, Type, Image as ImageIcon, X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Project } from "@/types/database";
@@ -28,14 +17,12 @@ const THEMES = [
 ];
 
 const COLOR_PALETTES = [
-  { id: "blue", label: "Ocean Blue", primary: "#3B82F6", secondary: "#06B6D4" },
-  { id: "green", label: "Forest Green", primary: "#10B981", secondary: "#059669" },
-  { id: "sunset", label: "Neon Sunset", primary: "#EC4899", secondary: "#F59E0B" },
-  { id: "mono", label: "Charcoal Mono", primary: "#1F2937", secondary: "#4B5563" },
-  { id: "brand", label: "Pure Brand", primary: "#4F46E5", secondary: "#C026D3" },
+  { id: "brand",  primary: "#4F46E5", secondary: "#C026D3", label: "Indigo" },
+  { id: "blue",   primary: "#3B82F6", secondary: "#06B6D4", label: "Ocean" },
+  { id: "green",  primary: "#10B981", secondary: "#059669", label: "Forest" },
+  { id: "sunset", primary: "#EC4899", secondary: "#F59E0B", label: "Sunset" },
+  { id: "mono",   primary: "#1F2937", secondary: "#4B5563", label: "Mono" },
 ];
-
-const FONTS = ["Inter", "Poppins", "Outfit", "Space Grotesk", "Merriweather"];
 
 interface CustomizerProps {
   project: Project & {
@@ -43,24 +30,51 @@ interface CustomizerProps {
     primary_color?: string;
     secondary_color?: string;
     font_family?: string;
-    navigation_style?: string;
     site_logo?: string;
     custom_images?: Record<string, string>;
   };
 }
 
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export function SiteCustomizer({ project }: CustomizerProps) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [previewTs, setPreviewTs] = useState(Date.now());
+
   const [config, setConfig] = useState({
     theme_id: project.theme_id || "1",
     primary_color: project.primary_color || "#4F46E5",
     secondary_color: project.secondary_color || "#10B981",
     font_family: project.font_family || "Inter",
-    navigation_style: project.navigation_style || "classic",
     site_logo: project.site_logo || "",
-    custom_images: project.custom_images || {},
+    custom_images: project.custom_images || {} as Record<string, string>,
+    name: project.name || "",
   });
+
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const heroInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const base64 = await fileToBase64(file);
+    setConfig(prev => ({ ...prev, site_logo: base64 }));
+  }, []);
+
+  const handleHeroUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const base64 = await fileToBase64(file);
+    setConfig(prev => ({ ...prev, custom_images: { ...prev.custom_images, hero: base64 } }));
+  }, []);
 
   async function handleSave() {
     setLoading(true);
@@ -73,6 +87,7 @@ export function SiteCustomizer({ project }: CustomizerProps) {
       });
       if (res.ok) {
         setSuccess(true);
+        setPreviewTs(Date.now());
         setTimeout(() => setSuccess(false), 3000);
       }
     } catch (err) {
@@ -82,193 +97,208 @@ export function SiteCustomizer({ project }: CustomizerProps) {
     }
   }
 
+  const previewUrl = `/software/user/${project.id}?t=${previewTs}`;
+
   return (
-    <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl overflow-hidden">
-      <div className="flex flex-col lg:flex-row h-[700px]">
-        {/* Sidebar Controls */}
-        <div className="w-full lg:w-96 border-r border-gray-50 flex flex-col">
-          <div className="p-8 border-b border-gray-50">
-            <h2 className="text-xl font-black text-gray-900 flex items-center gap-3">
-              <Palette className="text-brand-600" size={24} /> Site Customizer
+    <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden" style={{ height: "780px" }}>
+      <div className="flex h-full">
+
+        {/* ── Sidebar ── */}
+        <div className="w-80 shrink-0 border-r border-gray-100 flex flex-col">
+          <div className="px-6 py-5 border-b border-gray-100">
+            <h2 className="text-base font-black text-gray-900 flex items-center gap-2">
+              <Palette size={18} className="text-brand-600" /> Site Customizer
             </h2>
-            <p className="text-sm text-gray-500 mt-1 font-medium">Modify your AI-generated empire</p>
+            <p className="text-xs text-gray-400 mt-0.5 font-medium">Control every aspect of your site</p>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
-            {/* Theme Selection */}
-            <section>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 block">Visual Style</label>
-              <div className="grid grid-cols-1 gap-3">
-                {THEMES.map((t) => (
+          <div className="flex-1 overflow-y-auto px-5 py-6 space-y-8">
+
+            {/* Site Name */}
+            <section className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Site Name</label>
+              <input
+                type="text"
+                value={config.name}
+                onChange={e => setConfig(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Your site name"
+                className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-100 outline-none focus:ring-2 focus:ring-brand-500/10 focus:border-brand-200 text-sm font-semibold text-gray-900 transition-all"
+              />
+            </section>
+
+            {/* Logo Upload */}
+            <section className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Logo</label>
+              <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-12 h-12 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden cursor-pointer hover:border-brand-400 transition-colors shrink-0"
+                  onClick={() => logoInputRef.current?.click()}
+                >
+                  {config.site_logo
+                    ? <img src={config.site_logo} className="w-full h-full object-contain" alt="logo" />
+                    : <Globe size={20} className="text-gray-300" />}
+                </div>
+                <div className="flex-1 space-y-1.5">
                   <button
-                    key={t.id}
-                    onClick={() => setConfig({ ...config, theme_id: t.id })}
-                    className={cn(
-                      "flex items-center gap-4 p-4 rounded-2xl border transition-all text-left group",
-                      config.theme_id === t.id 
-                        ? "border-brand-600 bg-brand-50 shadow-md ring-1 ring-brand-500/20" 
-                        : "border-gray-50 bg-gray-50/50 hover:bg-white hover:border-gray-200"
-                    )}
+                    onClick={() => logoInputRef.current?.click()}
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-xs font-black text-gray-600 hover:bg-gray-50 transition-colors"
                   >
-                    <div className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center transition-colors",
-                      config.theme_id === t.id ? "bg-brand-600 text-white" : "bg-white text-gray-400 group-hover:bg-brand-50 group-hover:text-brand-600"
-                    )}>
-                      <t.icon size={20} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-gray-900">{t.name}</p>
-                      <p className="text-[10px] text-gray-500 font-medium">{t.desc}</p>
-                    </div>
+                    <Upload size={12} /> Upload Logo
                   </button>
-                ))}
+                  {config.site_logo && (
+                    <button
+                      onClick={() => setConfig(prev => ({ ...prev, site_logo: "" }))}
+                      className="w-full flex items-center justify-center gap-1.5 text-[10px] font-bold text-gray-400 hover:text-red-500 transition-colors"
+                    >
+                      <X size={10} /> Remove
+                    </button>
+                  )}
+                </div>
               </div>
+            </section>
+
+            {/* Hero Image */}
+            <section className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Hero Image</label>
+              <input ref={heroInputRef} type="file" accept="image/*" className="hidden" onChange={handleHeroUpload} />
+              {config.custom_images?.hero ? (
+                <div className="relative">
+                  <img src={config.custom_images.hero} className="w-full h-28 object-cover rounded-xl border border-gray-100" alt="hero" />
+                  <button
+                    onClick={() => setConfig(prev => ({ ...prev, custom_images: { ...prev.custom_images, hero: "" } }))}
+                    className="absolute top-2 right-2 w-6 h-6 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-red-500 transition-colors"
+                  >
+                    <X size={11} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => heroInputRef.current?.click()}
+                  className="w-full h-24 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 hover:border-brand-400 hover:bg-brand-50/30 transition-all"
+                >
+                  <ImageIcon size={20} className="text-gray-300" />
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">Upload Hero Image</span>
+                </button>
+              )}
             </section>
 
             {/* Colors */}
-            <section>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 block">Brand Colors</label>
-              <div className="flex flex-wrap gap-3">
-                {COLOR_PALETTES.map((p) => (
+            <section className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Brand Color</label>
+              <div className="flex gap-2 flex-wrap">
+                {COLOR_PALETTES.map(p => (
                   <button
                     key={p.id}
-                    onClick={() => setConfig({ ...config, primary_color: p.primary, secondary_color: p.secondary })}
-                    className={cn(
-                      "w-10 h-10 rounded-full border-2 p-0.5 transition-transform hover:scale-110",
-                      config.primary_color === p.primary ? "border-brand-600 ring-2 ring-brand-100" : "border-transparent"
-                    )}
                     title={p.label}
+                    onClick={() => setConfig(prev => ({ ...prev, primary_color: p.primary, secondary_color: p.secondary }))}
+                    className={cn(
+                      "w-9 h-9 rounded-full border-2 transition-transform hover:scale-110",
+                      config.primary_color === p.primary ? "border-gray-900 scale-110" : "border-transparent"
+                    )}
+                    style={{ backgroundColor: p.primary }}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-gray-50 border border-gray-100">
+                <input
+                  type="color"
+                  value={config.primary_color}
+                  onChange={e => setConfig(prev => ({ ...prev, primary_color: e.target.value }))}
+                  className="w-7 h-7 rounded cursor-pointer border-none bg-transparent"
+                />
+                <span className="text-xs font-mono font-bold text-gray-500">{config.primary_color}</span>
+                <span className="text-[10px] text-gray-400 font-medium ml-auto">Custom color</span>
+              </div>
+            </section>
+
+            {/* Theme */}
+            <section className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Visual Style</label>
+              <div className="space-y-2">
+                {THEMES.map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => setConfig(prev => ({ ...prev, theme_id: t.id }))}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all",
+                      config.theme_id === t.id
+                        ? "border-brand-200 bg-brand-50 text-brand-700"
+                        : "border-gray-100 bg-gray-50/50 text-gray-600 hover:bg-white hover:border-gray-200"
+                    )}
                   >
-                    <div className="w-full h-full rounded-full overflow-hidden flex transform -rotate-45">
-                      <div className="w-1/2 h-full" style={{ backgroundColor: p.primary }} />
-                      <div className="w-1/2 h-full" style={{ backgroundColor: p.secondary }} />
+                    <t.icon size={15} />
+                    <div>
+                      <p className="text-xs font-black">{t.name}</p>
+                      <p className="text-[10px] opacity-60">{t.desc}</p>
                     </div>
+                    {config.theme_id === t.id && <Check size={14} className="ml-auto text-brand-600" />}
                   </button>
                 ))}
               </div>
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div className="space-y-1.5">
-                  <span className="text-[9px] font-black text-gray-400 uppercase">Primary</span>
-                  <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
-                    <input type="color" value={config.primary_color} onChange={(e) => setConfig({ ...config, primary_color: e.target.value })} className="w-6 h-6 border-none bg-transparent" />
-                    <span className="text-[10px] font-mono font-bold text-gray-600">{config.primary_color}</span>
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <span className="text-[9px] font-black text-gray-400 uppercase">Secondary</span>
-                  <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
-                    <input type="color" value={config.secondary_color} onChange={(e) => setConfig({ ...config, secondary_color: e.target.value })} className="w-6 h-6 border-none bg-transparent" />
-                    <span className="text-[10px] font-mono font-bold text-gray-600">{config.secondary_color}</span>
-                  </div>
-                </div>
-              </div>
             </section>
 
-            {/* Logo */}
-            <section>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 block">Brand Identity</label>
-              <div className="space-y-4">
-                <div className="relative">
-                  <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                  <input
-                    type="text"
-                    value={config.site_logo}
-                    onChange={(e) => setConfig({ ...config, site_logo: e.target.value })}
-                    placeholder="Site Logo URL"
-                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-brand-500/20 text-sm font-medium"
-                  />
-                </div>
-                <div className="relative">
-                  <Type className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                  <select
-                    value={config.font_family}
-                    onChange={(e) => setConfig({ ...config, font_family: e.target.value })}
-                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-brand-500/20 text-sm font-bold appearance-none"
-                  >
-                    {FONTS.map(f => (
-                      <option key={f} value={f}>{f}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </section>
           </div>
 
-          <div className="p-8 border-t border-gray-50 bg-gray-50/30">
+          {/* Save */}
+          <div className="px-5 py-4 border-t border-gray-100">
             <button
               onClick={handleSave}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-gray-900 text-white font-black hover:bg-black transition-all active:scale-95 disabled:opacity-50 shadow-xl"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gray-900 text-white text-sm font-black hover:bg-black transition-all active:scale-95 disabled:opacity-50"
             >
-              {loading ? <Loader2 className="animate-spin" size={20} /> : success ? <Check size={20} className="text-green-400" /> : <Save size={20} />}
-              {success ? "Saved Changes!" : "Save Customization"}
+              {loading
+                ? <><Loader2 size={16} className="animate-spin" /> Saving...</>
+                : success
+                ? <><Check size={16} className="text-green-400" /> Saved!</>
+                : <><Save size={16} /> Save Changes</>}
             </button>
           </div>
         </div>
 
-        {/* Live Preview Area */}
-        <div className="flex-1 bg-gray-100 p-8 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
+        {/* ── Live Preview (iframe) ── */}
+        <div className="flex-1 bg-gray-100 flex flex-col overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3 bg-gray-100 border-b border-gray-200/50 shrink-0">
+            <div className="flex items-center gap-3">
               <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Live Preview</span>
-              <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-full shadow-sm border border-gray-200">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white rounded-full border border-gray-200 shadow-sm">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-[9px] font-black text-gray-600">Sync Active</span>
+                <span className="text-[9px] font-black text-gray-500">Synced after save</span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button className="p-2 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-brand-600 transition-colors shadow-sm"><Phone size={14} /></button>
-              <button className="p-2 rounded-lg bg-white border border-gray-200 text-brand-600 shadow-sm"><Monitor size={14} /></button>
+            <button
+              onClick={() => setPreviewTs(Date.now())}
+              title="Refresh preview"
+              className="p-1.5 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-brand-600 transition-colors shadow-sm"
+            >
+              <RefreshCw size={13} />
+            </button>
+          </div>
+
+          {/* Browser chrome */}
+          <div className="px-4 pt-3 pb-0">
+            <div className="bg-white rounded-t-xl border border-b-0 border-gray-200 px-4 py-2 flex items-center gap-3">
+              <div className="flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-red-400/70" />
+                <div className="w-3 h-3 rounded-full bg-yellow-400/70" />
+                <div className="w-3 h-3 rounded-full bg-green-400/70" />
+              </div>
+              <div className="flex-1 bg-gray-100 rounded-md px-3 py-1 text-[10px] text-gray-400 font-mono truncate">
+                {typeof window !== "undefined" ? window.location.origin : ""}/software/user/{project.id}
+              </div>
             </div>
           </div>
 
-          {/* Actual Site Preview Frame */}
-          <div className="flex-1 bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-200/50 flex flex-col font-sans" style={{ fontFamily: config.font_family }}>
-            {/* Nav */}
-            <div className="px-8 py-5 border-b border-gray-100 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-10">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-xs" style={{ backgroundColor: config.primary_color }}>
-                  {config.site_logo ? <img src={config.site_logo} className="w-full h-full object-contain" alt="logo" /> : project.name[0]}
-                </div>
-                <span className="text-sm font-black text-gray-900">{project.name}</span>
-              </div>
-              <div className="hidden sm:flex items-center gap-6">
-                {["Home", "Blog", "FAQ", "About"].map(n => (
-                  <span key={n} className="text-[10px] font-black text-gray-400 uppercase hover:text-brand-600 cursor-pointer">{n}</span>
-                ))}
-                <button className="px-4 py-2 rounded-lg text-white text-[10px] font-black shadow-lg" style={{ backgroundColor: config.primary_color }}>GET STARTED</button>
-              </div>
-            </div>
-
-            {/* Inner Content Preview */}
-            <div className="flex-1 overflow-y-auto p-12 bg-white flex flex-col items-center justify-center text-center space-y-6">
-               <div className="inline-flex items-center gap-2 px-3 py-1 bg-opacity-10 rounded-full mb-2" style={{ backgroundColor: config.primary_color + '20' }}>
-                 <Zap size={10} style={{ color: config.primary_color }} />
-                 <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: config.primary_color }}>Theme {config.theme_id}: {THEMES.find(t => t.id === config.theme_id)?.name}</span>
-               </div>
-               <h3 className="text-4xl font-black text-gray-900 max-w-sm">The best solution for your business.</h3>
-               <p className="text-gray-500 text-sm max-w-md font-medium leading-relaxed">
-                 Build your empire with SiteForge artificial intelligence. This is how your public site will look to customers.
-               </p>
-               <div className="flex items-center gap-4 pt-4">
-                 <button className="px-8 py-3 rounded-xl text-white font-black shadow-xl transition-all hover:scale-105 active:scale-95" style={{ backgroundColor: config.primary_color }}>Explore Now</button>
-                 <button className="px-8 py-3 rounded-xl font-bold bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all">Support</button>
-               </div>
-
-               {/* Sections Mockup */}
-               <div className="grid grid-cols-2 gap-4 w-full mt-12 bg-gray-50/50 p-6 rounded-3xl border border-dashed border-gray-200">
-                  <div className="h-24 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center p-4">
-                     <ImageIcon size={20} className="text-gray-300 mb-2" />
-                     <div className="w-16 h-1 bg-gray-100 rounded-full" />
-                  </div>
-                  <div className="h-24 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center p-4">
-                     <ImageIcon size={20} className="text-gray-300 mb-2" />
-                     <div className="w-16 h-1 bg-gray-100 rounded-full" />
-                  </div>
-               </div>
-            </div>
+          <div className="flex-1 px-4 pb-4 overflow-hidden">
+            <iframe
+              key={previewTs}
+              src={previewUrl}
+              className="w-full h-full rounded-b-xl border border-gray-200 bg-white"
+              title="Site Preview"
+            />
           </div>
         </div>
+
       </div>
     </div>
   );

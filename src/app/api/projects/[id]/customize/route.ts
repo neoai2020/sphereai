@@ -14,20 +14,26 @@ export async function PATCH(
   }
 
   const body = await req.json();
-  const { theme_id, primary_color, secondary_color, font_family, navigation_style, site_logo, custom_images } = body;
+  const { theme_id, primary_color, secondary_color, font_family, navigation_style, site_logo, custom_images, name } = body;
+
+  const updatePayload: Record<string, any> = {
+    theme_id,
+    primary_color,
+    secondary_color,
+    font_family,
+    navigation_style,
+    site_logo,
+    custom_images,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (name) {
+    updatePayload.name = name;
+  }
 
   const { data, error } = await supabase
     .from("projects")
-    .update({
-      theme_id,
-      primary_color,
-      secondary_color,
-      font_family,
-      navigation_style,
-      site_logo,
-      custom_images,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updatePayload)
     .eq("id", id)
     .eq("user_id", user.id)
     .select()

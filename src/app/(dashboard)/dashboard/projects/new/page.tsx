@@ -25,10 +25,19 @@ import type { PageType } from "@/types/database";
 type ProjectType = "affiliate" | "service";
 const PAGE_TYPES: PageType[] = ["landing", "about", "faq", "blog", "reviews"];
 
+const ACTION_MESSAGES: Record<string, string> = {
+  landing: "Crafting your Landing Page",
+  about: "Writing your About Page",
+  faq: "Building FAQ Content",
+  blog: "Generating Blog Article",
+  reviews: "Creating Reviews Page",
+};
+
 export default function NewProjectPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [scraping, setScraping] = useState(false);
+  const [generatingDescription, setGeneratingDescription] = useState(false);
   const [error, setError] = useState("");
   const [remainingInfo, setRemainingInfo] = useState({ used: 0, remaining: 5, limit: 5 });
   const [generationProgress, setGenerationProgress] = useState<Record<string, "pending" | "processing" | "done" | "error">>({
@@ -106,6 +115,29 @@ export default function NewProjectPage() {
       setError("Failed to connect to scraping service.");
     } finally {
       setScraping(false);
+    }
+  }
+
+  async function generateDescription() {
+    if (!form.productName) return;
+    setGeneratingDescription(true);
+    setError("");
+    try {
+      const res = await fetch("/api/ai/describe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productName: form.productName }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        updateField("productDescription", data.description);
+      } else {
+        setError(data.error || "Failed to generate description.");
+      }
+    } catch {
+      setError("Failed to connect to AI service.");
+    } finally {
+      setGeneratingDescription(false);
     }
   }
 
@@ -187,21 +219,30 @@ export default function NewProjectPage() {
         return;
       }
 
-      // Step-by-Step Generation (Site-by-Site)
-      for (const type of PAGE_TYPES) {
-        setGenerationProgress(prev => ({ ...prev, [type]: "processing" }));
-        try {
-          const res = await fetch("/api/generate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ projectId: project.id, pageType: type }),
-          });
-          if (!res.ok) throw new Error(`Failed to generate ${type}`);
-          setGenerationProgress(prev => ({ ...prev, [type]: "done" }));
-        } catch (err) {
-          setGenerationProgress(prev => ({ ...prev, [type]: "error" }));
-        }
-      }
+      // Parallel Generation (Faster!)
+      setGenerationProgress({
+        landing: "processing",
+        about: "processing",
+        faq: "processing",
+        blog: "processing",
+        reviews: "processing",
+      });
+
+      await Promise.allSettled(
+        PAGE_TYPES.map(async (type) => {
+          try {
+            const res = await fetch("/api/generate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ projectId: project.id, pageType: type }),
+            });
+            if (!res.ok) throw new Error(`Failed to generate ${type}`);
+            setGenerationProgress(prev => ({ ...prev, [type]: "done" }));
+          } catch (err) {
+            setGenerationProgress(prev => ({ ...prev, [type]: "error" }));
+          }
+        })
+      );
 
       router.push(`/dashboard/projects/${project.id}`);
       router.refresh();
@@ -376,13 +417,24 @@ export default function NewProjectPage() {
                            className="w-full bg-white px-5 py-3.5 rounded-xl border border-brand-100/50 text-base font-black text-gray-900 outline-none focus:ring-2 focus:ring-brand-500/5 transition-all" 
                            placeholder="Product Name"
                          />
-                         <textarea 
-                           value={form.productDescription} 
-                           onChange={(e) => updateField("productDescription", e.target.value)}
-                           rows={3} 
-                           className="w-full bg-white px-5 py-3.5 rounded-xl border border-brand-100/50 text-sm text-gray-600 font-medium outline-none focus:ring-2 focus:ring-brand-500/5 transition-all resize-none" 
-                           placeholder="Product Description"
-                         />
+                         <div className="relative">
+                           <textarea
+                             value={form.productDescription}
+                             onChange={(e) => updateField("productDescription", e.target.value)}
+                             rows={3}
+                             className="w-full bg-white px-5 py-3.5 pb-12 rounded-xl border border-brand-100/50 text-sm text-gray-600 font-medium outline-none focus:ring-2 focus:ring-brand-500/5 transition-all resize-none"
+                             placeholder="Product Description"
+                           />
+                           <button
+                             type="button"
+                             onClick={generateDescription}
+                             disabled={generatingDescription || !form.productName}
+                             className="absolute bottom-3 right-3 flex items-center gap-1.5 px-3 py-1.5 bg-brand-600 text-white rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-brand-700 disabled:opacity-50 transition-all active:scale-95"
+                           >
+                             {generatingDescription ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                             {generatingDescription ? "Generating..." : "Generate with AI"}
+                           </button>
+                         </div>
                       </div>
                     </div>
                   )}
@@ -411,13 +463,24 @@ export default function NewProjectPage() {
                   </div>
                   <div>
                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2.5">Full Business Description</label>
-                    <textarea
-                      value={form.productDescription}
-                      onChange={(e) => updateField("productDescription", e.target.value)}
-                      rows={5}
-                      className="w-full px-5 py-3.5 rounded-xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:ring-4 focus:ring-brand-500/5 focus:border-brand-200 outline-none text-base font-medium transition-all resize-none"
-                      placeholder="Be as detailed as possible. The AI uses this to write all 5 pages..."
-                    />
+                    <div className="relative">
+                      <textarea
+                        value={form.productDescription}
+                        onChange={(e) => updateField("productDescription", e.target.value)}
+                        rows={5}
+                        className="w-full px-5 py-3.5 pb-12 rounded-xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:ring-4 focus:ring-brand-500/5 focus:border-brand-200 outline-none text-base font-medium transition-all resize-none"
+                        placeholder="Be as detailed as possible. The AI uses this to write all 5 pages..."
+                      />
+                      <button
+                        type="button"
+                        onClick={generateDescription}
+                        disabled={generatingDescription || !form.productName}
+                        className="absolute bottom-3 right-3 flex items-center gap-1.5 px-3 py-1.5 bg-brand-600 text-white rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-brand-700 disabled:opacity-50 transition-all active:scale-95"
+                      >
+                        {generatingDescription ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                        {generatingDescription ? "Generating..." : "Generate with AI"}
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -437,175 +500,178 @@ export default function NewProjectPage() {
             </div>
           )}
 
-          {/* Step 3: SEO & Audience (Updated with AI Suggest) */}
+          {/* Step 3: SEO & Audience */}
           {step === 3 && (
-            <div className="space-y-10">
+            <div className="space-y-8">
               <div className="text-center">
-                <h2 className="text-3xl font-black text-gray-900 mb-2">Plan with Site Forge</h2>
-                <p className="text-gray-500 font-medium">SiteForge AI is planning your SEO strategy.</p>
+                <h2 className="text-2xl font-black text-gray-900 mb-1.5">SEO Plan</h2>
+                <p className="text-gray-400 text-sm font-medium">Review and edit your AI-generated keywords.</p>
               </div>
 
               {loading ? (
-                <div className="flex flex-col items-center py-10 gap-4">
-                  <div className="relative">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-r from-brand-600 to-indigo-600 flex items-center justify-center shadow-2xl animate-pulse">
-                      <Sparkles size={32} className="text-white" />
-                    </div>
+                <div className="flex flex-col items-center py-12 gap-3">
+                  <div className="w-10 h-10 rounded-full bg-brand-50 border border-brand-100 flex items-center justify-center">
+                    <Loader2 size={20} className="text-brand-600 animate-spin" />
                   </div>
-                  <div className="flex items-center gap-2 text-brand-600 font-black text-lg">
-                    <Loader2 className="animate-spin" size={20} />
-                    Planning with SiteForge AI...
-                  </div>
-                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Analyzing your product for optimal SEO keywords</p>
+                  <p className="text-sm font-bold text-gray-700">Generating keywords...</p>
+                  <p className="text-[11px] text-gray-400">Analyzing your product for optimal SEO</p>
                 </div>
               ) : (
-                <div className="space-y-8">
-                  <div className="flex flex-col items-center mb-4">
-                    <button
-                       onClick={suggestSEO}
-                       disabled={loading}
-                       className="group relative flex items-center gap-3 px-10 py-5 rounded-2xl bg-gradient-to-r from-brand-600 to-indigo-600 text-white font-black shadow-2xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
-                    >
-                      <Sparkles size={24} className="text-brand-300" />
-                      Re-generate Keywords
-                      <div className="absolute inset-x-0 -bottom-1 h-1 bg-brand-900/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </button>
-                  </div>
-
-                  <div className="relative group">
-                    <label className="flex items-center gap-2 text-sm font-black text-gray-800 uppercase tracking-widest mb-3">
-                      <Globe size={16} className="text-brand-600" /> SEO Keywords
+                <div className="space-y-5">
+                  <div>
+                    <label className="flex items-center gap-1.5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2.5">
+                      <Globe size={13} className="text-brand-500" /> SEO Keywords
                     </label>
                     <div className="relative">
                       <input
                         type="text"
                         value={form.keywords}
                         onChange={(e) => updateField("keywords", e.target.value)}
-                        className="w-full px-6 py-5 rounded-2xl bg-gray-50 border-none focus:ring-4 focus:ring-brand-500/20 outline-none text-lg font-bold shadow-inner"
+                        className="w-full px-5 py-3.5 pr-36 rounded-xl bg-gray-50 border border-gray-100 focus:bg-white focus:ring-4 focus:ring-brand-500/5 focus:border-brand-200 outline-none text-sm font-medium transition-all"
                         placeholder="AI, automation, productivity..."
                       />
-                      <div className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-300 font-black text-[10px] uppercase tracking-tighter">comma separated</div>
+                      <button
+                        onClick={suggestSEO}
+                        disabled={loading}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-3 py-1.5 bg-brand-600 text-white rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-brand-700 disabled:opacity-50 transition-all active:scale-95"
+                      >
+                        <Sparkles size={12} />
+                        Re-generate
+                      </button>
                     </div>
+                    <p className="text-[10px] text-gray-400 mt-1.5 ml-1">Comma separated</p>
                   </div>
                 </div>
               )}
 
-              <div className="flex justify-between pt-10 border-t border-gray-50">
-                <button onClick={() => setStep(2)} className="flex items-center gap-2 px-8 py-4 text-gray-500 font-black hover:text-gray-900 transition-colors uppercase tracking-widest text-xs">
-                  <ArrowLeft size={18} /> Back
+              <div className="flex justify-between pt-6 border-t border-gray-50">
+                <button onClick={() => setStep(2)} className="flex items-center gap-2 px-6 py-3 text-gray-400 font-black hover:text-gray-900 transition-colors uppercase tracking-[0.2em] text-[10px]">
+                  <ArrowLeft size={16} /> Back
                 </button>
-                <button 
-                  onClick={() => setStep(4)} 
+                <button
+                  onClick={() => setStep(4)}
                   disabled={!form.keywords}
-                  className="px-10 py-5 bg-brand-600 text-white rounded-2xl font-black hover:bg-brand-700 disabled:opacity-50 transition-all active:scale-95 flex items-center gap-3 shadow-xl shadow-brand-200"
+                  className="px-10 py-3.5 bg-brand-600 text-white rounded-xl font-black hover:bg-brand-700 disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 text-sm"
                 >
-                  Next Step <ArrowRight size={20} />
+                  Next Step <ArrowRight size={18} />
                 </button>
               </div>
             </div>
           )}
 
-          {/* Step 4: Final Launch (Updated with Progress Bar) */}
+          {/* Step 4: Final Launch */}
           {step === 4 && (
-            <div className="space-y-10 text-center">
-              <h2 className="text-4xl font-black text-gray-900 tracking-tight">Final Blueprint</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-                <div className="p-6 rounded-3xl bg-gray-50 flex flex-col items-center">
-                  <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-2">Structure</span>
-                  <span className="font-bold text-gray-900">5-Page AI Site</span>
+            <div className="space-y-8">
+              <div className="text-center">
+                <h2 className="text-2xl font-black text-gray-900 mb-1.5">Final Blueprint</h2>
+                <p className="text-gray-400 text-sm font-medium">Ready to build your 5-page AI site.</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-4 rounded-xl bg-gray-50 border border-gray-100 flex flex-col gap-1">
+                  <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Structure</span>
+                  <span className="font-bold text-gray-900 text-sm">5-Page AI Site</span>
                 </div>
-                <div className="p-6 rounded-3xl bg-gray-50 flex flex-col items-center">
-                  <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-2">Hosting</span>
-                  <span className="font-bold text-gray-900">sphere.ai/software/...</span>
+                <div className="p-4 rounded-xl bg-gray-50 border border-gray-100 flex flex-col gap-1">
+                  <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Hosting</span>
+                  <span className="font-bold text-gray-900 text-sm">sphere.ai/software/...</span>
                 </div>
               </div>
 
               {loading ? (
-                <div className="space-y-10 py-10">
-                   <div className="flex flex-col items-center gap-4">
-                     <div className="w-full max-w-lg h-5 bg-gray-100 rounded-full overflow-hidden shadow-inner border border-gray-200/50">
-                       <div 
-                         className="h-full bg-gradient-to-r from-brand-600 to-brand-400 transition-all duration-1000 shadow-lg" 
-                         style={{ width: `${progressPercentage}%` }}
-                       />
-                     </div>
-                     <div className="flex items-center gap-2 text-brand-600 font-black text-lg">
-                       <Loader2 className="animate-spin" size={20} />
-                       {Math.round(progressPercentage)}% Generated
-                     </div>
-                   </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                      {PAGE_TYPES.map((type) => (
-                        <div 
-                          key={type} 
-                          className={`p-4 rounded-2xl border transition-all ${
-                            generationProgress[type] === "done" 
-                              ? "bg-green-50 border-green-100 text-green-700 shadow-sm font-black"
-                              : generationProgress[type] === "processing"
-                              ? "bg-brand-50 border-brand-100 text-brand-700 animate-pulse border-2 font-black"
-                              : "bg-gray-50 border-gray-100 text-gray-400 font-black"
-                          }`}
-                        >
-                          <div className="flex items-center justify-center mb-2">
-                             {generationProgress[type] === "done" ? <CheckCircle2 size={18} /> : 
-                              generationProgress[type] === "processing" ? <Loader2 size={18} className="animate-spin" /> : 
-                              <Clock size={18} />}
-                          </div>
-                          <span className="text-[10px] uppercase tracking-tighter">{type}</span>
-                        </div>
-                      ))}
+                <div className="space-y-6 py-4">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Progress</span>
+                      <span className="text-[10px] font-black text-brand-600">{Math.round(progressPercentage)}%</span>
                     </div>
+                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-brand-600 transition-all duration-700 rounded-full"
+                        style={{ width: `${progressPercentage}%` }}
+                      />
+                    </div>
+                  </div>
 
-                   <div className="p-8 bg-brand-950 text-white rounded-[2rem] shadow-2xl relative overflow-hidden">
-                      <div className="relative z-10 flex flex-col items-center">
-                        <div className="w-12 h-12 rounded-full bg-brand-500/20 flex items-center justify-center mb-6">
-                          <Globe className="text-brand-400 animate-bounce" size={24} />
+                  <div className="grid grid-cols-5 gap-2">
+                    {PAGE_TYPES.map((type) => (
+                      <div
+                        key={type}
+                        className={`p-3 rounded-xl border text-center transition-all ${
+                          generationProgress[type] === "done"
+                            ? "bg-green-50 border-green-100 text-green-700"
+                            : generationProgress[type] === "processing"
+                            ? "bg-brand-50 border-brand-200 text-brand-700 animate-pulse"
+                            : "bg-gray-50 border-gray-100 text-gray-400"
+                        }`}
+                      >
+                        <div className="flex justify-center mb-1.5">
+                          {generationProgress[type] === "done" ? <CheckCircle2 size={14} /> :
+                           generationProgress[type] === "processing" ? <Loader2 size={14} className="animate-spin" /> :
+                           <Clock size={14} />}
                         </div>
-                        <p className="text-xl font-black mb-2 animate-pulse">Launching your AI Assets...</p>
-                        <p className="text-brand-300 font-bold text-sm max-w-xs mx-auto">
-                           Initialing AI SEO engines. This will only take about 90 seconds.
-                        </p>
+                        <span className="text-[9px] font-black uppercase tracking-tight">{type}</span>
                       </div>
-                      <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl opacity-50" />
-                   </div>
+                    ))}
+                  </div>
+
+                  {(() => {
+                    const processing = PAGE_TYPES.filter(t => generationProgress[t] === "processing");
+                    const done = PAGE_TYPES.filter(t => generationProgress[t] === "done");
+                    const dynamicMessage = processing.length > 0
+                      ? processing.map(t => ACTION_MESSAGES[t]).join(" · ")
+                      : done.length === PAGE_TYPES.length
+                      ? "All pages ready! Redirecting..."
+                      : "Finalizing your site...";
+                    const subMessage = done.length > 0
+                      ? `${done.length} of ${PAGE_TYPES.length} pages complete`
+                      : "Starting up AI engines...";
+                    return (
+                      <div className="p-5 bg-gray-900 text-white rounded-2xl flex items-center gap-4">
+                        <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                          <Globe className="text-brand-400 animate-bounce" size={18} />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-sm font-black leading-tight">{dynamicMessage}</p>
+                          <p className="text-gray-400 text-xs mt-0.5">{subMessage}</p>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               ) : (
-                <div className="p-10 bg-brand-50 border border-brand-100 rounded-[2.5rem] text-center max-w-2xl mx-auto">
-                  <div className="flex flex-col items-center mb-6">
-                    <span className="text-[10px] font-black text-brand-700 uppercase tracking-[0.3em] mb-4">Resource Allocation</span>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-5xl font-black text-gray-900">{remainingInfo.remaining}</span>
-                      <span className="text-gray-400 font-bold uppercase tracking-widest text-sm">left today</span>
+                <div className="p-5 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Generations left today</span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-3xl font-black text-gray-900">{remainingInfo.remaining}</span>
+                      <span className="text-xs text-gray-400 font-bold">/ {remainingInfo.limit}</span>
                     </div>
                   </div>
-                  <div className="w-full h-3 bg-brand-200 rounded-full overflow-hidden mb-6 shadow-inner">
-                    <div 
-                      className="h-full bg-brand-600 transition-all duration-1000" 
-                      style={{ width: `${(remainingInfo.used / remainingInfo.limit) * 100}%` }}
-                    />
+                  <div className="w-32">
+                    <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-brand-600 transition-all duration-700 rounded-full"
+                        style={{ width: `${(remainingInfo.used / remainingInfo.limit) * 100}%` }}
+                      />
+                    </div>
                   </div>
-                  <p className="text-xs text-brand-700 font-black flex items-center justify-center gap-2">
-                    <AlertCircle size={16} />
-                    Pro Tip: Use SiteForge suggestions for best results.
-                  </p>
                 </div>
               )}
 
               {!loading && (
-                <div className="flex justify-between pt-10 border-t border-gray-50">
-                   <button onClick={() => setStep(3)} className="flex items-center gap-2 px-8 py-4 text-gray-500 font-black hover:text-gray-900 transition-colors uppercase tracking-widest text-xs">
-                     <ArrowLeft size={18} /> Back
-                   </button>
-                   <button 
-                     onClick={handleSubmit} 
-                     disabled={loading || remainingInfo.remaining <= 0}
-                     className="px-12 py-6 bg-gray-900 text-white rounded-[2rem] font-black hover:bg-black disabled:opacity-50 transition-all active:scale-95 flex items-center gap-4 text-xl shadow-2xl"
-                   >
-                     <Sparkles size={28} className="text-brand-400" />
-                     Build with SiteForge
-                   </button>
+                <div className="flex justify-between pt-6 border-t border-gray-50">
+                  <button onClick={() => setStep(3)} className="flex items-center gap-2 px-6 py-3 text-gray-400 font-black hover:text-gray-900 transition-colors uppercase tracking-[0.2em] text-[10px]">
+                    <ArrowLeft size={16} /> Back
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={loading || remainingInfo.remaining <= 0}
+                    className="px-10 py-3.5 bg-gray-900 text-white rounded-xl font-black hover:bg-black disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 text-sm"
+                  >
+                    <Sparkles size={16} className="text-brand-400" />
+                    Build with SiteForge
+                  </button>
                 </div>
               )}
             </div>

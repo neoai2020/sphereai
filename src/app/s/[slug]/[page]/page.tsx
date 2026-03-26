@@ -35,7 +35,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .select("*")
     .eq("project_id", project.id)
     .eq("page_type", pageSlug)
-    .eq("is_published", true)
     .single();
 
   return {
@@ -71,7 +70,6 @@ export default async function SubPage({ params }: Props) {
     .select("*")
     .eq("project_id", project.id)
     .eq("page_type", pageSlug)
-    .eq("is_published", true)
     .single();
 
   if (!page) notFound();
@@ -96,25 +94,25 @@ export default async function SubPage({ params }: Props) {
         />
       )}
       {pageSlug === "faq" && (
-        <FAQRenderer 
-          content={content as any} 
-          slug={project.slug} 
+        <FAQRenderer
+          content={content as any}
+          slug={project.slug}
           themeId={project.theme_id}
           primaryColor={project.primary_color}
         />
       )}
       {pageSlug === "blog" && (
-        <BlogRenderer 
-          content={content as any} 
-          slug={project.slug} 
+        <BlogRenderer
+          content={content as any}
+          slug={project.slug}
           themeId={project.theme_id}
           primaryColor={project.primary_color}
         />
       )}
       {pageSlug === "reviews" && (
-        <ReviewsRenderer 
-          content={content as any} 
-          slug={project.slug} 
+        <ReviewsRenderer
+          content={content as any}
+          slug={project.slug}
           themeId={project.theme_id}
           primaryColor={project.primary_color}
         />

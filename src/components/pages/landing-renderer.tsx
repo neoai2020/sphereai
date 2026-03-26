@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { getThemeStyles } from "@/lib/themes";
 import { cn } from "@/lib/utils";
-import { Check, ArrowRight, Zap, Star, ShieldCheck } from "lucide-react";
+import { Check, ArrowRight, Zap, Star, ShieldCheck, Sparkles, Rocket, Target } from "lucide-react";
+
+const FEATURE_ICONS = [Zap, ShieldCheck, Rocket, Target, Sparkles, Star];
 
 interface LandingContent {
   hero?: {
@@ -32,14 +34,18 @@ export function LandingRenderer({
   content,
   productUrl,
   slug,
+  productName,
   themeId = "1",
   primaryColor = "#4F46E5",
+  heroImage,
 }: {
   content: LandingContent;
   productUrl: string | null;
   slug: string;
+  productName?: string;
   themeId?: string;
   primaryColor?: string;
+  heroImage?: string;
 }) {
   const ctaHref = productUrl || "#";
   const styles = getThemeStyles(themeId, primaryColor);
@@ -70,40 +76,43 @@ export function LandingRenderer({
                <p className={styles.text}>
                 {content.hero.subheadline}
                </p>
-               <div className="flex flex-col sm:flex-row items-center gap-6">
+               <div className="flex flex-row items-center gap-4 flex-wrap">
                  <a
                     href={ctaHref}
-                    className={styles.button}
-                    style={themeId !== "4" && themeId !== "3" ? { backgroundColor: primaryColor } : {}}
+                    className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-white font-black text-sm shadow-lg hover:opacity-90 active:scale-95 transition-all"
+                    style={{ backgroundColor: primaryColor }}
                   >
                     {content.hero.ctaText}
                   </a>
-                  <div className="flex items-center gap-3">
-                    <div className="flex -space-x-3">
-                      {[1,2,3,4].map(i => (
-                        <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-100 overflow-hidden shadow-sm flex items-center justify-center">
-                          <img src={`https://i.pravatar.cc/40?img=${i+10}`} alt="avatar" />
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex -space-x-2">
+                      {[1,2,3].map(i => (
+                        <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-100 overflow-hidden shadow-sm">
+                          <img src={`https://i.pravatar.cc/32?img=${i+10}`} alt="avatar" />
                         </div>
                       ))}
                     </div>
-                    <div className="text-left">
-                      <div className="flex gap-0.5"><Star size={10} className="fill-amber-400 text-amber-400" /><Star size={10} className="fill-amber-400 text-amber-400" /><Star size={10} className="fill-amber-400 text-amber-400" /></div>
-                      <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-0.5">Trusted by 10k+</p>
+                    <div>
+                      <div className="flex gap-0.5">
+                        {[1,2,3,4,5].map(i => <Star key={i} size={10} className="fill-amber-400 text-amber-400" />)}
+                      </div>
+                      <p className="text-[10px] font-bold text-gray-400 mt-0.5">Trusted by 10k+</p>
                     </div>
                   </div>
                </div>
             </div>
-            <div className="hidden lg:block relative">
-               <div className="bg-white/50 backdrop-blur-3xl rounded-[3rem] p-4 border border-white/40 shadow-2xl relative z-10">
-                 <div className="bg-gray-900 rounded-[2.5rem] aspect-video overflow-hidden flex items-center justify-center shadow-2xl">
-                    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200" alt="Software Preview" className="w-full h-full object-cover opacity-80" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                       <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center shadow-2xl cursor-pointer hover:scale-110 transition-transform">
-                         <div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[18px] border-l-white border-b-[10px] border-b-transparent ml-2" />
-                       </div>
-                    </div>
-                 </div>
-               </div>
+            <div className="hidden lg:flex items-center justify-center relative">
+              <div className="relative w-full max-w-lg">
+                <div className="absolute inset-0 rounded-3xl blur-3xl opacity-20" style={{ backgroundColor: primaryColor }} />
+                <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/20 aspect-[4/3]">
+                  <img
+                    src={heroImage || "https://images.unsplash.com/photo-1551288049-bbb652167c80?auto=format&fit=crop&q=80&w=1200"}
+                    alt="Product Preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -111,56 +120,74 @@ export function LandingRenderer({
 
       {/* Features */}
       {content.features && content.features.length > 0 && (
-        <section className={cn(styles.section)}>
+        <section className={cn(styles.section, themeId === "4" ? "" : "bg-gray-50/40")}>
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-20 space-y-4">
-              <span className="text-xs font-black uppercase tracking-[0.3em]" style={{ color: primaryColor }}>Innovations</span>
-              <h2 className={styles.heading}>Built for the Future</h2>
+            <div className="text-center mb-14 space-y-3">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em]" style={{ color: primaryColor }}>Features</span>
+              <h2 className="text-3xl font-black text-gray-900" style={themeId === "4" ? { color: "white" } : {}}>
+                What makes it different
+              </h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-10">
-              {content.features.map((feature, i) => (
-                <div
-                  key={i}
-                  className={cn(styles.card, "group")}
-                >
-                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-8 bg-brand-50 group-hover:scale-110 transition-transform shadow-inner" style={{ backgroundColor: primaryColor + '10' }}>
-                    <ShieldCheck size={28} style={{ color: primaryColor }} />
+            <div className="grid md:grid-cols-3 gap-6">
+              {content.features.map((feature, i) => {
+                const Icon = FEATURE_ICONS[i % FEATURE_ICONS.length];
+                return (
+                  <div
+                    key={i}
+                    className="p-7 rounded-2xl border bg-white transition-all hover:border-gray-200"
+                    style={themeId === "4" ? { backgroundColor: "#111", borderColor: "#222" } : { borderColor: "#f3f4f6" }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center mb-5"
+                      style={{ backgroundColor: primaryColor + "12" }}
+                    >
+                      <Icon size={18} style={{ color: primaryColor }} />
+                    </div>
+                    <h3 className="text-base font-black text-gray-900 mb-2" style={themeId === "4" ? { color: "white" } : {}}>
+                      {feature.title}
+                    </h3>
+                    <p className="text-sm text-gray-500 leading-relaxed font-medium">{feature.description}</p>
                   </div>
-                  <h3 className="text-xl font-black text-gray-900 mb-4 group-hover:text-brand-600 transition-colors" style={themeId === "4" ? { color: "white" } : {}}>
-                    {feature.title}
-                  </h3>
-                  <p className={styles.text}>{feature.description}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
       )}
 
-      {/* Benefits - Two Column Layout */}
+      {/* Benefits */}
       {content.benefits && content.benefits.length > 0 && (
-        <section className={cn(styles.section, "bg-gray-50/50")}>
-          <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
-            <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl min-h-[500px]">
-               <img src="https://images.unsplash.com/photo-1551288049-bbb652167c80?auto=format&fit=crop&q=80&w=1200" alt="Benefits" className="absolute inset-0 w-full h-full object-cover" />
-               <div className="absolute inset-x-8 bottom-8 p-8 bg-white/80 backdrop-blur-xl rounded-3xl border border-white/40 shadow-2xl">
-                  <p className="text-gray-900 font-bold italic">"This turned our entire workflow into a high-speed engine of efficiency."</p>
-                  <p className="text-sm font-black text-brand-600 uppercase tracking-widest mt-4">– John Doe, CEO @ ModernX</p>
-               </div>
+        <section className={cn(styles.section)}>
+          <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+            <div className="relative rounded-2xl overflow-hidden aspect-[4/3]">
+              <img
+                src="https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?auto=format&fit=crop&q=80&w=1200"
+                alt="Benefits"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
             </div>
-            <div className="space-y-12">
-              <h2 className={styles.heading}>Why Choose {slug}?</h2>
-              <div className="grid gap-10">
+            <div className="space-y-8">
+              <div className="space-y-3">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em]" style={{ color: primaryColor }}>Why Us</span>
+                <h2 className="text-3xl font-black text-gray-900" style={themeId === "4" ? { color: "white" } : {}}>
+                  Why Choose {productName || content.hero?.headline?.split(" ").slice(0, 3).join(" ") || "This"}?
+                </h2>
+              </div>
+              <div className="space-y-5">
                 {content.benefits.map((benefit, i) => (
-                  <div key={i} className="flex gap-6 group">
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-white border border-gray-100 shadow-sm group-hover:bg-brand-50 transition-colors">
-                      <Check className="w-6 h-6 text-green-500" />
+                  <div key={i} className="flex gap-4">
+                    <div
+                      className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                      style={{ backgroundColor: primaryColor + "15" }}
+                    >
+                      <Check className="w-3.5 h-3.5" style={{ color: primaryColor }} />
                     </div>
-                    <div className="space-y-2">
-                      <h3 className="text-xl font-bold text-gray-900" style={themeId === "4" ? { color: "white" } : {}}>
+                    <div>
+                      <h3 className="text-base font-black text-gray-900 mb-1" style={themeId === "4" ? { color: "white" } : {}}>
                         {benefit.title}
                       </h3>
-                      <p className={styles.text}>{benefit.description}</p>
+                      <p className="text-sm text-gray-500 leading-relaxed font-medium">{benefit.description}</p>
                     </div>
                   </div>
                 ))}

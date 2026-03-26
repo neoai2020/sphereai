@@ -140,30 +140,34 @@ function ResetPasswordForm() {
 
   if (checking) {
     return (
-      <div className="text-center py-12">
-        <Loader2 className="animate-spin text-brand-600 mx-auto mb-4" size={40} />
-        <h3 className="text-lg font-bold text-gray-900">Verifying your link...</h3>
-        <p className="text-gray-500">Wait a second, we're making sure it's you.</p>
+      <div className="text-center space-y-8 py-12 animate-pulse">
+        <div className="w-20 h-20 bg-gray-50 rounded-[2rem] flex items-center justify-center mx-auto text-gray-400 border border-gray-100">
+          <Loader2 className="animate-spin" size={32} />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-2xl font-black text-gray-900 tracking-tight">Verifying Sequence</h3>
+          <p className="text-gray-400 font-bold text-xs uppercase tracking-widest leading-none">Establishing secure connection...</p>
+        </div>
       </div>
     );
   }
 
   if (success) {
     return (
-      <div className="text-center space-y-6 py-4">
-        <div className="w-16 h-16 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto border border-green-100">
-          <CheckCircle2 size={32} />
+      <div className="text-center space-y-8 py-6 animate-in zoom-in duration-500">
+        <div className="w-20 h-20 bg-emerald-50 rounded-[2rem] flex items-center justify-center mx-auto text-emerald-500 border border-emerald-100">
+          <CheckCircle2 size={40} />
         </div>
-        <div className="space-y-2">
-          <h3 className="font-bold text-gray-900 text-lg">Password Updated!</h3>
-          <p className="text-gray-500 text-sm">You can now sign in with your new password.</p>
+        <div className="space-y-4">
+          <h2 className="text-2xl font-black text-gray-900 tracking-tight">Access Restored</h2>
+          <p className="text-gray-400 text-sm leading-relaxed">Your account has been successfully re-secured with your new credentials.</p>
         </div>
-        <div className="pt-2">
+        <div className="pt-4 border-t border-gray-50">
           <Link 
             href="/login" 
-            className="w-full py-2.5 px-4 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-black transition-all flex items-center justify-center shadow-lg shadow-brand-500/10"
+            className="w-full bg-gray-950 hover:bg-black text-white font-black py-5 rounded-2xl shadow-2xl flex items-center justify-center gap-4 transition-all active:scale-[0.98]"
           >
-            Sign In Now
+            <span className="text-xs uppercase tracking-[0.2em]">Sign In Now</span>
           </Link>
         </div>
       </div>
@@ -172,114 +176,145 @@ function ResetPasswordForm() {
 
   if (!ready && error) {
     return (
-      <div className="text-center py-8">
-        <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100">
-          <AlertCircle size={32} />
+      <div className="text-center space-y-8 py-6 animate-in fade-in duration-500">
+        <div className="w-20 h-20 bg-red-50 text-red-600 rounded-[2rem] flex items-center justify-center mx-auto border border-red-100">
+          <AlertCircle size={40} />
         </div>
-        <h3 className="text-lg font-bold text-gray-900 mb-2">Reset Failed</h3>
-        <p className="text-gray-500 text-sm mb-8">{error}</p>
-        <Link 
-          href="/forgot-password" 
-          className="text-brand-600 text-sm font-bold hover:underline"
-        >
-          Request a New Link
-        </Link>
+        <div className="space-y-4">
+          <h3 className="text-2xl font-black text-gray-900 tracking-tight">Link Expired</h3>
+          <p className="text-gray-400 text-sm leading-relaxed">{error}</p>
+        </div>
+        <div className="pt-6 border-t border-gray-50">
+          <Link 
+            href="/forgot-password" 
+            className="text-[10px] font-black text-brand-600 uppercase tracking-widest hover:text-brand-700 transition-colors"
+          >
+            Request Redirection
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="text-center mb-4">
-        <h2 className="text-xl font-bold text-gray-900 mb-1">Secure Your Account</h2>
-        <p className="text-sm text-gray-500">Enter your new password below to get back in.</p>
-      </div>
-      
+    <form onSubmit={handleSubmit} className="space-y-10">
       {error && (
-        <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100">
+        <div className="p-4 rounded-2xl bg-red-50/50 border border-red-100 text-red-600 text-[10px] font-black uppercase tracking-widest flex items-center gap-3 animate-shake">
+          <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-sm border border-red-100 flex-shrink-0">
+            <Lock size={14} />
+          </div>
           {error}
         </div>
       )}
 
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">
-          New Password
-        </label>
-        <div className="relative">
-          <input
-            id="password"
-            type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-            placeholder="At least 6 characters"
-            className="w-full px-4 py-2.5 pl-10 rounded-lg border border-gray-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition-all text-gray-900"
-          />
-          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-          >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
+      <div className="space-y-8">
+        <div className="space-y-2.5">
+          <label htmlFor="password" className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">
+            New Secret Password
+          </label>
+          <div className="relative group">
+            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-gray-900 transition-colors">
+              <Lock size={18} />
+            </div>
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              placeholder="••••••••"
+              className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-4.5 pl-14 pr-12 text-gray-900 font-bold placeholder:text-gray-300 focus:bg-white focus:border-gray-900 focus:ring-4 focus:ring-gray-950/5 transition-all outline-none"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-950 transition-colors"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-2.5">
+          <label htmlFor="confirm" className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">
+            Confirm Sequence
+          </label>
+          <div className="relative group">
+            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-gray-900 transition-colors">
+              <Lock size={18} />
+            </div>
+            <input
+              id="confirm"
+              type={showPassword ? "text" : "password"}
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              required
+              placeholder="••••••••"
+              className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-4.5 pl-14 pr-6 text-gray-900 font-bold placeholder:text-gray-300 focus:bg-white focus:border-gray-900 focus:ring-4 focus:ring-gray-950/5 transition-all outline-none"
+            />
+          </div>
         </div>
       </div>
 
-      <div>
-        <label htmlFor="confirm" className="block text-sm font-medium text-gray-700 mb-1.5">
-          Confirm Password
-        </label>
-        <div className="relative">
-          <input
-            id="confirm"
-            type={showPassword ? "text" : "password"}
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            required
-            placeholder="Repeat your password"
-            className="w-full px-4 py-2.5 pl-10 rounded-lg border border-gray-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition-all text-gray-900"
-          />
-          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-        </div>
+      <div className="space-y-6">
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-gray-950 hover:bg-black disabled:opacity-50 text-white font-black py-5 rounded-2xl shadow-2xl flex items-center justify-center gap-4 transition-all active:scale-[0.98] group"
+        >
+          {loading ? (
+            <Loader2 className="animate-spin" size={24} />
+          ) : (
+            <span className="text-xs uppercase tracking-[0.2em]">Finalize Restoration</span>
+          )}
+        </button>
       </div>
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full py-3 px-4 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-black transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-brand-500/10"
-      >
-        {loading && <Loader2 size={18} className="animate-spin" />}
-        {loading ? "Saving Changes..." : "Set New Password"}
-      </button>
     </form>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 via-white to-brand-100 px-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">S</span>
+    <div className="min-h-screen bg-white flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Decorative patterns */}
+      <div className="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-gray-50 to-white pointer-events-none" />
+      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-50/30 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-50/20 rounded-full blur-[120px] pointer-events-none" />
+
+      <div className="w-full max-w-md relative z-10 space-y-10">
+        <div className="text-center space-y-6">
+          <Link href="/" className="inline-flex items-center gap-3 group">
+            <div className="w-12 h-12 rounded-[1.25rem] bg-gray-950 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+              <span className="text-white font-black text-xl">S</span>
             </div>
-            <span className="text-2xl font-bold text-gray-900">SphereAI</span>
+            <span className="text-2xl font-black text-gray-900 tracking-tighter">SphereAI</span>
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Complete Reset</h1>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-black text-gray-900 tracking-tighter leading-tight">Master Reset</h1>
+            <p className="text-gray-400 font-medium text-sm max-w-[280px] mx-auto leading-relaxed">
+              Complete the security verification and choose your new secret access key.
+            </p>
+          </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl shadow-brand-100/50 border border-gray-100 p-8">
+        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] p-10 md:p-12">
           <Suspense fallback={
-            <div className="text-center py-12">
-              <Loader2 className="animate-spin text-brand-600 mx-auto" size={32} />
-              <p className="text-gray-500 mt-4">Initializing...</p>
+            <div className="text-center py-12 space-y-8 animate-pulse">
+              <div className="w-20 h-20 bg-gray-50 rounded-[2rem] flex items-center justify-center mx-auto text-gray-300 border border-gray-100">
+                <Loader2 className="animate-spin" size={32} />
+              </div>
+              <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest leading-none">Initializing Cryptographic Tunnel...</p>
             </div>
           }>
             <ResetPasswordForm />
           </Suspense>
+        </div>
+
+        <div className="text-center">
+           <p className="text-gray-300 text-[9px] uppercase font-black tracking-[0.3em] font-mono">
+             SphereAI Security Protocol v4.0
+           </p>
         </div>
       </div>
     </div>

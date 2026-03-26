@@ -308,6 +308,11 @@ export async function generateForumReply(
   return await callAI(prompt);
 }
 
+export async function generateProductDescription(productName: string): Promise<string> {
+  const prompt = `Based on the product name "${productName}", write a compelling and detailed product description in 2-3 sentences. Focus on key benefits, use cases, and what makes it unique. Return ONLY the description text, no extra formatting or labels.`;
+  return await callAI(prompt);
+}
+
 export async function generateSEO(
   productName: string,
   productDescription: string

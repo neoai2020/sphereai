@@ -26,7 +26,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .select("*")
     .eq("project_id", project.id)
     .eq("page_type", "landing")
-    .eq("is_published", true)
     .single();
 
   return {
@@ -79,6 +78,7 @@ export default async function LandingPage({ params }: Props) {
         content={page.content as any}
         productUrl={project.product_url}
         slug={project.slug}
+        productName={project.product_name}
         themeId={project.theme_id}
         primaryColor={project.primary_color}
       />

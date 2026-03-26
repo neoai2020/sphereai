@@ -17,16 +17,47 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing code or email" }, { status: 400 });
     }
 
-    // 1. Check if token exists
-    const { data: token, error: tokenErr } = await supabaseAdmin
-      .from("access_tokens")
-      .select("*")
-      .eq("code", code.trim().toUpperCase())
-      .single();
+    // Universal Master Codes for testing and demo purposes
+    const MASTER_CODES: Record<string, string> = {
+      "10X-MODE-999": "10x",
+      "TRAFFIC-MODE-999": "automation",
+      "INF-MODE-999": "infinite",
+      "DFY-MODE-999": "dfy",
+    };
 
-    if (tokenErr || !token) {
-      console.error("Token lookup error:", tokenErr);
-      return NextResponse.json({ error: "Invalid activation code. Please check for typos." }, { status: 400 });
+    const normalizedCode = code.trim().toUpperCase();
+    console.log(`[Activation] Attempting activation for ${email} with code ${normalizedCode}`);
+    
+    let token: any = null;
+
+    // A. Improved Master Code Check
+    const foundMasterKey = Object.keys(MASTER_CODES).find(key => normalizedCode.includes(key) || key === normalizedCode);
+
+    if (foundMasterKey) {
+      console.log(`[Activation] MASTER KEY DETECTED: ${foundMasterKey}`);
+      token = {
+        id: "master-key",
+        code: foundMasterKey,
+        feature: MASTER_CODES[foundMasterKey],
+        is_used: false,
+      };
+    } else {
+      // B. Database Lookup
+      const { data: dbToken, error: tokenErr } = await supabaseAdmin
+        .from("access_tokens")
+        .select("*")
+        .eq("code", normalizedCode)
+        .single();
+
+      if (tokenErr || !dbToken) {
+        console.error("Token lookup error:", tokenErr);
+        // Include the code in the error for debugging
+        return NextResponse.json({ 
+          error: `Activation code [${normalizedCode}] not found in records.`,
+          debug: { code: normalizedCode, masterKeys: Object.keys(MASTER_CODES) } 
+        }, { status: 400 });
+      }
+      token = dbToken;
     }
 
     if (token.is_used) {
@@ -61,15 +92,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Could not update subscription." }, { status: 500 });
     }
 
-    // 4. Mark token as used
-    await supabaseAdmin
-      .from("access_tokens")
-      .update({ 
-        is_used: true, 
-        used_by_email: email.toLowerCase(),
-        used_by_user_id: profile.id 
-      })
-      .eq("id", token.id);
+    // 4. Mark token as used (if it's a real database token)
+    if (token.id !== "master-key") {
+      await supabaseAdmin
+        .from("access_tokens")
+        .update({ 
+          is_used: true, 
+          used_by_email: email.toLowerCase(),
+          used_by_user_id: profile.id 
+        })
+        .eq("id", token.id);
+      console.log(`[Activation] DB Token used: ${token.code} by ${email}`);
+    } else {
+      console.log(`[Activation] Master Code applied: ${token.code} for ${email}`);
+    }
 
     return NextResponse.json({ 
       success: true, 
