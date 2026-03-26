@@ -7,18 +7,17 @@ import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
-  FolderOpen,
-  Plus,
-  Settings,
   LogOut,
   Globe,
-
   Rocket,
-  Wrench,
+  Cpu,
   Infinity,
   Sparkles,
-  HelpCircle,
   GraduationCap,
+  Zap,
+  FolderLock,
+  MessagesSquare,
+  Star
 } from "lucide-react";
 
 const navSections = [
@@ -26,24 +25,25 @@ const navSections = [
     title: "Main",
     items: [
       { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/dashboard/projects", label: "Asset Vault", icon: FolderOpen },
-    ],
-  },
-
-  {
-    title: "Premium",
-    items: [
-      { href: "/dashboard/10x", label: "10x", icon: Rocket },
-      { href: "/dashboard/automation", label: "Automation", icon: Wrench },
-      { href: "/dashboard/infinite", label: "Infinite", icon: Infinity },
-      { href: "/dashboard/dfy", label: "DFY", icon: Sparkles },
+      { href: "/dashboard/projects/new", label: "Site Forge", icon: Zap },
+      { href: "/dashboard/projects", label: "Asset Vault", icon: FolderLock },
     ],
   },
   {
     title: "Resources",
     items: [
-      { href: "/dashboard/support", label: "Support", icon: HelpCircle },
+      { href: "/dashboard/support", label: "Support", icon: MessagesSquare },
       { href: "/dashboard/training", label: "Training", icon: GraduationCap },
+    ],
+  },
+  {
+    title: "Premium",
+    isPremium: true,
+    items: [
+      { href: "/dashboard/10x", label: "10x", icon: Rocket },
+      { href: "/dashboard/automation", label: "Automation", icon: Cpu },
+      { href: "/dashboard/infinite", label: "Infinite", icon: Infinity },
+      { href: "/dashboard/dfy", label: "DFY", icon: Star },
     ],
   },
 ];
@@ -52,12 +52,17 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userInfo, setUserInfo] = useState<{ email: string | null; name: string | null }>({ email: null, name: null });
 
   useEffect(() => {
     async function getUser() {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) setUserEmail(user.email ?? null);
+      if (user) {
+        setUserInfo({
+          email: user.email ?? null,
+          name: user.user_metadata?.full_name || user.email?.split("@")[0] || null
+        });
+      }
     }
     getUser();
   }, [supabase]);
@@ -82,11 +87,28 @@ export function Sidebar() {
 
       <nav className="flex-1 p-4 space-y-6">
         {navSections.map((section) => (
-          <div key={section.title} className="space-y-1">
-            <h3 className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-              {section.title}
-            </h3>
-            <div className="space-y-1">
+          <div key={section.title} className={cn("space-y-1", section.isPremium && "pt-4")}>
+            <div className="flex items-center justify-between px-3 mb-2">
+              <h3 className={cn(
+                "text-xs font-semibold uppercase tracking-wider",
+                section.isPremium 
+                  ? "bg-gradient-to-r from-brand-600 to-amber-500 bg-clip-text text-transparent font-black" 
+                  : "text-gray-400"
+              )}>
+                {section.title}
+              </h3>
+              {section.isPremium && (
+                <div className="flex items-center gap-1">
+                  <span className="w-1 h-1 rounded-full bg-amber-400 animate-pulse" />
+                  <span className="text-[10px] font-black text-amber-600 uppercase">Pro</span>
+                </div>
+              )}
+            </div>
+            
+            <div className={cn(
+              "space-y-1",
+              section.isPremium && "p-2 rounded-2xl bg-gradient-to-b from-brand-50/50 to-amber-50/30 border border-brand-100/50"
+            )}>
               {section.items.map((item) => {
                 const isActive =
                   pathname === item.href ||
@@ -96,13 +118,21 @@ export function Sidebar() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all group",
                       isActive
-                        ? "bg-brand-50 text-brand-700"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        ? section.isPremium 
+                          ? "bg-white text-brand-700 shadow-sm border border-brand-100" 
+                          : "bg-brand-50 text-brand-700"
+                        : section.isPremium
+                          ? "text-gray-700 hover:bg-white/80 hover:text-brand-900"
+                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     )}
                   >
-                    <item.icon size={18} />
+                    <item.icon size={18} className={cn(
+                      "transition-transform group-hover:scale-110",
+                      isActive ? "text-brand-600" : "text-gray-400",
+                      section.isPremium && !isActive && "text-brand-500/70"
+                    )} />
                     {item.label}
                   </Link>
                 );
@@ -112,11 +142,11 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-gray-100 shrink-0 space-y-2">
-        {userEmail && (
-          <div className="px-3 py-1">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Logged in as</p>
-            <p className="text-sm font-medium text-gray-900 truncate">{userEmail}</p>
+      <div className="p-4 border-t border-gray-100 shrink-0 space-y-3">
+        {userInfo.email && (
+          <div className="px-3 py-2 rounded-xl bg-gray-50/80 border border-gray-100">
+            <p className="text-sm font-bold text-gray-900 truncate">{userInfo.name}</p>
+            <p className="text-[11px] font-medium text-gray-500 truncate">{userInfo.email}</p>
           </div>
         )}
         <button
