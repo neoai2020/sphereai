@@ -126,15 +126,7 @@ export default function InfinitePage() {
                 </div>
               ))}
             </div>
-            <div className="pt-4">
-              <Link
-                href="/dashboard/settings"
-                className="inline-flex items-center gap-2 px-10 py-4 rounded-xl bg-white hover:bg-indigo-50 text-indigo-900 font-black text-lg transition-all hover:scale-105 shadow-2xl"
-              >
-                Upgrade to Infinite
-                <Infinity size={22} />
-              </Link>
-            </div>
+
           </div>
         </div>
       </div>
