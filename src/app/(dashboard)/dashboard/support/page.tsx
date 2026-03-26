@@ -155,29 +155,6 @@ export default function SupportPage() {
         </div>
       </div>
 
-      {/* FAQ Section */}
-      <div className="bg-gray-50/50 rounded-3xl p-10 border border-gray-100">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center">
-            <HelpCircle size={20} className="text-indigo-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900">Common Questions</h2>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {faqs.map((faq, i) => (
-            <div key={i} className="group p-6 bg-white rounded-2xl border border-gray-100 hover:border-indigo-200 transition-all">
-              <h3 className="font-bold text-gray-900 mb-3 flex items-start gap-2">
-                <span className="text-indigo-600 font-black">Q.</span>
-                {faq.question}
-              </h3>
-              <p className="text-gray-500 text-sm leading-relaxed pl-6 border-l-2 border-gray-50 group-hover:border-indigo-100 transition-colors">
-                {faq.answer}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

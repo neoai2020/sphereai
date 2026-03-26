@@ -1,4 +1,6 @@
-import Link from "next/link";
+import { getThemeStyles } from "@/lib/themes";
+import { cn } from "@/lib/utils";
+import { Star } from "lucide-react";
 
 interface ReviewsContent {
   headline?: string;
@@ -22,16 +24,11 @@ function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex gap-0.5">
       {[1, 2, 3, 4, 5].map((star) => (
-        <svg
+        <Star
           key={star}
-          className={`w-5 h-5 ${
-            star <= rating ? "text-yellow-400" : "text-gray-200"
-          }`}
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-        </svg>
+          size={16}
+          className={cn(star <= rating ? "fill-amber-400 text-amber-400" : "text-gray-200")}
+        />
       ))}
     </div>
   );
@@ -40,62 +37,61 @@ function StarRating({ rating }: { rating: number }) {
 export function ReviewsRenderer({
   content,
   slug,
+  themeId = "1",
+  primaryColor = "#4F46E5",
 }: {
   content: ReviewsContent;
   slug: string;
+  themeId?: string;
+  primaryColor?: string;
 }) {
+  const styles = getThemeStyles(themeId, primaryColor);
+
   return (
-    <div>
-      <header className="py-16 px-4 bg-gradient-to-b from-brand-50 to-white text-center">
-        <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            {content.headline || "Customer Reviews"}
+    <div className={cn(themeId === "4" ? "bg-gray-950 text-white" : "bg-white")}>
+      <header className={styles.section}>
+        <div className="max-w-4xl mx-auto text-center space-y-6">
+          <h1 className={styles.heading}>
+            {content.headline || "Customer Wisdom"}
           </h1>
           {content.description && (
-            <p className="text-lg text-gray-600 mb-6">{content.description}</p>
+            <p className={styles.text}>{content.description}</p>
           )}
           {content.overallRating && (
-            <div className="flex items-center justify-center gap-3">
-              <span className="text-4xl font-bold text-gray-900">
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-6xl font-black text-gray-900" style={themeId === "4" ? { color: "white" } : {}}>
                 {content.overallRating}
               </span>
-              <div>
-                <StarRating rating={Math.round(content.overallRating)} />
-                <p className="text-sm text-gray-500 mt-1">
-                  Based on {content.totalReviews || 0} reviews
-                </p>
-              </div>
+              <StarRating rating={Math.round(content.overallRating)} />
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-2">
+                Unified rating from {content.totalReviews || 0} reviewers
+              </p>
             </div>
           )}
         </div>
       </header>
 
-      <section className="py-12 px-4">
-        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
+      <section className={cn(styles.section, "pt-0")}>
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {content.reviews?.map((review, i) => (
             <div
               key={i}
-              className="bg-white rounded-xl border border-gray-200 p-6"
+              className={cn(styles.card, "space-y-6")}
             >
               <StarRating rating={review.rating} />
-              <p className="text-gray-600 mt-4 mb-4 leading-relaxed">
+              <p className={styles.text}>
                 &ldquo;{review.text}&rdquo;
               </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center">
-                  <span className="text-brand-700 font-semibold text-sm">
-                    {review.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </span>
+              <div className="flex items-center gap-4 pt-4 border-t border-gray-50" style={themeId === "4" ? { borderColor: "#222" } : {}}>
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-lg" style={{ backgroundColor: primaryColor }}>
+                  {review.name[0]}
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900 text-sm">
+                  <p className="font-black text-gray-900 text-sm" style={themeId === "4" ? { color: "white" } : {}}>
                     {review.name}
                   </p>
                   {review.role && (
-                    <p className="text-xs text-gray-500">{review.role}</p>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{review.role}</p>
                   )}
                 </div>
               </div>
@@ -105,27 +101,17 @@ export function ReviewsRenderer({
       </section>
 
       {content.summary && (
-        <section className="py-12 px-4 bg-brand-600">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-2xl font-bold text-white mb-4">
+        <section className={cn("py-24 px-6", themeId === "4" ? "bg-brand-600" : "bg-gray-900")}>
+          <div className="max-w-3xl mx-auto text-center space-y-6">
+            <h2 className="text-3xl font-black text-white">
               {content.summary.headline}
             </h2>
-            <p className="text-brand-100 leading-relaxed">
+            <p className="text-gray-400 font-medium leading-relaxed">
               {content.summary.text}
             </p>
           </div>
         </section>
       )}
-
-      <nav className="py-8 px-4 border-t border-gray-200">
-        <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-6 text-sm">
-          <Link href={`/s/${slug}`} className="text-gray-500 hover:text-gray-700">Home</Link>
-          <Link href={`/s/${slug}/about`} className="text-gray-500 hover:text-gray-700">About</Link>
-          <Link href={`/s/${slug}/faq`} className="text-gray-500 hover:text-gray-700">FAQ</Link>
-          <Link href={`/s/${slug}/blog`} className="text-gray-500 hover:text-gray-700">Blog</Link>
-          <Link href={`/s/${slug}/reviews`} className="text-brand-600 font-medium">Reviews</Link>
-        </div>
-      </nav>
     </div>
   );
 }

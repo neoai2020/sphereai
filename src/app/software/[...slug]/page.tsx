@@ -8,6 +8,7 @@ import { AboutRenderer } from "@/components/pages/about-renderer";
 import { FAQRenderer } from "@/components/pages/faq-renderer";
 import { BlogRenderer } from "@/components/pages/blog-renderer";
 import { ReviewsRenderer } from "@/components/pages/reviews-renderer";
+import { WebsiteLayout } from "@/components/pages/WebsiteLayout";
 import type { PageType } from "@/types/database";
 
 interface Props {
@@ -80,7 +81,7 @@ export default async function SoftwarePage({ params }: Props) {
 
   const { data: project, error: projectErr } = await supabase
     .from("projects")
-    .select("*")
+    .select("*, users!inner(full_name)")
     .eq(isUuid ? "id" : "slug", projectIdOrSlug)
     .single();
 
@@ -105,9 +106,10 @@ export default async function SoftwarePage({ params }: Props) {
   }
 
   const content = page.content as Record<string, unknown>;
+  const baseUrl = `/software/${username}/${projectIdOrSlug}`;
 
   return (
-    <>
+    <WebsiteLayout project={project} activePath={`${baseUrl}/${pageType || ""}`}>
       {/* AI Semantic Markup */}
       <script
         type="application/ld+json"
@@ -127,27 +129,46 @@ export default async function SoftwarePage({ params }: Props) {
       
       {activePageType === "landing" && (
         <LandingRenderer
-          content={content}
+          content={content as any}
           productUrl={project.product_url}
           slug={project.slug}
+          themeId={project.theme_id}
+          primaryColor={project.primary_color}
         />
       )}
       {activePageType === "about" && (
         <AboutRenderer
-          content={content}
+          content={content as any}
           productName={project.product_name}
           slug={project.slug}
+          themeId={project.theme_id}
+          primaryColor={project.primary_color}
         />
       )}
       {activePageType === "faq" && (
-        <FAQRenderer content={content} slug={project.slug} />
+        <FAQRenderer 
+          content={content as any} 
+          slug={project.slug} 
+          themeId={project.theme_id}
+          primaryColor={project.primary_color}
+        />
       )}
       {activePageType === "blog" && (
-        <BlogRenderer content={content} slug={project.slug} />
+        <BlogRenderer 
+          content={content as any} 
+          slug={project.slug} 
+          themeId={project.theme_id}
+          primaryColor={project.primary_color}
+        />
       )}
       {activePageType === "reviews" && (
-        <ReviewsRenderer content={content} slug={project.slug} />
+        <ReviewsRenderer 
+          content={content as any} 
+          slug={project.slug} 
+          themeId={project.theme_id}
+          primaryColor={project.primary_color}
+        />
       )}
-    </>
+    </WebsiteLayout>
   );
 }
