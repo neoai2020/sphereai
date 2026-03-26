@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Sparkles, Filter, CheckCircle2, ChevronRight, Layout, Zap, Rocket, Lock, ArrowRight, ExternalLink, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { PremiumOverlay } from "@/components/dashboard/premium-overlay";
+import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import Link from "next/link";
 
 const TYPES = [
@@ -216,6 +216,17 @@ export default function DFYPage() {
     );
   }
 
+  if (!isSubscribed) {
+    return (
+      <RestrictedContent 
+        title="DFY Library Locked"
+        description="Unlock 180+ ready-to-launch websites with pre-written content, SEO optimization, and premium designs."
+        onUpgrade={() => window.location.href = "/activate"}
+        icon={Sparkles}
+      />
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto space-y-12 pb-20">
       {/* Header */}
@@ -234,16 +245,7 @@ export default function DFYPage() {
       </div>
 
       <div className="relative">
-        {!isSubscribed && (
-          <PremiumOverlay 
-            title="DFY Library Locked"
-            description="Unlock 180+ ready-to-launch websites with pre-written content, SEO optimization, and premium designs."
-            buttonText="Activate My Access"
-            onUpgrade={() => window.location.href = "/activate"}
-          />
-        )}
-
-        <div className={`space-y-8 ${!isSubscribed ? 'opacity-30 blur-[4px] pointer-events-none' : ''}`}>
+        <div className={`space-y-8`}>
           {/* Filters */}
           <div className="flex flex-wrap gap-2 pb-4 border-b border-gray-100">
             <button

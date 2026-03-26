@@ -23,7 +23,7 @@ import {
   Check
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { PremiumOverlay } from "@/components/dashboard/premium-overlay";
+import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import { createClient } from "@/lib/supabase/client";
 
 export default function TenXPage() {
@@ -161,6 +161,17 @@ export default function TenXPage() {
     );
   }
 
+  if (!isSubscribed) {
+    return (
+      <RestrictedContent 
+        title="10X Mode Locked"
+        description="Upgrade to the 10x plan to unlock unlimited Facebook post generation and advanced marketing tools."
+        onUpgrade={() => window.location.href = "/activate"}
+        icon={Zap}
+      />
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-20">
       
@@ -203,16 +214,7 @@ export default function TenXPage() {
 
       {/* Main Generator Card */}
       <div className="relative">
-        {!isSubscribed && (
-          <PremiumOverlay 
-            title="10X Mode Locked"
-            description="Upgrade to the 10x plan to unlock unlimited Facebook post generation and advanced marketing tools."
-            buttonText="Activate My Access"
-            onUpgrade={() => window.location.href = "/activate"}
-          />
-        )}
-        
-        <div className={`bg-white border border-gray-100 rounded-[40px] shadow-sm overflow-hidden ${!isSubscribed ? 'opacity-40 blur-[2px] pointer-events-none' : ''}`}>
+        <div className={`bg-white border border-gray-100 rounded-[40px] shadow-sm overflow-hidden`}>
           <div className="p-8 md:p-10 space-y-10">
             {/* Card Header */}
             <div className="flex items-center justify-between">

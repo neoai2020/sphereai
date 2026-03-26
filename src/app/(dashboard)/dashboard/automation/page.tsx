@@ -24,7 +24,7 @@ import {
   Loader2
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
-import { PremiumOverlay } from "@/components/dashboard/premium-overlay";
+import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import { createClient } from "@/lib/supabase/client";
 
 export default function AutomationPage() {
@@ -174,6 +174,17 @@ export default function AutomationPage() {
     );
   }
 
+  if (!isSubscribed) {
+    return (
+      <RestrictedContent 
+        title="Automation Machine Locked"
+        description="Access our database of 60+ high-traffic sources across 6 profitable niches. Each source includes step-by-step automation guides."
+        onUpgrade={() => window.location.href = "/activate"}
+        icon={MousePointer2}
+      />
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-20">
       
@@ -230,15 +241,7 @@ export default function AutomationPage() {
 
       {/* Sources List with Logic */}
       <div className="space-y-8 relative">
-        {!isSubscribed && (
-          <PremiumOverlay 
-            title="Automation Machine Locked"
-            description="Access our database of 60+ high-traffic sources across 6 profitable niches. Each source includes step-by-step automation guides."
-            onUpgrade={() => window.location.href = "/dashboard/settings"}
-          />
-        )}
-
-        <div className={`space-y-8 ${!isSubscribed ? 'opacity-30 blur-[4px] pointer-events-none' : ''}`}>
+        <div className={`space-y-8`}>
           {/* Inputs */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative group">
