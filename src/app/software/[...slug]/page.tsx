@@ -21,14 +21,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [username, projectIdOrSlug, pageType] = slug;
   const supabase = createServiceClient();
 
-  // Find project by ID or Slug
-  const { data: project } = await supabase
+  // Safer check for ID vs Slug
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(projectIdOrSlug);
+  
+  const { data: project, error: projectErr } = await supabase
     .from("projects")
     .select("*")
-    .or(`id.eq.${projectIdOrSlug},slug.eq.${projectIdOrSlug}`)
+    .eq(isUuid ? "id" : "slug", projectIdOrSlug)
     .single();
 
-  if (!project) return { title: "Not Found" };
+  if (projectErr || !project) {
+    console.error("Project lookup failed:", projectErr, "for slug:", projectIdOrSlug);
+    return { title: "Not Found" };
+  }
 
   const activePageType = (pageType || "landing") as PageType;
 
@@ -70,14 +75,17 @@ export default async function SoftwarePage({ params }: Props) {
   const [username, projectIdOrSlug, pageType] = slug;
   const supabase = createServiceClient();
 
-  const { data: project } = await supabase
+  // Safer check for ID vs Slug
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(projectIdOrSlug);
+
+  const { data: project, error: projectErr } = await supabase
     .from("projects")
     .select("*")
-    .or(`id.eq.${projectIdOrSlug},slug.eq.${projectIdOrSlug}`)
+    .eq(isUuid ? "id" : "slug", projectIdOrSlug)
     .single();
 
-  if (!project) {
-    console.error("Project not found for slug:", projectIdOrSlug);
+  if (projectErr || !project) {
+    console.error("Project lookup failed in Page:", projectErr, "for slug:", projectIdOrSlug);
     notFound();
   }
 

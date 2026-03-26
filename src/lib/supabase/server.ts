@@ -27,9 +27,13 @@ export async function createClient() {
 }
 
 export function createServiceClient() {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.error("CRITICAL: SUPABASE_SERVICE_ROLE_KEY is missing in environment variables.");
+  }
+
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
