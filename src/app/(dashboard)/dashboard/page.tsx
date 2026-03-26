@@ -209,6 +209,7 @@ export default async function DashboardPage() {
               </h2>
               <div className="grid grid-cols-1 gap-3">
                 {[
+                   { label: "Site Forge", href: "/dashboard/projects/new", icon: Plus, color: "brand" },
                    { label: "Training Center", href: "/dashboard/training", icon: Play, color: "orange" },
                   { label: "Contact Support", href: "/dashboard/support", icon: MessageSquare, color: "green" },
                 ].map((action, i) => (
