@@ -43,6 +43,16 @@ export function RestrictedContent({
           </p>
         </div>
 
+        {/* Action Button */}
+        <div className="pt-2">
+          <a 
+            href="/dashboard/support"
+            className="inline-flex items-center gap-2 px-8 py-3.5 bg-slate-900 hover:bg-black text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all active:scale-[0.98] shadow-lg shadow-slate-200"
+          >
+            Contact Support
+          </a>
+        </div>
+
         {/* Minimal Footer */}
         <div className="pt-4 flex items-center justify-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
