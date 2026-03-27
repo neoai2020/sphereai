@@ -1,7 +1,7 @@
 "use client";
 
 import { RegisterForm } from "@/components/auth/register-form";
-import logo from "@/components/dashboard/assets/logo.jpeg";
+import logo from "@/components/dashboard/assets/logo2.png";
 import Image from "next/image";
 import Link from "next/link";
 

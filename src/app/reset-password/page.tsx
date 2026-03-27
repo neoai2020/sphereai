@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { Loader2, CheckCircle2, Eye, EyeOff, Lock, AlertCircle } from "lucide-react";
-import logo from "@/components/dashboard/assets/logo.jpeg";
+import logo from "@/components/dashboard/assets/logo2.png";
 import Image from "next/image";
 
 function ResetPasswordForm() {

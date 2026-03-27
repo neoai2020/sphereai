@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import logo from "@/components/dashboard/assets/logo.png";
+import logo from "@/components/dashboard/assets/logo2.png";
 import Image from "next/image";
 import Link from "next/link";
 import { Eye, EyeOff, Loader2 } from "lucide-react";

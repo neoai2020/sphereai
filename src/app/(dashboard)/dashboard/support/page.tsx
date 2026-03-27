@@ -65,7 +65,7 @@ export default function SupportPage() {
               </div>
               <div>
                 <h3 className="text-base font-bold text-gray-900">Email Support</h3>
-                <p className="text-gray-500 text-xs text-brand-600 font-medium">sphere@neoai.freshdesk.com</p>
+                <p className="text-xs text-brand-600 font-medium">sphere@neoai.freshdesk.com</p>
               </div>
             </div>
             <ExternalLink size={16} className="text-gray-300 group-hover:text-emerald-500 transition-colors" />
