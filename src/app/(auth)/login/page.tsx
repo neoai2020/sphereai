@@ -46,8 +46,8 @@ export default function LoginPage() {
               <Image 
                 src={logo} 
                 alt="SphereAI" 
-                width={280} 
-                className="w-full h-auto object-contain" 
+                height={80} 
+                className="h-20 w-auto object-contain" 
                 priority
               />
             </Link>
