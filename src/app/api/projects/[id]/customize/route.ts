@@ -14,7 +14,7 @@ export async function PATCH(
   }
 
   const body = await req.json();
-  const { theme_id, primary_color, secondary_color, font_family, navigation_style, site_logo, custom_images, name, product_url } = body;
+  const { theme_id, primary_color, secondary_color, font_family, navigation_style, site_logo, custom_images, name, product_url, selected_templates } = body;
 
   const updatePayload: Record<string, any> = {
     theme_id,
@@ -24,11 +24,13 @@ export async function PATCH(
     navigation_style,
     site_logo,
     custom_images,
+    selected_templates,
     updated_at: new Date().toISOString(),
   };
 
   if (name) {
     updatePayload.name = name;
+    updatePayload.product_name = name; // Sync with landing page renderer
   }
 
   if (product_url !== undefined) {

@@ -138,6 +138,7 @@ interface CustomizerProps {
     site_logo?: string;
     custom_images?: Record<string, string>;
     product_url?: string | null;
+    selected_templates?: Record<string, number>;
   };
 }
 
@@ -146,19 +147,16 @@ export function SiteCustomizer({ project }: CustomizerProps) {
   const [success,    setSuccess]    = useState(false);
   const [origin,     setOrigin]     = useState("");
   const [activePage, setActivePage] = useState("landing");
-  const [selectedTemplates, setSelectedTemplates] = useState<Record<string, number>>({
-    landing: 1, about: 1, faq: 1, blog: 1, reviews: 1,
-  });
-
   const [config, setConfig] = useState({
-    theme_id:        project.theme_id        || "1",
-    primary_color:   project.primary_color   || "#4F46E5",
-    secondary_color: project.secondary_color || "#10B981",
-    font_family:     project.font_family     || "Inter",
-    site_logo:       project.site_logo       || "",
-    custom_images:   (project.custom_images  || {}) as Record<string, string>,
-    name:            project.name            || "",
-    product_url:     project.product_url     || "",
+    theme_id:           project.theme_id           || "1",
+    primary_color:      project.primary_color      || "#4F46E5",
+    secondary_color:    project.secondary_color    || "#10B981",
+    font_family:        project.font_family        || "Inter",
+    site_logo:          project.site_logo          || "",
+    custom_images:      (project.custom_images     || {}) as Record<string, string>,
+    name:               project.name               || "",
+    product_url:        project.product_url        || "",
+    selected_templates: (project.selected_templates || { landing: 1, about: 1, faq: 1, blog: 1, reviews: 1 }) as Record<string, number>,
   });
 
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -168,9 +166,9 @@ export function SiteCustomizer({ project }: CustomizerProps) {
 
   useEffect(() => { setOrigin(window.location.origin); }, []);
 
-  function buildPreviewUrl(cfg: typeof config, page: string, tpls?: Record<string, number>) {
+  function buildPreviewUrl(cfg: typeof config, page: string) {
     const pageSlug  = page === "landing" ? "" : `/${page}`;
-    const activeTpl = (tpls ?? selectedTemplates)[page] ?? 1;
+    const activeTpl = cfg.selected_templates[page] ?? 1;
     const params    = new URLSearchParams({
       __theme: cfg.theme_id,
       __color: cfg.primary_color,
@@ -180,10 +178,10 @@ export function SiteCustomizer({ project }: CustomizerProps) {
     return `/software/user/${project.id}${pageSlug}?${params}`;
   }
 
-  function updatePreview(cfg: typeof config, page: string, tpls?: Record<string, number>) {
+  function updatePreview(cfg: typeof config, page: string) {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      if (iframeRef.current) iframeRef.current.src = buildPreviewUrl(cfg, page, tpls);
+      if (iframeRef.current) iframeRef.current.src = buildPreviewUrl(cfg, page);
     }, 300);
   }
 
@@ -416,14 +414,14 @@ export function SiteCustomizer({ project }: CustomizerProps) {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {templates.map(tpl => {
-            const isSelected = selectedTemplates[activePage] === tpl.tplId;
+            const isSelected = config.selected_templates[activePage] === tpl.tplId;
             return (
               <button
                 key={tpl.tplId}
                 onClick={() => {
-                  const next = { ...selectedTemplates, [activePage]: tpl.tplId };
-                  setSelectedTemplates(next);
-                  updatePreview(config, activePage, next);
+                  updateConfig({ 
+                    selected_templates: { ...config.selected_templates, [activePage]: tpl.tplId } 
+                  });
                 }}
                 className={cn(
                   "group/tpl flex flex-col rounded-2xl border-2 overflow-hidden transition-all h-full",

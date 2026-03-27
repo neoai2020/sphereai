@@ -110,10 +110,11 @@ export default async function SoftwarePage({ params, searchParams }: Props) {
   const baseUrl = `/software/${username}/${projectIdOrSlug}`;
 
   // URL param overrides for live customizer preview (prefixed with __)
+  const projectTpls = (project as any).selected_templates || {};
   const effectiveThemeId  = sp.__theme || project.theme_id;
   const effectiveColor    = sp.__color ? decodeURIComponent(sp.__color) : project.primary_color;
   const effectiveProductUrl = sp.__url ? decodeURIComponent(sp.__url) : project.product_url;
-  const effectiveTemplate = sp.__tpl ? Number(sp.__tpl) : 1;
+  const effectiveTemplate = sp.__tpl ? Number(sp.__tpl) : (projectTpls[activePageType] || 1);
 
   return (
     <WebsiteLayout project={{ ...project, theme_id: effectiveThemeId, primary_color: effectiveColor }} activePath={`${baseUrl}/${pageType || ""}`}>
