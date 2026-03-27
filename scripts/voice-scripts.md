@@ -2,300 +2,212 @@
 
 ## 1 — Getting Started: Dashboard
 
-AI search rewards structure.
+Hi. Welcome to Sphere AI training.
 
-SphereAI is your command center. You build AI-ready sites here. You sign in once. Your dashboard greets you by name. A subtitle reminds you the portfolio is growing. You always know where you stand.
+This walkthrough is your dashboard home base. You land here after you sign in. Your name sits in the welcome line. A short line below says your portfolio is growing.
 
-The wide hero block previews training on AI citations. You treat it as motivation. You imagine ChatGPT and Perplexity citing your pages. The play affordance signals video-style learning ahead. You note the Mastering AI Search badge. Energy stays high. You scroll.
+The big gray box at the top is a video placeholder. Nothing plays until you add a real embed later. A play icon sits in the center. That slot is for future training clips.
 
-Platform pulse tiles sit below. Platform Users reads three thousand eight hundred forty-two. A small tag shows plus one hundred twenty-four today. Total Assets reads twelve thousand nine hundred forty. High Velocity tags the card. Revenue Impact reads one point two million dollars. Network Total tags that tile. AI Search Reach reads two hundred forty-eight thousand. Optimized tags the last card. You feel the market size. You anchor your ambition to real scale.
+Below that, success stories scroll sideways. You see sample wins and dollar amounts. Treat them as inspiration. Your row shows up after you ship real projects.
 
-A ticker of success stories scrolls forever. Names pair with dollar wins. Short quotes float past. You borrow belief from those lines. You picture your name in that stream soon.
+The stat cards summarize platform scale. Thousands of users and assets appear there. Those numbers describe the network. They are not your personal totals.
 
-Active Generations owns the next panel. A trophy icon marks the section. History links jump straight to Asset Vault. Empty state shows a lightning icon. Build your empire headlines the blank case. Copy tells you the first project takes two minutes. Start Now routes to Site Forge. Filled state lists up to five recent projects. Each row shows globe icon, internal name, and product line. Status pills read published, generating, or draft. Green means live. Yellow means busy. Gray means still in draft. You tap any row. You land inside that project.
+Active Generations lists your recent builds. Each row shows a project name and a status. Green means published. Yellow means still generating. Gray means draft. Click a row to open that project.
 
-Quick Actions stack on the right. Site Forge fires a new build. Asset Vault opens your archive. Training Center routes to lessons. Contact Support opens the help desk. Network Activity simulates live platform motion. You watch names and actions flicker. You sense velocity without leaving home.
+If you have no projects yet, you see a prompt to start. One button sends you to Site Forge. Your first site can go live in minutes.
 
-The fixed sidebar frames everything. Main holds Dashboard, Site Forge, Asset Vault, Logo Generator. Resources holds Training and Support. Premium glows when you earn access. Ten X, Automation, Infinite, and DFY hide until flags flip. Infinite unlocks all Premium links at once. Your email and name sit at the bottom. Sign out ends the session clean.
+Quick Actions sit on the right on large screens. Site Forge starts a new build. Asset Vault opens your list. Training and Support are one tap away.
 
-Site Forge watches a daily cap. Five generation events count per UTC day. The remaining counter lives on the launch step. Infinite removes that ceiling entirely. You plan launches around the number shown.
+The left sidebar never leaves you guessing. Main holds Dashboard, Site Forge, Asset Vault, and Logo Generator. Resources holds Training and Support. Premium holds Ten X, Automation, Infinite, and DFY. Premium links appear only when your plan unlocks them. Infinite unlocks the whole Premium group.
 
-Auth lives outside this view. Login and sign-up routes sit in the marketing shell. Password reset flows exist for recovery. You land on Dashboard after a valid session. Session expiry returns you to login. You protect your account with strong passwords.
+Site Forge uses a daily generation limit for most accounts. You get five new site builds per calendar day. The counter shows on the last step before launch. Infinite removes that cap.
 
-Mobile layouts collapse the grid. Stats still read clearly. Quick Actions stack vertically. Sidebar scrolls on small screens. You operate the same flows on the go. You never lose access to Site Forge.
+Your profile and sign out live at the bottom of the sidebar. Use a strong password on your account. Log out when you finish on a shared machine.
 
-Premium visibility depends on user_subscriptions rows. Ten X flag lights one link. Automation flag lights another. Infinite flag lights all. DFY flag lights the library. You watch the sidebar morph as you upgrade. You feel the product expand.
+On smaller screens the layout stacks. The sidebar scrolls. Quick Actions move under the main column. You still reach every entry point.
 
-Spacing stays airy on wide monitors. White cards float on light gray chrome. Brand indigo punctuates buttons. Shadows stay soft for fintech calm. You read fast. You click with confidence.
+Training and Support answer how-to questions and tickets. Premium items stay visible only when your billing allows. That keeps the menu honest. You always see what you can use today.
 
-Rush to your Dashboard. Start now. Open Site Forge the moment you want fresh pages.
+Think of the dashboard as mission control. You scan status. You jump to build. You return after each launch. Rhythm beats random clicking.
 
-One. Scan Active Generations at every login. Two. Publish before you buy heavy traffic. Three. Use Quick Actions to skip deep navigation. Four. Read remaining generations before you burn a slot. Five. Let the stat row remind you the network is huge.
+Rush to your Dashboard daily. Start now. Open Site Forge when you are ready to build.
+
+One. Check Active Generations before you buy traffic. Two. Use Quick Actions to skip hunting through menus. Three. Watch your remaining generations before you launch. Four. Publish at least one site before you scale ads. Five. Note which Premium links you still need to unlock.
 
 ---
 
 ## 2 — Site Forge
 
-Five pages. One launch.
+Hi. Welcome back. This video is all about Site Forge.
 
-Site Forge is your build engine. A four-step wizard guides you. Identity starts the flow. Core Data captures facts. SEO Plan sharpens keywords. Launch fires generators. A progress bar tracks where you are. Numbers one through four label each phase.
+Site Forge builds a full five-page site from your inputs. You get a landing page, about, FAQ, blog, and reviews. Each page is structured so AI search tools can read them clearly.
 
-Step Identity asks how you monetize. Affiliate Empire suits link-driven sellers. Copy mentions Amazon and ClickBank style paths. Agency Soloist suits service operators. Copy promises description-driven AI sites. You tap one card. The wizard advances. Your choice sticks for the rest.
+The wizard has four steps along the top. Step one is Identity. Step two is Core Data. Step three is SEO Plan. Step four is Launch.
 
-Core Data changes by mode. Affiliate mode leads with Product URL. You paste a full link. Scrape calls the scrape API. The server returns product name, description, and keyword seeds. You edit fields freely. Generate with AI writes a description from name alone. Service mode asks for Project Title first. Service Name follows. A large description box demands detail. More text yields richer pages. You paste positioning, offers, and proof.
+Step one asks how you earn. Affiliate Empire is for product links from marketplaces or affiliate networks. Agency Soloist is for your own service or agency. Pick the path that matches your offer.
 
-SEO Plan opens after Core Data locks. Entering step three triggers keyword suggestion. The suggest API reads your name and description. Keywords appear comma separated. Re-generate requests a fresh list. Manual edits always win. You must keep keywords non-empty to continue. You refine until the string matches your funnel.
+Step two depends on that choice. Affiliate mode starts with your product URL. Paste the link and tap Scrape. The app pulls a name, description, and starter keywords. Edit anything that looks wrong. You can also generate a description from the product name with one button.
 
-Launch shows Final Blueprint. Structure states five-page AI site. Hosting text references the Sphere software path shown in UI. Generations left today prints your remaining count of five max. A thin bar charts used versus limit. Build with Site Forge starts parallel work. Five fetches hit the generate API together. Landing progresses first in the grid. About follows. FAQ follows. Blog follows. Reviews follows. Checkmarks replace spinners on success. Errors stay visible per tile. Success routes you to project detail. Your new slug carries a unique suffix.
+Service mode asks for a project title and service name. You write a full description in the large box. More detail here means stronger pages later.
 
-Each page type carries schema intent. Landing carries product and webpage signals. About carries organization signals. FAQ carries FAQ page signals for citations. Blog carries article signals. Reviews carry review and aggregate rating signals. You publish a citation-friendly cluster. AI search engines gain hooks. Your traffic strategy gains structure.
+Step three shows SEO keywords. The app suggests a list when you arrive. You can regenerate or type your own. Keywords must be filled before you continue. Use commas between phrases.
 
-Back buttons move you down the wizard safely. Continue stays disabled until required fields fill. Error banners show red when APIs fail. Scraping errors invite manual entry. Generation errors surface per tile. You read messages closely. You fix inputs fast.
+Step four is the launch review. You see that you are building five pages. You see how many generations you have left today out of five. Tap Build with Site Forge. Five page types generate at the same time. Watch the checklist until each line completes. Then the app opens your new project.
 
-Affiliate flow rewards clean URLs. Include protocol in the paste. Service flow rewards long descriptions. Mention outcomes and audience. SEO step rewards specificity. Avoid one-word keyword spam. Launch step rewards patience. Parallel calls finish quicker than serial. You still wait for all five.
+Your new site uses structured data behind the scenes. FAQ and reviews help machines quote you. Landing and about tell the story. Blog adds depth.
 
-The intro video placeholder on step one sets context. SiteForge branding appears in the eyebrow. Build Your AI Empire states the mission. You feel the product promise early. You commit before you invest heavy typing.
+Back buttons let you fix mistakes. Red banners show errors from the network. Fix the fields and try again.
 
-Keywords split on commas internally. Trimming removes stray spaces. Empty tokens drop before save. Arrays store clean tokens in Supabase. You preview the string as one line. You edit like a pro media buyer.
+When generation finishes you land on the project detail screen. Your slug is unique. Five pages appear in the feed. Open each preview to read what the AI wrote. Edit anything that misses your voice.
 
-Project rows store slug, type, and URLs. Generation records increment daily counts. Router refresh updates server components. You land on detail when complete. You never lose context mid-build.
+The FAQ page often earns citations in AI answers. The reviews page carries rating structure search engines expect. Your landing page carries the core pitch. Treat the set as one asset.
 
-The wizard title cites SiteForge in the eyebrow. Subtitle promises an optimized business fast. Center alignment keeps focus. Max width caps readability. You stay on rails. You finish builds.
+Rush to Site Forge. Start now. Bring a real URL or a real service story.
 
-Rush to Site Forge. Start now. Feed the forge real data every time.
-
-One. Scrape affiliate URLs before you type long copy. Two. Regenerate SEO when the first pass feels generic. Three. Abort if remaining generations read zero. Four. Store winning descriptions in your own playbook. Five. Pick Affiliate when the offer lives on a link. Six. Pick Agency when the offer is your service.
+One. Scrape first on affiliate paths before you type everything by hand. Two. Refresh keywords if the first list feels weak. Three. Stop if generations remaining hit zero. Four. Save winning descriptions in your own notes. Five. Use HTTPS links in the URL field.
 
 ---
 
 ## 3 — Asset Vault
 
-Your vault. Your control.
+Hi. Good to see you. This video covers the Asset Vault.
 
-Asset Vault is your portfolio screen. A header states the vault name. Subcopy calls assets high value. Site Forge button sits top right. You spin new work from here. Empty state pushes Create with Site Forge. Filled state renders one card per project.
+Asset Vault is your list of every project you have created. The title and short description sit on each card. A status badge shows where that site stands in the pipeline.
 
-Each card shows title row and status badge. Published reads green. Generating reads yellow. Error reads red. Draft reads gray. Description previews trim near one hundred twenty characters. Created date stamps the timeline. View appears only when published is true. View opens the public site slug route. Manage always opens the dashboard project workspace.
+Published sites show a View link. That opens the public version. Manage opens the workspace for that project. Always use Manage when you want to edit pages or styling.
 
-Language chips appear when translations exist. Each chip links to the software viewer. A lang query selects Arabic, French, or any saved locale. You spot global reach in one glance. You click through to verify tone.
+If you added languages on an Infinite plan, small language chips appear on the card. Each chip opens that translation in a new tab. You verify tone and layout there.
 
-Inside a project the header dominates. Title reads large. Status pill pulses when live. Product Identity labels your offer name. Asset ID shows eight characters for tickets. Visit Site opens the software user preview path. That path uses your internal project ID. New tab behavior keeps your dashboard open.
+Inside a project you see the name, product label, and status at the top. Visit Site opens a preview of your live pages. Copy shows a short ID you can use with support.
 
-Tabs split the experience. Assets Feed lists generated pages. Landing Page leads the stack. About Page follows. FAQ Page follows. Blog Article follows. Reviews Page closes the list. Each row shows type label and page title. Preview opens the correct public path suffix. Edit opens the matching editor. Customizer tab unlocks palette presets. You swap templates per page type. You tune colors and logos. Blueprint tab shows raw fields from creation. You audit keywords and descriptions there.
+Three tabs organize the work. Assets Feed lists your five generated pages. Each line has Preview and Edit. Customizer controls themes, colors, and layout presets. Blueprint shows the fields you entered at creation.
 
-Status moves from draft through generating to published. You control when the world sees pages. Errors on the vault list demand attention. Support helps when generation fails mid-flight.
+Move a site to published when the copy and look are ready. Draft and generating states mean the world should not see it yet. Red error states need a fix or support.
 
-Editors open per page type from Assets Feed. Landing editor controls hero blocks. FAQ editor controls questions. Blog editor controls long copy. Reviews editor controls testimonial tone. You save iterations until copy sings. Customizer pairs with those edits. Palette presets include Clean and Royal. Dark and Neon extremes exist. Template IDs swap section order. You align look with offer temperature.
+Customizer holds color presets and template choices per page type. Swap a template when a layout feels wrong. Save when the brand feels aligned. Then return to Assets Feed for copy tweaks.
 
-Public routes differ by hosting mode. Software user path suits previews during iteration. Software site path suits slug-based published views. The public S path suits the marketing shell. You learn three URLs over time. You share the right one per audience.
+Editors open from each page row. Landing focuses on hero and benefits. FAQ focuses on questions and answers. Blog holds long form text. Reviews hold social proof blocks. Save as you go.
 
-Visit Site on detail pages favors the user software route. View on vault cards favors the site slug route when published true. Translated chips always include lang parameters. You test each variant. You confirm hreflang style coverage mentally.
+You may see more than one public URL pattern over time. User preview links help while you iterate. Slug links help when the site is published. Pick the link that matches your audience.
 
-Project creation timestamps sort default lists. Newest projects float top. Older projects sink but stay searchable. Description previews help you distinguish similar names. Status badges help you triage work. Green rows deserve client shares. Yellow rows deserve patience. Red rows deserve tickets.
+Rush to Asset Vault. Start now. Open Manage on the site you want to polish.
 
-Manage uses brand-filled button styling. View uses neutral outline styling. Hierarchy guides your eye. Primary action wins. Secondary action supports. You click Manage ninety percent of sessions.
-
-Plus icon on Site Forge matches dashboard quick action. Visual language stays consistent. Border radius stays rounded xl. Hover states lift shadow slightly. You feel one design system.
-
-Empty vault copy stays friendly. No shame in zero rows. CTA repeats Site Forge path. Onboarding loops close. You always know next step.
-
-Rush to Asset Vault. Start now. Manage every asset from this list.
-
-One. Use Manage for deep edits every time. Two. Preview each page type before you share URLs. Three. Add translations only after English wins. Four. Polish one flagship before you clone ten. Five. Watch for red error badges on cards. Six. Use View on published rows for client demos.
+One. Preview every page type before you share a link. Two. Finish English before you stack translations. Three. Polish one flagship site before you spin up ten more. Four. Use View for demos on published cards only. Five. Fix red error badges before you spend on ads.
 
 ---
 
 ## 4 — Logo Generator
 
-Brand marks trust.
+Hi. Welcome. This walkthrough is the Logo Generator.
 
-Logo Generator lives under Main. It pairs with Site Forge in the list. The page loads your projects from Supabase. Each row supplies id, name, and colors. You scroll three creation modes. You bind output to one project at the bottom.
+Open Logo Generator from the main sidebar. The page needs at least one project in your vault. Pick that project at the bottom before you save.
 
-Manual mode is instant. You choose a hero letter. Default starts at S. You pick rounded, circle, or square geometry. Solid fill reads flat. Gradient fill adds depth. Color grid spans indigo through neon green. Text color toggles light on dark. Live preview renders SVG. Download saves the current preview. No server wait blocks you.
+Three tabs sit across the top. Manual builds a simple letter mark in the browser. AI sends your brand text to the logo service. Upload lets you drop your own file.
 
-AI mode calls the logo generate API. You type brand words. You pick modern, minimal, bold, elegant, tech, or playful style. You set a hex color anchor. Generate sends the bundle. A base sixty-four image returns when healthy. Errors print plain text. Debug JSON appears when shapes look wrong. You iterate copy until the icon feels elite.
+Manual mode uses one letter, a shape, colors, and solid or gradient fill. The preview updates live. Download saves what you see.
 
-Upload mode ingests your file. Preview swaps to your bitmap or SVG. Download still works. Apply to Project sends PATCH to customize API. site_logo updates for the selected id. Saved state flashes three seconds. You refresh the live site. You confirm the header swapped.
+AI mode needs a short brand phrase plus a style and a color. Tap generate and wait for the image. Read any error text if nothing returns.
 
-Project picker sits below previews. You select the target vault name. Apply locks the mark to that asset. You repeat for each vertical you run.
+Upload mode replaces the preview with your file. Download still works. Apply to Project saves the current preview onto the project you selected.
 
-Icon emoji presets offer lightning and star motifs. You can pair manual letters with playful symbols. Hex grid covers brand indigo through slate. Neon green punctuates bold launches. Gradient mode softens enterprise marks. Solid mode sharpens minimalist marks. Circle shape reads app-like. Square shape reads corporate. Rounded square splits the difference.
+Match your logo colors to your site theme in Customizer when you can. Re-apply the logo after a big rebrand.
 
-Download uses a temporary anchor element. File naming follows browser defaults. You rename on disk if needed. You upload the same file into Customizer if desired. You keep one source of truth per brand.
+The project dropdown lists every site you own. If it is empty, create a project first. Manual mode works offline from heavy AI calls. Upload works when you already hired a designer.
 
-Tabs read Manual, AI, and Upload across the top. Active tab highlights indigo. Inactive tabs stay gray. You jump modes without losing prior previews. You compare vector against raster quickly. Saving state clears after three seconds. You wait for confirmation before you leave.
+After Apply succeeds, refresh your live preview. The header should show the new mark. If not, clear cache and reload once.
 
-Brand voice matters in AI prompts. Two words can work. Ten words can work better. Style keywords steer mood. Color anchors steer palette. You iterate five times fast. You pick the winner. You apply downstream.
+Rush to Logo Generator. Start now. Ship a mark that fits your header.
 
-Letter input accepts one visible glyph. Emoji could break SVG text. Stick to letters for safety. Numbers work if on-brand. Ampersands may need escaping. You test weird characters once. You revert if layout breaks.
-
-Saving shows Loader state on button. Disabled state prevents double PATCH. Network errors leave saved false. You retry apply calmly. You confirm with a refresh of the live preview.
-
-Wand icon marks the nav item. Sparkles mark AI actions. Lucide icons stay crisp. Stroke widths stay consistent. You feel polish. You trust details.
-
-Empty project list still renders page shell. Dropdown shows no rows until you create assets. You build Site Forge first. You return for logos second. Flow stays logical.
-
-Customize API accepts site_logo field updates. PATCH routes through secure project scope. User id guards ownership. You cannot patch foreign brands. Security stays tight.
-
-Data URLs embed directly in storage fields. Large payloads still work. You monitor performance. You compress uploads when needed.
-
-Rush to Logo Generator. Start now. Ship marks that match your customizer theme.
-
-One. Align hex values with Site Customizer primary picks. Two. Test marks on white headers and dark heroes. Three. Re-apply after any rename event. Four. Favor small files for speed. Five. Use Manual for same-day launches. Six. Use AI when you want a unique glyph.
+One. Create a project in Site Forge before you need a logo. Two. Test your mark on light and dark backgrounds. Three. Keep file sizes small for fast loads. Four. Use Manual for a same-day letter mark. Five. Use AI when you want a richer icon.
 
 ---
 
 ## 5 — 10X (Facebook Post Generator)
 
-Ten angles. One link.
+Hi. Thanks for joining. This lesson is Ten X on Sphere AI.
 
-Ten X unlocks with subscription flags. has ten x flips the gate open. User metadata plan infinite also passes. Locked visitors see Ten X Mode Locked. Upgrade copy pushes activate. You resolve billing first. You return when access clears.
+Ten X is a Premium tool. It lives under Premium in the sidebar. You need the Ten X add-on or an Infinite plan. Otherwise you see a lock screen and an upgrade path.
 
-The page headline reads Ten X Facebook Post Generator. A gradient icon sells energy. Ten X Mode Active tags subscribers. Subhead promises ten unique posts per link. Different hooks maximize reach. Different angles maximize clicks.
+The page generates ten different Facebook posts from one promotional link. Each post uses a different angle so you can test hooks.
 
-Three feature tiles summarize the value. Ten Unique Posts explains angle variety. High-Converting Copy promises engagement tuning. Ready to Post mentions Facebook paste workflow. You trust the stack. You move to inputs.
+Enter a short name for the offer. Paste the full promotional URL. Add an optional description when the link alone is not enough. Tap generate and wait for the list.
 
-Link Name labels your internal reference. Promotional URL holds the real destination. Optional Description adds context. Empty description still triggers generation. The client builds a default prompt around the URL. Generate posts to the Ten X AI API. JSON returns an array of strings. Placeholder tokens swap to your live link. Spinners run through staged progress copy. Cards render below. Each card shows post text. Copy buttons fire clipboard writes. A check icon confirms success for two seconds.
+Ten text cards appear when the run succeeds. Each card has a copy button. Your real link replaces any placeholder the model used. Paste into Facebook groups, your profile, or comments where allowed.
 
-Training accordions sit under the grid. Where to Share lists niche groups first. Profile and Stories follow. Managed Pages follow. Comment sections close the list. When and How lists best time bands. Spacing rules follow. Engagement rules follow. Angle rotation closes the guidance. You read while posts generate. You plan distribution before you paste.
+Below the cards you find tips on where to post and how often to space posts. Read them while you plan your week.
 
-Video placeholder reserves future walkthrough media. Subtitle states training is coming soon. You still ship value from text today. You still ship value from tips today. Progress steps mention marketing angles. Progress steps mention final polish. You trust the UI pacing. You trust the API payload.
+The page shows a short loading sequence while the model runs. Do not close the tab mid-run. If the server returns an error, shorten your description or fix the URL.
 
-Link Name doubles as memory hook. You recognize batches later. Promotional URL must be valid for replacement logic. Broken links waste a generation cycle. Description field adds nuance for regulated offers. Description field adds nuance for health claims. You stay compliant in your own words. The model follows your lead.
+Copy buttons flash confirmation when text hits your clipboard. Paste into Facebook within your own compliance rules. You own the claims in every post.
 
-Facebook iconography appears in feature tiles. Share and Target icons reinforce intent. Bar chart icon signals performance thinking. Gradient header matches Automation styling. You feel one product family. You trust shared design language.
+Rush to Ten X. Start now. Run one link per batch and track what converts.
 
-Copy buttons reset after two seconds. You spam safely during testing. You pace yourself in production. Error strings surface from server JSON. You read them aloud once. You adjust inputs. You regenerate without shame.
-
-Spinner blocks duplicate submits. Interval clears on success. Interval clears on failure. Memory leaks stay unlikely. You trust the client code. You focus on copy.
-
-Response parsing handles non-JSON errors. Slice logic shows first hundred chars. You debug faster. You escalate when blank. Array validation guards empty posts. You never stare at a blank grid silently.
-
-Gradient headline uses indigo to purple. Badge uses emerald for active state. Layout uses max width sixxl. Padding bottom adds breath. Typography uses black weights. You feel premium weight. You sound premium on mic.
-
-User metadata plan infinite bypasses missing subscription rows. Single flag unlocks faster. You verify access after purchase refresh. You reload once. Gates open.
-
-Checking Permissions text shows while access loads. Spinner centers on screen. Gray uppercase tracking whispers status. You wait seconds only.
-
-Rush to Ten X. Start now. Feed one strong URL per run.
-
-One. Add description when the offer needs context. Two. Post one angle per group per day. Three. Engage comments inside hour one always. Four. Rotate all ten hooks across audiences. Five. Track which angle drives the most clicks. Six. Pair curiosity hooks with story hooks on different days.
+One. Add a description for regulated or vague offers. Two. Post one angle per group per day to avoid spam flags. Three. Reply inside the first hour when comments arrive. Four. Use all ten angles across different audiences. Five. Note which style wins clicks.
 
 ---
 
 ## 6 — Automation (Traffic Machine)
 
-Six niches. Sixty sources.
+Hi. Welcome to Automation on Sphere AI.
 
-Automation Traffic Machine demands Premium access. has automation passes the check. Plan infinite passes too. Locked users read Automation Machine Locked. Upgrade routes to activate. You clear the gate. You return ready.
+Automation is Premium. You need the Automation plan or Infinite. The locked screen explains the value and points you to upgrade.
 
-The headline states Automation Traffic Machine. Mono subhead shouts post once forever. Sixty sources anchor the promise. Step cards explain pick, follow, paste. Stats grid shows sixty free sources. Six profitable niches appear next. Visitor bands read two hundred to one thousand monthly per card style.
+The tool lists about sixty free traffic sources. They sit inside six niche buckets like weight loss and make money online. Each card names a forum, social thread, or Q and A style place.
 
-Your link field accepts any URL. Snippets replace bracket LINK with that string. Default placeholder warns when empty. Search filters titles and niches live. Category chips narrow Weight Loss, Make Money Online, Health, Beauty, Pets, Home. All resets breadth.
+Paste your offer link once at the top. Every snippet on the page swaps in that link when you copy.
 
-Each source card shows name, type tag, visitor band, and time cost. Expand reveals four micro steps. Snippet box shows ready copy. Copy fires clipboard with your live URL. Complete toggles checkmarks. Local storage remembers progress. Header counts launched versus sixty total. Inspect opens Google for the source name. You validate the community still thrives.
+Search and category chips narrow the list. Open a card to see short steps. Copy the suggested message. Mark the card done when you finish. Your browser remembers checkmarks.
 
-A member banner cites eight hundred forty-seven thousand two hundred ninety plus submissions this month. Social proof steadies your pace. You trust the machine. You execute.
+Use Inspect to open a search for the source name. Confirm the community still exists before you invest time.
 
-Progress percent rounds launched divided by sixty. Bar visuals could appear in your mind. Numbers update on every toggle. Reset lives in browser storage only. Clearing cache clears progress. You accept that trade. You screenshot progress for teams if needed.
+Progress tracks how many sources you marked complete out of sixty. That score is stored in your browser. Clearing site data resets it. Screenshot progress if your team needs a report.
 
-Niche mix spans weight threads. MMO forums appear mid list. Health communities appear with higher visitor bands. Beauty and Pets fill gaps. Home and Garden rounds the set. Type tags read SOCIAL or FORUM. Type tags read Q&A or BLOG. You pick channels that fit your voice. You skip channels that feel off-brand.
+The banner on the page shows member activity stats. Use it as motivation. Your work still depends on consistent posting and good manners in each community.
 
-Time estimates range five to twenty minutes. Honest work beats spam volume. Visitor bands cite monthly estimates. Treat them as directional. Your mileage varies by effort. Your mileage varies by copy.
+Rush to Automation. Start now. Finish one niche before you jump to the next.
 
-Mouse pointer iconography sells precision. Zap accents echo Ten X energy. Indigo gradients tie Premium pages together. Locked state copy mentions sixty plus sources. Locked state copy mentions six niches. You upgrade once. You unlock forever.
-
-Search input uses icon prefix. Link input mirrors layout. Two-column grid balances on desktop. Single column stacks on mobile. You work thumb-friendly. You work desk-friendly.
-
-Chevron toggles expand source bodies. Check icons mark completion. External link icon opens Google. Clipboard icon implies copy. Micro-interactions reward progress. You stay addicted to completion.
-
-Stats dashboard uses rounded forty pixel shell. Inner padding uses eight to ten spacing. Emerald banner cites huge member totals. Indigo square icons echo brand. Mono uppercase lines shout discipline. You match energy to task.
-
-Source list uses relative container. Filtering happens client side. No server round trip slows search. Instant feedback wins. Large lists stay smooth. You explore fearlessly.
-
-Browser storage remembers your checklist. Arrays persist as text. Reload restores checks. You survive refresh. You survive a closed tab.
-
-Syncing Engine text shows during access checks. Same spinner pattern as Ten X. Consistency reduces anxiety. You trust the wait.
-
-Locked screen mentions step-by-step automation guides. Copy sells the database depth. CTA routes to activate. You upgrade with clarity.
-
-Rush to Automation. Start now. Paste your money link once at the top.
-
-One. Finish one niche before you jump sideways. Two. Update the link field when offers move. Three. Avoid duplicate posts in one thread. Four. Pair snippets with Ten X copy for scale. Five. Inspect stale names before you invest time. Six. Mark complete to track real coverage.
+One. Update the link field when your destination changes. Two. Avoid posting the same snippet twice in one thread. Three. Pair these snippets with Ten X posts when you scale. Four. Track completed cards so you cover the full sixty.
 
 ---
 
 ## 7 — Infinite
 
-Limits disappear here.
+Hi. Good to have you here. This video explains Infinite.
 
-Infinite is the flagship unlock. has infinite flips true in subscriptions. User metadata plan infinite also qualifies. Others see Unlock Infinite Power messaging. Upgrade buttons wait. You finish purchase. You reload. Premium opens wide.
+Infinite is the top Premium tier. It unlocks when your subscription includes Infinite. The page promises unlimited generations and room to grow without the five-per-day wall.
 
-The page title reads Infinite. Subcopy states no limits on generations. Unlimited websites follow. Unlimited growth follows. Three stat tiles show infinity symbols. Daily Generations reads infinite. Active Websites reads infinite. Marketing Messages reads infinite. Training placeholder reserves future walkthrough video.
+You see a grid of your existing websites. Each card shows the project type and name. A translate menu lists many languages. Pick one and the app builds that language version. Links appear as chips when translation finishes. Open them to review the result.
 
-Your Websites renders a grid. Each card shows project type chip. Project name truncates cleanly. Translate Website select lists twenty-five locales. Arabic through Indonesian appear with flag emoji labels. Choosing a language calls the translate API. Spinner shows during work. Success pushes a chip row. Each chip opens software user URL with lang query. Settings links to dashboard project detail. Small external button opens your public S route with slug. Generate New routes to Site Forge. Empty grid tells you to start generating. You stack sites without the five daily wall. You add languages without friction.
+Settings on the card jumps back to that project in the dashboard. The small external icon opens the public site. Generate New sends you to Site Forge to add another site.
 
-Infinite mindset means volume with quality. You still edit pages after generation. You still tune Customizer after translation. Unlimited does not mean careless. Unlimited means you iterate without fear. You test more funnels. You test more locales.
+English should be solid before you translate. Edit the base site first. Then add languages and spot-check layout.
 
-Training video slot mirrors other Premium pages. Future media will walk strategy. Today the stats speak loudly. Infinity glyphs reinforce the promise. Amber and blue icons break monotony. Cards stay white for clarity. Borders stay soft for focus.
+Stat tiles on the page read unlimited for generations, sites, and messages. That matches the promise of the tier. Video training slots may fill in later. The controls already work today.
 
-Plus icon on Generate New signals creation. Black button reads confident. White text reads sharp. Grid gaps stay generous. Card hover lifts borders subtly. You scan many sites fast. You pick one to translate. You pick one to audit.
+Empty grid state tells you to generate a site first. Use the black Generate New button. You return here after each new build to translate or open settings.
 
-Translate failures print red text under selectors. You retry once. You retry twice. You file support if persistent. Success chips line-wrap on small screens. Flags help you spot Arabic fast. Flags help you spot French fast.
+Rush to Infinite. Start now. Scale once your first funnel converts.
 
-Restricted view for non-subscribers shows Infinity icon. Copy mentions hundreds of pages. Copy mentions domains and campaigns. Upgrade button awaits wiring. You still understand the value. You still upgrade with intent.
-
-Project cards respect creation order. Service versus affiliate chips clarify funnels. Line clamp keeps grids tidy. Border hover shifts indigo subtly. You feel tactile feedback. You trust the interface.
-
-External link icon opens public slug. Settings uses soft indigo fill. Translate select resets after pick. Option label shows globe emoji. You scan languages visually. You pick fast.
-
-Header stacks icon and title horizontally. Gradient text uses indigo to purple. Paragraph uses gray five hundred. Max width caps line length. Video placeholder spans full width. Stats grid uses three columns on desktop. Stats grid uses one column on phone.
-
-Spinner on translate uses indigo ring. Disabled select grays during work. Error text uses eleven pixel red. Chip links use ten pixel semibold. External icon micro size nine. Details feel crafted. You narrate them with pride.
-
-The grid maps one card per website. Server data arrives ready. No empty flicker greets you. Layout stays stable on load. You narrate with calm pacing.
-
-Redirect to login happens if session dies. Auth guard stays server side. You never see half data. You always see truth.
-
-Empty website grid shows dashed border. Soft gray copy invites creation. Plus button stays obvious. You start fast.
-
-Rush to Infinite. Start now. Scale once English converts.
-
-One. Finalize English before you translate pages. Two. Open every new language preview slowly. Three. Stack verticals with Generate New weekly. Four. Keep billing current so access never drops. Five. Watch translate errors and retry fast. Six. Use Settings to tweak copy after translation.
+One. Retry a failed translation after a short wait. Two. Stack new verticals with Generate New on a schedule. Three. Keep your subscription active so access stays on. Four. Use project settings to tweak copy after translation.
 
 ---
 
 ## 8 — DFY (Done-For-You Sites)
 
-Ready sites. Instant claim.
+Hi. Glad you are here. This training covers DFY on Sphere AI.
 
-DFY opens for has DFY subscribers. Infinite plan users see it too. Others remain locked. The library holds roughly one hundred eighty prefab identities. CartFlow leads commerce. Lumina Labs leads agency style. Expert Academy leads education. Generated names fill the rest across nine type buckets.
+DFY is Premium. You need the DFY plan or Infinite. The library shows ready-made site identities with images and themes. Roughly one hundred eighty options span types like e-commerce, service, blog, and education.
 
-Type filters sit up top. E-commerce, Service, Portfolio, Landing Page, Blog, Education, Health, Personal Branding, Corporate rotate. Search trims by keyword. Load more reveals deeper rows. Each card shows art, niche line, two hundred posts metric, and theme tag. Claim buttons fire project creation. Claimed states read from slug patterns. Preview modals show visual mood. Posts modals list SEO articles. Accordions expand single posts. Copy buttons grab title plus body together. You paste into email. You paste into social. You skip blank-page syndrome.
+Filters and search shrink the grid. Load more reveals additional cards. Each card shows a theme, a post count near two hundred, and a short niche line.
 
-Image grids rotate Unsplash art per type. CartFlow uses commerce photography. Lumina uses dashboard metaphors. Expert Academy uses campus energy. Generated rows mix verbs like Hub and Labs. Adjectives like Premium and Smart prepend names. You scan fast. You claim what fits your niche.
+Preview opens a modal so you see the look. Another view shows sample SEO posts. Expand a post to read it. Copy title and body when you want to reuse text elsewhere.
 
-Claiming ties a DFY identity to your account. Slugs encode dfy markers internally. You track claimed map in UI state. You avoid double-claim confusion. Theme tags note Clean or Dark Mode. You align Customizer after claim. You align Logo Generator after claim.
+Claim attaches that identity to your account as a new project. Claimed cards show a taken state so you do not duplicate. After you claim, open the project and customize in Asset Vault and Logo Generator.
 
-Posts near two hundred imply deep content wells. Accordions keep the UI light. Expanded posts show long SEO copy. You read for voice match. You edit later in page editors if needed. Copy icon reduces friction. Clipboard holds full text blocks.
+Featured names like CartFlow or Lumina appear at the top of the catalog. Generated names fill the rest. All carry the same claim flow. Pick what fits your niche and your offer.
 
-Sparkles icons mark premium tone. Lock icons appear when unsubscribed. Star icons mark DFY in sidebar. Gradient headers echo Ten X styling. You learn visual cues once. You navigate faster later.
+Posts inside the modal are starting points. You can edit them in the page editor after claim. The bundle saves you blank-page time. Your job is to align voice and facts.
 
-Visible count starts at twelve. Load more increments the grid. Search debounces mentally as you type. Active type filters reset breadth. All shows the full catalog again. You hunt niche by niche. You claim winners only.
+Rush to DFY. Start now. Claim one identity and own it end to end.
 
-Claiming shows spinner state per card. You wait seconds. You avoid double clicks. Mapped slugs show Claimed labels. You skip duplicates. You open Manage from post-claim flows. You polish before you scale media spend.
-
-Modal layers stack preview over grid. Close icons return you to catalog. Post modal stacks accordion list. Expanded rows push height. Scroll stays smooth. Copy buttons sit per post. You grab snippets fast. You stack campaigns faster.
-
-Types array cycles nine labels. Verbs array cycles ten suffixes. Adjectives rotate for synthetic names. Unsplash sets rotate per type. You still get variety at scale. You still pick human-looking cards.
-
-Eye icon opens preview flows. File search icon opens post flows. Plus and X icons mark controls. Mouse pointer cues appear in locked states. You learn icon language fast. You move faster day two.
-
-Grid uses responsive columns. Cards lift on hover. Images cover squares. Badges show post counts. Theme tags show Clean or Dark. Niche text clarifies positioning. You scan like a buyer. You claim like an owner.
-
-Active type filter highlights chip. Inactive chips stay muted. Search input clears mentally when you reset type. Load more appends without full reload. State stays client side. Performance feels instant. You explore deep catalogs calmly.
-
-Premium lock screen mentions done-for-you SEO posts. Upgrade path points to activate. Subscribers skip lock entirely. Library opens full width. You scroll. You claim. You deploy.
-
-Rush to DFY. Start now. Claim one identity. Customize it fully.
-
-One. Match site type to your traffic channel. Two. Claim one asset before you mass claim. Three. Run Logo Generator after each claim. Four. Publish before you buy ads. Five. Preview posts before you trust tone. Six. Map each DFY site to one offer only.
+One. Match the site type to the traffic you run. Two. Claim and finish one site before you mass-claim. Three. Add your logo after claim. Four. Publish before you pay for cold traffic. Five. Read sample posts before you trust the voice.

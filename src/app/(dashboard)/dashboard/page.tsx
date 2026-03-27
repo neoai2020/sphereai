@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { NetworkActivity } from "@/components/dashboard/network-activity";
-import { PlainVideoPlaceholder } from "@/components/dashboard/plain-video-placeholder";
+import { VimeoEmbed } from "@/components/dashboard/vimeo-embed";
+import { GETTING_STARTED_VIMEO_ID } from "@/lib/vimeo-config";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
@@ -61,7 +62,11 @@ export default async function DashboardPage() {
 
       <div className="grid lg:grid-cols-12 gap-10">
         <div className="lg:col-span-8 space-y-10">
-          <PlainVideoPlaceholder />
+          <VimeoEmbed
+            videoId={GETTING_STARTED_VIMEO_ID}
+            title="1 — Getting Started"
+            variant="dashboard"
+          />
           
           {/* 6. Live Success (Moved under video) */}
           <div className="bg-white rounded-2xl p-1 border border-gray-100 shadow-sm overflow-hidden my-6">

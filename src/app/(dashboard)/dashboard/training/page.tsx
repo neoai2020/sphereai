@@ -1,3 +1,5 @@
+import { VimeoEmbed } from "@/components/dashboard/vimeo-embed";
+import { GETTING_STARTED_VIMEO_ID } from "@/lib/vimeo-config";
 import { GraduationCap, PlayCircle, BookOpen, CheckCircle2 } from "lucide-react";
 
 export default function TrainingPage() {
@@ -28,13 +30,15 @@ export default function TrainingPage() {
         </p>
       </div>
 
-      <div className="relative mb-12">
-        <div className="aspect-video bg-gray-900 rounded-2xl flex items-center justify-center overflow-hidden border border-gray-800">
-          <div className="text-center">
-            <PlayCircle size={64} className="text-brand-500 mx-auto mb-4 cursor-pointer hover:scale-110 transition-transform" />
-            <p className="text-white font-medium">Watch: Platform Overview (3:45)</p>
-          </div>
-        </div>
+      <div className="mb-12">
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+          1 — Getting Started
+        </h2>
+        <VimeoEmbed
+          videoId={GETTING_STARTED_VIMEO_ID}
+          title="1 — Getting Started"
+          variant="training"
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-6 mb-12">
