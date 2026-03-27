@@ -113,28 +113,22 @@ export default async function DashboardPage() {
           {/* 3. Software Statistics Panel */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
-              { icon: Users, label: "Platform Users", value: "3,842", color: "blue", trend: "+124 today" },
-              { icon: Zap, label: "Total Assets", value: "12,940", color: "magenta", trend: "High Velocity" },
-              { icon: TrendingUp, label: "Revenue Impact", value: "$1.2M", color: "blue", trend: "Network Total" },
-              { icon: Search, label: "AI Search Reach", value: "248k", color: "magenta", trend: "Optimized" },
+              { icon: Users, label: "Platform Users", value: "3,842", color: "brand", trend: "+124 today" },
+              { icon: Zap, label: "Total Assets", value: "12,940", color: "purple", trend: "High Velocity" },
+              { icon: TrendingUp, label: "Revenue Impact", value: "$1.2M", color: "green", trend: "Network Total" },
+              { icon: Search, label: "AI Search Reach", value: "248k", color: "orange", trend: "Optimized" },
             ].map((stat, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-xl transition-all relative overflow-hidden group border-b-4 border-b-transparent hover:border-b-blue-500">
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-lg transition-all relative overflow-hidden group border-b-4 border-b-transparent hover:border-b-brand-500">
                 <div className="flex items-center justify-between mb-4">
-                  <div className={cn(
-                    "w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm bg-white border border-gray-100",
-                    stat.color === "blue" ? "text-blue-600 shadow-blue-100" : "text-magenta-600 shadow-magenta-100"
-                  )}>
+                  <div className={`w-12 h-12 rounded-xl bg-${stat.color}-50 flex items-center justify-center text-${stat.color}-600 group-hover:scale-110 transition-transform`}>
                     <stat.icon size={24} />
                   </div>
-                  <span className={cn(
-                    "text-[9px] font-black px-3 py-1.2 rounded-full uppercase tracking-widest shadow-sm",
-                    stat.color === "blue" ? "bg-blue-50 text-blue-700 border border-blue-100" : "bg-magenta-50 text-magenta-700 border border-magenta-100"
-                  )}>
+                  <span className={`text-[9px] font-bold px-2 py-1 rounded-full bg-${stat.color}-50 text-${stat.color}-700 uppercase`}>
                     {stat.trend}
                   </span>
                 </div>
-                <p className="text-[10px] font-black text-gray-400 mb-1 uppercase tracking-[0.2em]">{stat.label}</p>
-                <p className="text-3xl font-black text-gray-950 tracking-tighter">{stat.value}</p>
+                <p className="text-xs font-bold text-gray-500 mb-0.5 uppercase tracking-wider">{stat.label}</p>
+                <p className="text-3xl font-black text-gray-900">{stat.value}</p>
               </div>
             ))}
           </div>
@@ -206,33 +200,29 @@ export default async function DashboardPage() {
         <div className="lg:col-span-4 space-y-8">
             {/* Account Status at the top */}
             {/* Quick Actions */}
-            <div className="bg-white rounded-3xl p-8 shadow-xl shadow-gray-200/30 border border-gray-100 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-50/50 to-magenta-50/50 rounded-full blur-3xl -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-1000" />
-              <h2 className="text-gray-950 font-black text-xl mb-8 flex items-center gap-3 relative z-10">
-                <Zap size={22} className="text-blue-600" /> Quick Actions
+            <div className="bg-white rounded-3xl p-8 shadow-xl shadow-gray-200/30 border border-gray-100 relative overflow-hidden">
+              <h2 className="text-gray-900 font-black text-xl mb-8 flex items-center gap-3">
+                <Zap size={22} className="text-brand-600" /> Quick Actions
               </h2>
-              <div className="grid grid-cols-1 gap-3 relative z-10">
+              <div className="grid grid-cols-1 gap-3">
                 {[
-                   { label: "Site Forge", href: "/dashboard/projects/new", icon: Plus, color: "blue" },
-                   { label: "Asset Vault", href: "/dashboard/projects", icon: Globe, color: "magenta" },
-                   { label: "Training Center", href: "/dashboard/training", icon: Play, color: "blue" },
-                  { label: "Contact Support", href: "/dashboard/support", icon: MessageSquare, color: "magenta" },
+                   { label: "Site Forge", href: "/dashboard/projects/new", icon: Plus, color: "brand" },
+                   { label: "Asset Vault", href: "/dashboard/projects", icon: Globe, color: "purple" },
+                   { label: "Training Center", href: "/dashboard/training", icon: Play, color: "orange" },
+                  { label: "Contact Support", href: "/dashboard/support", icon: MessageSquare, color: "green" },
                 ].map((action, i) => (
                   <Link 
                     key={i}
                     href={action.href} 
-                    className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 hover:bg-white text-gray-700 hover:text-gray-950 font-bold transition-all border border-transparent hover:border-gray-200 hover:shadow-xl hover:shadow-gray-200/50 group"
+                    className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 hover:bg-brand-50 text-gray-700 hover:text-brand-700 font-bold transition-all border border-transparent hover:border-brand-100 group"
                   >
                     <div className="flex items-center gap-4">
-                      <div className={cn(
-                        "w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm",
-                        action.color === "blue" ? "text-blue-600" : "text-magenta-600"
-                      )}>
-                        <action.icon size={20} />
+                      <div className={`w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm`}>
+                        <action.icon size={20} className={`text-${action.color}-600`} />
                       </div>
-                      <span className="text-base tracking-tighter italic font-black">{action.label}</span>
+                      <span className="text-base tracking-tight">{action.label}</span>
                     </div>
-                    <ArrowUpRight size={16} className="text-gray-300 group-hover:text-blue-600 transition-all" />
+                    <ArrowUpRight size={16} className="text-gray-300 group-hover:text-brand-600 transition-all" />
                   </Link>
                 ))}
               </div>
