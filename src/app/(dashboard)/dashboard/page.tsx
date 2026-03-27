@@ -58,28 +58,17 @@ export default async function DashboardPage() {
 
       <div className="grid lg:grid-cols-12 gap-10">
         <div className="lg:col-span-8 space-y-10">
-          {/* 2. Featured Video Section */}
+          {/* 2. Video placeholder */}
           <div className="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-200/50 p-1">
-             <div className="aspect-video bg-gray-100 rounded-[22px] overflow-hidden relative group cursor-pointer">
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-950/60 via-transparent to-transparent z-10" />
-                <img 
-                  src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop" 
-                  alt="AI Strategy" 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 opacity-90"
-                />
-                <div className="absolute inset-0 z-20 flex items-center justify-center">
-                  <div className="w-20 h-20 rounded-full bg-white/95 flex items-center justify-center group-hover:scale-110 transition-all shadow-2xl border-4 border-brand-50">
-                    <Play size={40} className="text-brand-600 fill-brand-600 ml-1.5" />
-                  </div>
-                </div>
-                <div className="absolute bottom-8 left-8 right-8 z-20">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-600 text-white text-[10px] font-bold uppercase tracking-widest mb-4 shadow-lg shadow-brand-500/30">
-                    <Zap size={14} fill="currentColor" /> Mastering AI Search
-                  </div>
-                  <p className="text-white font-bold text-3xl mb-2 drop-shadow-md">The 2024 AI Citation Guide</p>
-                  <p className="text-white/90 text-base drop-shadow-sm font-medium">How to ensure your content is recommended by ChatGPT & Perplexity.</p>
-                </div>
+            <div
+              className="aspect-video rounded-[22px] overflow-hidden relative flex items-center justify-center bg-gradient-to-b from-gray-100 to-gray-200 border border-gray-100 group cursor-pointer"
+              role="img"
+              aria-label="Video placeholder"
+            >
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white shadow-md border border-gray-200/80 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                <Play size={32} className="text-gray-500 fill-gray-500 ml-0.5 sm:ml-1" aria-hidden />
               </div>
+            </div>
           </div>
           
           {/* 6. Live Success (Moved under video) */}
