@@ -22,17 +22,28 @@ import {
   Copy,
   Check
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import { createClient } from "@/lib/supabase/client";
+import { VideoPlaceholder } from "@/components/dashboard/video-placeholder";
 
 export default function TenXPage() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [checkingAccess, setCheckingAccess] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [progressStep, setProgressStep] = useState(0);
   const [error, setError] = useState("");
   const [posts, setPosts] = useState<string[]>([]);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const progressRef = useRef<NodeJS.Timeout | null>(null);
+
+  const PROGRESS_STEPS = [
+    "Analyzing Prompt...",
+    "Building Marketing Angles...",
+    "Crafting Post Copy...",
+    "Applying Final Touches...",
+    "Almost Ready!",
+  ];
 
   const [form, setForm] = useState({
     name: "",
@@ -116,7 +127,17 @@ export default function TenXPage() {
 
     setError("");
     setLoading(true);
+    setProgressStep(0);
     setPosts([]);
+
+    // Animate progress steps
+    let step = 0;
+    progressRef.current = setInterval(() => {
+      step++;
+      if (step < PROGRESS_STEPS.length - 1) {
+        setProgressStep(step);
+      }
+    }, 1800);
 
     try {
       const res = await fetch("/api/ai/10x", {
@@ -124,25 +145,33 @@ export default function TenXPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productName: form.name,
-          productDescription: `Promotional link for ${form.name}. The target landing page URL is ${form.url}. Generate 10 high-converting Facebook posts to drive traffic.`
+          productDescription: `Promotional link for ${form.name}. The target landing page URL is ${form.url}. Generate 10 high-converting Facebook posts to drive traffic.`,
+          productLink: form.url,
         }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        // Inject the actual link instead of placeholders
+        setProgressStep(PROGRESS_STEPS.length - 1);
         const processedPosts = data.posts.map((p: string) => 
           p.replace(/\[YOUR LINK HERE\]/g, form.url)
         );
-        setPosts(processedPosts);
+        setTimeout(() => {
+          setPosts(processedPosts);
+          setLoading(false);
+          setProgressStep(0);
+          if (progressRef.current) clearInterval(progressRef.current);
+        }, 600);
       } else {
         setError(data.error || "Generation failed. Please try again.");
+        setLoading(false);
+        if (progressRef.current) clearInterval(progressRef.current);
       }
     } catch (err) {
       setError("Failed to connect to AI service.");
-    } finally {
       setLoading(false);
+      if (progressRef.current) clearInterval(progressRef.current);
     }
   }
 
@@ -273,12 +302,43 @@ export default function TenXPage() {
               className="w-full group relative overflow-hidden bg-gray-900 hover:bg-black text-white font-black py-5 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {loading ? (
-                <Loader2 size={24} className="animate-spin text-indigo-400" />
+                <Loader2 size={20} className="animate-spin text-indigo-400" />
               ) : (
                 <Sparkles size={20} className="text-amber-400 fill-amber-400/20" />
               )}
               {loading ? "AI Crafting your posts..." : "Generate 10 Intelligent Posts"}
             </button>
+
+            {/* Progress Bar */}
+            {loading && (
+              <div className="space-y-3 animate-in fade-in duration-300">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-indigo-600 uppercase tracking-widest animate-pulse">
+                    {PROGRESS_STEPS[progressStep]}
+                  </span>
+                  <span className="text-xs font-bold text-gray-400">
+                    {Math.round(((progressStep + 1) / PROGRESS_STEPS.length) * 100)}%
+                  </span>
+                </div>
+                <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full transition-all duration-700 ease-out"
+                    style={{ width: `${((progressStep + 1) / PROGRESS_STEPS.length) * 100}%` }}
+                  />
+                </div>
+                <div className="flex justify-between">
+                  {PROGRESS_STEPS.map((_, i) => (
+                    <div 
+                      key={i}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        i <= progressStep ? "bg-indigo-500 scale-110" : "bg-gray-200"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       </div>
@@ -323,6 +383,12 @@ export default function TenXPage() {
           </div>
         </div>
       )}
+
+      {/* Training Video Placeholder */}
+      <VideoPlaceholder 
+        title="10X Facebook Strategy — Full Walkthrough"
+        subtitle="Video training coming soon"
+      />
 
       {/* Pro Tips Section */}
       <div className="bg-white border border-gray-100 rounded-[40px] p-8 md:p-12 shadow-sm space-y-12">

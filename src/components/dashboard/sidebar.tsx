@@ -101,13 +101,18 @@ export function Sidebar() {
   }
 
   // Helper to check if an item should be visible
+  const premiumLabels = ["10x", "Automation", "Infinite", "DFY"];
   const isVisible = (item: any) => {
+    // Non-premium items always show
+    if (!premiumLabels.includes(item.label)) return true;
+    // Infinite subscription unlocks everything
     if (subscriptions.has_infinite) return true;
-    if (item.label === "10x") return subscriptions.has_10x;
-    if (item.label === "Automation") return subscriptions.has_automation;
-    if (item.label === "Infinite") return subscriptions.has_infinite;
-    if (item.label === "DFY") return subscriptions.has_dfy;
-    return true; // Main and Resources are always visible
+    // Check specific subscription flags
+    if (item.label === "10x") return !!subscriptions.has_10x;
+    if (item.label === "Automation") return !!subscriptions.has_automation;
+    if (item.label === "Infinite") return !!subscriptions.has_infinite;
+    if (item.label === "DFY") return !!subscriptions.has_dfy;
+    return false;
   };
 
   return (

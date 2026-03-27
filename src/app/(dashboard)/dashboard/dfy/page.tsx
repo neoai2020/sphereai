@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-
+import { VideoPlaceholder } from "@/components/dashboard/video-placeholder";
 
 const TYPES = [
   "E-commerce", "Service", "Portfolio", "Landing Page", "Blog", 
@@ -82,22 +82,28 @@ const TYPE_IMAGES: Record<string, string[]> = {
   ]
 };
 
-// Generate 180 sites
+// Generate 180 sites with unique naming
+const SITE_VERBS = ["Pro", "Elite", "Hub", "Studio", "Labs", "Agency", "Works", "Co", "Space", "Ventures"];
+const SITE_ADJECTIVES = ["Premium", "Advanced", "Smart", "Modern", "Expert", "Digital", "Creative", "Dynamic", "Global", "Next-Gen"];
+
 const ALL_SITES = Array.from({ length: 180 }).map((_, i) => {
   const type = TYPES[i % TYPES.length];
   const images = TYPE_IMAGES[type];
   const image = images[i % images.length];
+  const verb = SITE_VERBS[Math.floor(i / TYPES.length) % SITE_VERBS.length];
+  const adj = SITE_ADJECTIVES[(i + 3) % SITE_ADJECTIVES.length];
   return {
     id: `dfy-${i}`,
-    name: `${type} Solutions ${Math.floor(i / TYPES.length) + 1}`,
-    niche: `${type} - Premium`,
-    description: `A fully optimized ${type.toLowerCase()} platform with custom features, high-converting design, and pre-written content.`,
+    name: `${adj} ${type} ${verb}`,
+    niche: `${type} - ${verb}`,
+    description: `A fully optimized ${type.toLowerCase()} platform with ${adj.toLowerCase()} features, high-converting design, and pre-written SEO content — ready to launch in minutes.`,
     type: type,
     image: image,
     posts: 200,
     blueprint: "v1-premium-blueprint"
   };
 });
+
 
 export default function DFYPage() {
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -324,12 +330,20 @@ export default function DFYPage() {
                 </p>
                 
                 <div className="flex items-center gap-2 mt-auto pt-4 border-t border-gray-50">
-                  <button
-                    onClick={() => window.open(site.image, '_blank')}
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-gray-100 hover:bg-gray-50 text-gray-600 text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2"
-                  >
-                    <ExternalLink size={14} /> Demo
-                  </button>
+                  {isClaimed ? (
+                    <Link
+                      href={`/software/user/${site.id}`}
+                      target="_blank"
+                      className="flex-1 px-4 py-2.5 rounded-xl border border-gray-100 hover:bg-gray-50 text-gray-600 text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+                    >
+                      <ExternalLink size={14} /> Demo
+                    </Link>
+                  ) : (
+                    <div className="flex-1 px-4 py-2.5 rounded-xl border border-gray-100 text-gray-300 text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-2 cursor-not-allowed">
+                      <ExternalLink size={14} /> Demo
+                    </div>
+                  )}
+
                   {!isClaimed && (
                     <button
                       onClick={() => handleClaim(site)}
@@ -357,6 +371,12 @@ export default function DFYPage() {
           </button>
         </div>
       )}
+
+      {/* Training Video */}
+      <VideoPlaceholder
+        title="DFY Library — How to Claim & Launch"
+        subtitle="Video training coming soon"
+      />
 
       {/* Security Bottom */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-12 border-t border-gray-100">

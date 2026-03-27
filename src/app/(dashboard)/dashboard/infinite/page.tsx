@@ -4,6 +4,7 @@ import { Infinity, CheckCircle2, Globe, Zap, Plus } from "lucide-react";
 import Link from "next/link";
 import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import { InfiniteClient } from "./InfiniteClient";
+import { VideoPlaceholder } from "@/components/dashboard/video-placeholder";
 
 export default async function InfinitePage() {
   const supabase = await createClient();
@@ -97,6 +98,12 @@ export default async function InfinitePage() {
           <InfiniteClient projects={projects} />
         )}
       </div>
+
+      {/* Training Video */}
+      <VideoPlaceholder
+        title="Infinite Plan — Full Strategy Walkthrough"
+        subtitle="Video training coming soon"
+      />
     </div>
   );
 }
