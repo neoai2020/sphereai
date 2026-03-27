@@ -155,9 +155,7 @@ export function SiteCustomizer({ project }: CustomizerProps) {
   const [loading,    setLoading]    = useState(false);
   const [success,    setSuccess]    = useState(false);
   const [errorMsg,   setErrorMsg]   = useState<string | null>(null);
-  const [origin,     setOrigin]     = useState(() =>
-    typeof window !== "undefined" ? window.location.origin : ""
-  );
+  const [origin,     setOrigin]     = useState("");
   const [activePage, setActivePage] = useState("landing");
   const [linkType,   setLinkType]   = useState<"url" | "email" | "affiliate">(
     detectLinkType(project.product_url || "")
