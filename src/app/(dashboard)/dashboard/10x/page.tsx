@@ -326,12 +326,12 @@ export default function TenXPage() {
             <button 
               onClick={handleGenerate}
               disabled={loading}
-              className="w-full group relative overflow-hidden bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black py-5 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed shadow-indigo-500/20"
+              className="w-full group relative overflow-hidden bg-indigo-600 hover:bg-indigo-700 text-white font-black py-5 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed shadow-indigo-500/10"
             >
               {loading ? (
                 <Loader2 size={20} className="animate-spin text-white/50" />
               ) : (
-                <Sparkles size={20} className="text-amber-300 fill-amber-300/20" />
+                <Sparkles size={20} className="text-white/80 fill-white/20" />
               )}
               {loading ? "AI Crafting your posts..." : "Generate 10 Intelligent Posts"}
             </button>

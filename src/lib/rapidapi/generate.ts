@@ -407,46 +407,26 @@ export async function generateFacebookPosts(
   productDescription: string,
   productLink?: string
 ): Promise<string[]> {
-  const sanitizedName = unescapeHTML(productName).trim().slice(0, 200);
-  const sanitizedDesc = unescapeHTML(productDescription).trim().slice(0, 1000);
   const linkPlaceholder = productLink ? productLink : "[YOUR LINK HERE]";
+  const prompt = `Generate 10 high-converting Facebook posts for the following product: ${productName}. 
+  Description: ${productDescription}. 
+  Link: ${linkPlaceholder}. 
   
-  const prompt = `قم بتوليد 10 منشورات تسويقية لفيسبوك لهذا المنتج بشكل احترافي.
-
-اسم المنتج: ${sanitizedName}
-وصف المنتج: ${sanitizedDesc}
-الرابط الترويجي: ${linkPlaceholder}
-
-قواعد صارمة:
-- أرجع فقط مصفوفة JSON (Array) تحتوي على 10 نصوص فقط. بدون أي شرح أو مقدمات.
-- كل نص يجب أن يكون منشور فيسبوك كامل (50-80 كلمة).
-- استخدم زوايا تسويقية مختلفة لكل منشور (قصة، فضول، حل مشكلة، فوائد، خوف من فوات الفرصة، إلخ).
-- أدرج رابط ${linkPlaceholder} بشكل طبيعي في كل منشور.
-- استخدم الرموز التعبيرية (Emojis) بشكل معتدل واحترافي.
-
-صيغة المخرجات (التزم بها تماماً):
-["نص المنشور 1 هنا", "نص المنشور 2 هنا", ..., "نص المنشور 10 هنا"]`;
+  IMPORTANT: Return ONLY a JSON array of 10 strings. No other text. Each string should be a full Facebook post with emojis.`;
 
   const rawResponse = await callAI(prompt);
   
   try {
     const parsed = extractJSON(rawResponse);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed.map((p: any) => 
-        typeof p === 'string' ? p : JSON.stringify(p)
-      ).slice(0, 10);
+      return parsed.slice(0, 10);
     }
-  } catch (e) {
-    console.error("JSON extraction failed, trying fallback...", e);
-  }
+  } catch (e) {}
 
-  // Robust Fallback: split by common markers if JSON fails
-  const lines = rawResponse.split(/\n(?:\d+[\.\)]|\-|\*|Post \d+:)\s+/)
-    .map(l => l.trim())
-    .filter(l => l.length > 30);
-
-  if (lines.length >= 3) {
-    return lines.slice(0, 10);
+  // Fallback: try to split by numbered lines
+  const lines = rawResponse.split(/\n\d+[\.\)]\s+/).filter(l => l.trim().length > 20);
+  if (lines.length >= 5) {
+    return lines.slice(0, 10).map(l => l.trim());
   }
 
   return [];

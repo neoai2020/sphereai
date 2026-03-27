@@ -326,16 +326,16 @@ export default function DFYPage() {
             return (
               <div 
                 key={site.id} 
-                className="group relative bg-[#0f172a] rounded-3xl overflow-hidden shadow-2xl transition-all hover:scale-[1.02] border border-gray-800/50 flex flex-col h-full"
+                className="group relative bg-white rounded-3xl overflow-hidden shadow-sm transition-all hover:shadow-xl border border-gray-100 flex flex-col h-full"
               >
-                <div className="relative aspect-[16/10] overflow-hidden bg-gray-900">
+                <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
                   <img 
                     src={site.image} 
                     alt={site.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
-                  <div className="absolute top-4 left-4 bg-gray-950/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
-                    <span className="text-[10px] font-black text-brand-400 uppercase tracking-widest">{site.type}</span>
+                  <div className="absolute top-4 left-4 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-gray-100">
+                    <span className="text-[10px] font-black text-brand-600 uppercase tracking-widest">{site.type}</span>
                   </div>
                   {isClaimed && (
                     <div className="absolute inset-0 bg-emerald-500/20 backdrop-blur-[2px] flex flex-col items-center justify-center">
@@ -349,15 +349,15 @@ export default function DFYPage() {
 
                 <div className="p-6 flex flex-col flex-1 gap-4">
                   <div className="space-y-1">
-                    <h3 className="font-bold text-white text-xl">{site.name}</h3>
-                    <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">{site.description}</p>
+                    <h3 className="font-bold text-gray-900 text-xl">{site.name}</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">{site.description}</p>
                   </div>
 
                   <div className="flex items-center gap-3 py-2">
-                    <div className="px-3 py-1 rounded-full bg-gray-800/50 text-[10px] font-black text-gray-300 uppercase letter-spacing-widest">
+                    <div className="px-3 py-1 rounded-full bg-gray-50 text-[10px] font-black text-gray-400 uppercase letter-spacing-widest">
                       {site.niche}
                     </div>
-                    <div className="flex items-center gap-1.5 text-[10px] font-black text-brand-400 uppercase tracking-widest">
+                    <div className="flex items-center gap-1.5 text-[10px] font-black text-brand-600 uppercase tracking-widest">
                        <Sparkles size={12} /> {site.posts} Posts
                     </div>
                   </div>
@@ -365,13 +365,13 @@ export default function DFYPage() {
                   <div className="grid grid-cols-2 gap-2 mt-auto pt-4">
                     <button 
                       onClick={() => setActivePreview(site)}
-                      className="px-4 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-white text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border border-gray-700"
+                      className="px-4 py-3 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-900 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border border-gray-100"
                     >
                       <Eye size={14} /> Preview
                     </button>
                     <button 
                       onClick={() => setActivePosts(site)}
-                      className="px-4 py-3 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border border-blue-500/30"
+                      className="px-4 py-3 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-600 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border border-brand-100"
                     >
                       <Zap size={14} /> {site.posts} Posts
                     </button>
@@ -419,46 +419,46 @@ export default function DFYPage() {
       {/* MODALS */}
       {activePosts && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-gray-950/90 backdrop-blur-sm" onClick={() => setActivePosts(null)} />
-          <div className="relative w-full max-w-4xl bg-[#0f172a] rounded-3xl border border-gray-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b border-gray-800 flex items-center justify-between">
+          <div className="absolute inset-0 bg-gray-950/40 backdrop-blur-sm" onClick={() => setActivePosts(null)} />
+          <div className="relative w-full max-w-4xl bg-white rounded-3xl border border-gray-100 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-brand-600/20 text-brand-400 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center">
                   <FileSearch size={24} />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-white uppercase tracking-tight">{activePosts.name}</h2>
-                  <p className="text-xs text-brand-400 font-bold uppercase tracking-widest">200 SEO Posts • {activePosts.type}</p>
+                  <h2 className="text-xl font-bold text-gray-900 uppercase tracking-tight">{activePosts.name}</h2>
+                  <p className="text-[10px] text-brand-600 font-bold uppercase tracking-widest">200 SEO Posts • {activePosts.type}</p>
                 </div>
               </div>
-              <button onClick={() => setActivePosts(null)} className="p-2 text-gray-500 hover:text-white transition-colors">
+              <button onClick={() => setActivePosts(null)} className="p-2 text-gray-400 hover:text-gray-900 transition-colors">
                 <X size={24} />
               </button>
             </div>
             
-            <div className="p-6 border-b border-gray-800">
+            <div className="p-6 border-b border-gray-100">
                <div className="relative">
-                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                  <input 
                    type="text" 
                    placeholder="Search posts..." 
                    value={searchQuery}
                    onChange={(e) => setSearchQuery(e.target.value)}
-                   className="w-full bg-gray-950 border border-gray-800 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
+                   className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                  />
                </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/50">
                {Array.from({ length: 15 }).map((_, i) => (
-                 <div key={i} className="group p-5 rounded-2xl bg-gray-900/50 border border-gray-800 hover:border-brand-500/30 transition-all">
+                 <div key={i} className="group p-5 rounded-2xl bg-white border border-gray-100 hover:border-brand-500/30 transition-all shadow-sm">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                           <span className="w-6 h-6 rounded-lg bg-gray-800 text-[10px] font-black text-gray-400 flex items-center justify-center">{i + 1}</span>
-                           <h4 className="text-white font-bold text-sm">How to optimize your {activePosts.niche} strategy for 2024</h4>
+                           <span className="w-6 h-6 rounded-lg bg-gray-50 text-[10px] font-black text-gray-400 flex items-center justify-center">{i + 1}</span>
+                           <h4 className="text-gray-900 font-bold text-sm">How to optimize your {activePosts.niche} strategy for 2024</h4>
                         </div>
-                        <p className="text-xs text-gray-500 leading-relaxed">
+                        <p className="text-xs text-gray-400 leading-relaxed">
                           Discover the latest trends and techniques to drive massive traffic and conversions to your {activePosts.type} platform...
                         </p>
                       </div>
@@ -467,7 +467,7 @@ export default function DFYPage() {
                           navigator.clipboard.writeText(`How to optimize your ${activePosts.niche} strategy for 2024\n\nDiscover the latest trends...`);
                           alert("Copied to clipboard!");
                         }}
-                        className="p-3 rounded-xl bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 transition-all opacity-0 group-hover:opacity-100"
+                        className="p-3 rounded-xl bg-gray-50 text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-all opacity-0 group-hover:opacity-100 border border-gray-100"
                       >
                         <Copy size={16} />
                       </button>
