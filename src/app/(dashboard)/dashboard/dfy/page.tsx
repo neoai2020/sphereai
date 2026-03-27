@@ -1,7 +1,27 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sparkles, Filter, CheckCircle2, ChevronRight, Layout, Zap, Rocket, Lock, ArrowRight, ExternalLink, Loader2 } from "lucide-react";
+import { 
+  Sparkles, 
+  CheckCircle2, 
+  ChevronRight, 
+  Layout, 
+  Zap, 
+  Rocket, 
+  Lock, 
+  ArrowRight, 
+  ExternalLink, 
+  Loader2,
+  Check,
+  Search,
+  X,
+  Plus,
+  Eye,
+  FileSearch,
+  Globe,
+  Copy,
+  MousePointer2
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import Link from "next/link";
@@ -12,18 +32,6 @@ const TYPES = [
   "E-commerce", "Service", "Portfolio", "Landing Page", "Blog", 
   "Education", "Health/Medical", "Personal Branding", "Corporate"
 ];
-
-const TYPE_COLORS: Record<string, string> = {
-  "E-commerce": "bg-blue-500",
-  "Service": "bg-emerald-500",
-  "Portfolio": "bg-purple-500",
-  "Landing Page": "bg-rose-500",
-  "Blog": "bg-amber-500",
-  "Education": "bg-cyan-500",
-  "Health/Medical": "bg-green-500",
-  "Personal Branding": "bg-orange-500",
-  "Corporate": "bg-slate-500",
-};
 
 const TYPE_IMAGES: Record<string, string[]> = {
   "E-commerce": [
@@ -82,36 +90,70 @@ const TYPE_IMAGES: Record<string, string[]> = {
   ]
 };
 
-// Generate 180 sites with unique naming
 const SITE_VERBS = ["Pro", "Elite", "Hub", "Studio", "Labs", "Agency", "Works", "Co", "Space", "Ventures"];
 const SITE_ADJECTIVES = ["Premium", "Advanced", "Smart", "Modern", "Expert", "Digital", "Creative", "Dynamic", "Global", "Next-Gen"];
 
-const ALL_SITES = Array.from({ length: 180 }).map((_, i) => {
-  const type = TYPES[i % TYPES.length];
-  const images = TYPE_IMAGES[type];
-  const image = images[i % images.length];
-  const verb = SITE_VERBS[Math.floor(i / TYPES.length) % SITE_VERBS.length];
-  const adj = SITE_ADJECTIVES[(i + 3) % SITE_ADJECTIVES.length];
-  return {
-    id: `dfy-${i}`,
-    name: `${adj} ${type} ${verb}`,
-    niche: `${type} - ${verb}`,
-    description: `A fully optimized ${type.toLowerCase()} platform with ${adj.toLowerCase()} features, high-converting design, and pre-written SEO content — ready to launch in minutes.`,
-    type: type,
-    image: image,
+const ALL_SITES = [
+  {
+    id: "dfy-cartflow",
+    name: "CartFlow",
+    niche: "E-commerce Solutions",
+    description: "Handcrafted goods from independent artisans, delivered worldwide. Optimized for speed and high conversion.",
+    type: "E-commerce",
+    image: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&q=80&w=800",
     posts: 200,
-    blueprint: "v1-premium-blueprint"
-  };
-});
-
+    theme: "Clean Theme"
+  },
+  {
+    id: "dfy-lumina",
+    name: "Lumina Labs",
+    niche: "Agency / Saas",
+    description: "Next-gen digital solutions for high-growth startups and enterprises. Built with a modern tech stack.",
+    type: "Service",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800",
+    posts: 200,
+    theme: "Dark Mode"
+  },
+  {
+    id: "dfy-expert",
+    name: "Expert Academy",
+    niche: "Education / LMS",
+    description: "A complete learning management platform to host your courses and grow your community.",
+    type: "Education",
+    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=800",
+    posts: 200,
+    theme: "Clean Theme"
+  },
+  ...Array.from({ length: 177 }).map((_, i) => {
+    const type = TYPES[i % TYPES.length];
+    const images = TYPE_IMAGES[type];
+    const image = images[i % images.length];
+    const verb = SITE_VERBS[Math.floor(i / TYPES.length) % SITE_VERBS.length];
+    const adj = SITE_ADJECTIVES[(i + 3) % SITE_ADJECTIVES.length];
+    return {
+      id: `dfy-${i + 3}`,
+      name: `${adj} ${type} ${verb}`,
+      niche: `${type} - ${verb}`,
+      description: `A fully optimized ${type.toLowerCase()} platform with ${adj.toLowerCase()} features and pre-written SEO content.`,
+      type: type,
+      image: image,
+      posts: 200,
+      theme: "Clean Theme"
+    };
+  })
+];
 
 export default function DFYPage() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [checkingAccess, setCheckingAccess] = useState(true);
   const [activeType, setActiveType] = useState<string>("All");
   const [visibleCount, setVisibleCount] = useState(12);
-  const [claimedIds, setClaimedIds] = useState<Set<string>>(new Set());
+  const [claimedProjectMap, setClaimedProjectMap] = useState<Record<string, string>>({}); // Site ID -> Project Slug
   const [claiming, setClaiming] = useState<string | null>(null);
+  
+  const [activePreview, setActivePreview] = useState<typeof ALL_SITES[0] | null>(null);
+  const [activePosts, setActivePosts] = useState<typeof ALL_SITES[0] | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     async function checkAccess() {
@@ -132,26 +174,24 @@ export default function DFYPage() {
       setIsSubscribed(hasAccess);
       setCheckingAccess(false);
 
-      const { data } = await supabase
+      const { data: projects } = await supabase
         .from("projects")
         .select("slug")
         .eq("user_id", user.id);
       
-      if (data) {
-        setClaimedIds(new Set(data.map(p => {
-            const match = p.slug.match(/dfy-(dfy-\d+)-/);
-            return match ? match[1] : "";
-        }).filter(id => id)));
+      if (projects) {
+        const map: Record<string, string> = {};
+        projects.forEach(p => {
+          const match = p.slug.match(/dfy-(dfy-.*?)-/);
+          if (match) {
+            map[match[1]] = p.slug;
+          }
+        });
+        setClaimedProjectMap(map);
       }
     }
     checkAccess();
   }, []);
-
-  const filteredSites = activeType === "All" 
-    ? ALL_SITES 
-    : ALL_SITES.filter(s => s.type === activeType);
-
-  const visibleSites = filteredSites.slice(0, visibleCount);
 
   const handleClaim = async (site: typeof ALL_SITES[0]) => {
     setClaiming(site.id);
@@ -182,6 +222,7 @@ export default function DFYPage() {
       const { error: pgError } = await supabase.from("pages").insert({
         project_id: project.id,
         title: site.name,
+        slug: "index",
         page_type: "landing",
         is_published: true,
         content: {
@@ -196,17 +237,7 @@ export default function DFYPage() {
 
       if (pgError) throw pgError;
 
-      await fetch("/api/dfy/claim", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          projectId: project.id,
-          siteName: site.name, 
-          type: site.type 
-        }),
-      });
-
-      setClaimedIds(prev => new Set(prev).add(site.id));
+      setClaimedProjectMap(prev => ({ ...prev, [site.id]: slug }));
       alert("Website successfully claimed! You can find it in your Asset Vault.");
     } catch (error) {
       console.error(error);
@@ -236,167 +267,292 @@ export default function DFYPage() {
     );
   }
 
+  const filteredSites = activeType === "All" 
+    ? ALL_SITES 
+    : ALL_SITES.filter(s => s.type === activeType);
+
+  const visibleSites = filteredSites.slice(0, visibleCount);
+
   return (
     <div className="min-h-screen bg-[#FDFDFF] -m-6 p-6 pb-20 text-gray-900">
       <div className="max-w-6xl mx-auto space-y-10">
-        {/* Header Section */}
-      <div className="space-y-8">
-        <div className="text-center space-y-2">
-           <h1 className="text-4xl font-black tracking-tight text-gray-950 italic">DFY Library</h1>
-           <p className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.2em]">180+ websites with 200 SEO posts each</p>
-        </div>
+        <div className="space-y-8">
+          <div className="text-center space-y-2">
+             <h1 className="text-4xl font-black tracking-tight text-gray-950 italic">DFY Library</h1>
+             <p className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.2em]">180+ websites with 200 SEO posts each</p>
+          </div>
 
-        {/* Training Video */}
-        <VideoPlaceholder
-          title="DFY Library — How to Claim &amp; Launch"
-          subtitle="Video training coming soon"
-        />
+          <div className="max-w-4xl mx-auto w-full">
+            <VideoPlaceholder
+              title="DFY Library — How to Claim & Launch"
+              subtitle="Video training coming soon"
+            />
+          </div>
 
-        {/* Filters / Tab Bar */}
-        <div className="flex justify-center">
-          <div className="flex flex-wrap justify-center bg-white p-2 rounded-2xl border border-gray-100 shadow-[0_2px_15px_rgba(0,0,0,0.03)] gap-1">
-            <button
-              onClick={() => { setActiveType("All"); setVisibleCount(12); }}
-              className={`px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                activeType === "All" 
-                  ? "bg-brand-600 text-white shadow-lg shadow-brand-500/20" 
-                  : "text-gray-400 hover:text-gray-900 hover:bg-gray-50"
-              }`}
-            >
-              All
-            </button>
-            {TYPES.map((type) => (
+          <div className="flex justify-center">
+            <div className="flex flex-wrap justify-center bg-white p-2 rounded-2xl border border-gray-100 shadow-sm gap-1">
               <button
-                key={type}
-                onClick={() => { setActiveType(type); setVisibleCount(12); }}
+                onClick={() => { setActiveType("All"); setVisibleCount(12); }}
                 className={`px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                  activeType === type 
-                    ? "bg-brand-600 text-white shadow-lg shadow-brand-500/20" 
+                  activeType === "All" 
+                    ? "bg-brand-600 text-white shadow-lg" 
                     : "text-gray-400 hover:text-gray-900 hover:bg-gray-50"
                 }`}
               >
-                {type}
+                All
               </button>
-            ))}
+              {TYPES.map((type) => (
+                <button
+                  key={type}
+                  onClick={() => { setActiveType(type); setVisibleCount(12); }}
+                  className={`px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
+                    activeType === type 
+                      ? "bg-brand-600 text-white shadow-lg" 
+                      : "text-gray-400 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {visibleSites.map((site) => {
-          const isClaimed = claimedIds.has(site.id);
-          return (
-            <div 
-              key={site.id} 
-              className="group bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-xl hover:shadow-brand-500/5 transition-all duration-500 flex flex-col"
-            >
-              <div className="relative aspect-[16/10] overflow-hidden bg-gray-50">
-                <img 
-                  src={site.image} 
-                  alt={site.name} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = `https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800`;
-                  }}
-                />
-                <div className="absolute top-3 left-3">
-                  <span className={cn("px-3 py-1.5 rounded-lg text-[9px] font-black text-white uppercase tracking-widest shadow-sm", TYPE_COLORS[site.type])}>
-                    {site.type}
-                  </span>
-                </div>
-                {isClaimed && (
-                  <div className="absolute inset-0 bg-white/90 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center">
-                    <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-2">
-                      <CheckCircle2 size={24} />
-                    </div>
-                    <p className="text-gray-900 font-black text-sm uppercase italic">Claimed</p>
-                    <Link href="/dashboard/projects" className="mt-2 text-[10px] font-black text-brand-600 hover:underline uppercase tracking-[0.1em]">
-                      Asset Vault →
-                    </Link>
-                  </div>
-                )}
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {visibleSites.map((site) => {
+            const projectSlug = claimedProjectMap[site.id];
+            const isClaimed = !!projectSlug;
 
-              <div className="p-6 flex flex-col flex-1 gap-5">
-                <div className="space-y-1.5">
-                  <h3 className="font-black text-gray-950 text-base line-clamp-1 italic">{site.name}</h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-brand-600 font-black uppercase tracking-widest">{site.niche}</span>
-                    <span className="w-1 h-1 rounded-full bg-gray-200" />
-                    <span className="text-[10px] text-gray-400 font-bold uppercase flex items-center gap-1.5">
-                      <Sparkles size={11} className="text-brand-500" />
-                      {site.posts} Posts
-                    </span>
+            return (
+              <div 
+                key={site.id} 
+                className="group relative bg-[#0f172a] rounded-3xl overflow-hidden shadow-2xl transition-all hover:scale-[1.02] border border-gray-800/50 flex flex-col h-full"
+              >
+                <div className="relative aspect-[16/10] overflow-hidden bg-gray-900">
+                  <img 
+                    src={site.image} 
+                    alt={site.name}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80"
+                  />
+                  <div className="absolute top-4 left-4 bg-gray-950/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                    <span className="text-[10px] font-black text-brand-400 uppercase tracking-widest">{site.type}</span>
                   </div>
-                </div>
-                
-                <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 font-medium">
-                  {site.description}
-                </p>
-                
-                <div className="flex items-center gap-2 mt-auto pt-4 border-t border-gray-50">
-                  {isClaimed ? (
-                    <Link
-                      href={`/software/user/${site.id}`}
-                      target="_blank"
-                      className="flex-1 px-4 py-2.5 rounded-xl border border-gray-100 hover:bg-gray-50 text-gray-600 text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2"
-                    >
-                      <ExternalLink size={14} /> Demo
-                    </Link>
-                  ) : (
-                    <div className="flex-1 px-4 py-2.5 rounded-xl border border-gray-100 text-gray-300 text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-2 cursor-not-allowed">
-                      <ExternalLink size={14} /> Demo
+                  {isClaimed && (
+                    <div className="absolute inset-0 bg-emerald-500/20 backdrop-blur-[2px] flex flex-col items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-2 shadow-lg">
+                        <Check size={24} />
+                      </div>
+                      <p className="text-white font-black text-[10px] uppercase tracking-[0.2em]">Claimed</p>
                     </div>
                   )}
+                </div>
 
-                  {!isClaimed && (
-                    <button
-                      onClick={() => handleClaim(site)}
-                      disabled={claiming === site.id}
-                      className="flex-[2] py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-[10px] font-black uppercase tracking-wider transition-all disabled:opacity-50 shadow-lg shadow-brand-500/10 flex items-center justify-center gap-2"
+                <div className="p-6 flex flex-col flex-1 gap-4">
+                  <div className="space-y-1">
+                    <h3 className="font-bold text-white text-xl">{site.name}</h3>
+                    <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">{site.description}</p>
+                  </div>
+
+                  <div className="flex items-center gap-3 py-2">
+                    <div className="px-3 py-1 rounded-full bg-gray-800/50 text-[10px] font-black text-gray-300 uppercase letter-spacing-widest">
+                      {site.niche}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[10px] font-black text-brand-400 uppercase tracking-widest">
+                       <Sparkles size={12} /> {site.posts} Posts
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2 mt-auto pt-4">
+                    <button 
+                      onClick={() => setActivePreview(site)}
+                      className="px-4 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-white text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border border-gray-700"
                     >
-                      {claiming === site.id ? "Claiming..." : "Claim Now"}
-                      <ArrowRight size={14} />
+                      <Eye size={14} /> Preview
                     </button>
-                  )}
+                    <button 
+                      onClick={() => setActivePosts(site)}
+                      className="px-4 py-3 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border border-blue-500/30"
+                    >
+                      <Zap size={14} /> {site.posts} Posts
+                    </button>
+                  </div>
+
+                  <div className="mt-2">
+                    {isClaimed ? (
+                      <Link
+                        href={`/s/${projectSlug}`}
+                        target="_blank"
+                        className="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                      >
+                        <Globe size={14} /> View Live Website
+                        <ArrowRight size={14} />
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={() => handleClaim(site)}
+                        disabled={claiming === site.id}
+                        className="w-full py-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-brand-500/10"
+                      >
+                        <Plus size={14} /> {claiming === site.id ? "Claiming..." : "Claim Now"}
+                        <ArrowRight size={14} />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
+
+        {visibleSites.length < filteredSites.length && (
+          <div className="flex justify-center pt-8">
+            <button
+              onClick={() => setVisibleCount(p => p + 12)}
+              className="px-10 py-3.5 rounded-2xl bg-white border border-gray-200 text-gray-900 text-xs font-black uppercase tracking-widest shadow-sm hover:bg-gray-50"
+            >
+              Load More Assets
+            </button>
+          </div>
+        )}
       </div>
 
-      {visibleSites.length < filteredSites.length && (
-        <div className="flex justify-center pt-8 pb-12">
-          <button
-            onClick={() => setVisibleCount(p => p + 12)}
-            className="px-10 py-3.5 rounded-2xl bg-white border border-gray-200 hover:border-gray-300 text-gray-900 text-xs font-black uppercase tracking-[0.2em] transition-all hover:scale-105 shadow-sm"
-          >
-            Load More Assets
-          </button>
+      {/* MODALS */}
+      {activePosts && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-gray-950/90 backdrop-blur-sm" onClick={() => setActivePosts(null)} />
+          <div className="relative w-full max-w-4xl bg-[#0f172a] rounded-3xl border border-gray-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-gray-800 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-brand-600/20 text-brand-400 flex items-center justify-center">
+                  <FileSearch size={24} />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white uppercase tracking-tight">{activePosts.name}</h2>
+                  <p className="text-xs text-brand-400 font-bold uppercase tracking-widest">200 SEO Posts • {activePosts.type}</p>
+                </div>
+              </div>
+              <button onClick={() => setActivePosts(null)} className="p-2 text-gray-500 hover:text-white transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="p-6 border-b border-gray-800">
+               <div className="relative">
+                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                 <input 
+                   type="text" 
+                   placeholder="Search posts..." 
+                   value={searchQuery}
+                   onChange={(e) => setSearchQuery(e.target.value)}
+                   className="w-full bg-gray-950 border border-gray-800 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
+                 />
+               </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+               {Array.from({ length: 15 }).map((_, i) => (
+                 <div key={i} className="group p-5 rounded-2xl bg-gray-900/50 border border-gray-800 hover:border-brand-500/30 transition-all">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                           <span className="w-6 h-6 rounded-lg bg-gray-800 text-[10px] font-black text-gray-400 flex items-center justify-center">{i + 1}</span>
+                           <h4 className="text-white font-bold text-sm">How to optimize your {activePosts.niche} strategy for 2024</h4>
+                        </div>
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                          Discover the latest trends and techniques to drive massive traffic and conversions to your {activePosts.type} platform...
+                        </p>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(`How to optimize your ${activePosts.niche} strategy for 2024\n\nDiscover the latest trends...`);
+                          alert("Copied to clipboard!");
+                        }}
+                        className="p-3 rounded-xl bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <Copy size={16} />
+                      </button>
+                    </div>
+                 </div>
+               ))}
+               <div className="text-center py-10">
+                  <p className="text-gray-600 text-xs font-bold uppercase tracking-widest italic">Pagination simulated — 200 posts available in total</p>
+               </div>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Security Bottom */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-12 border-t border-gray-100">
-        {[
-          { title: "AI OPTIMIZED", text: "Ready-to-use assets optimized for maximum AI throughput.", icon: Zap, color: "text-brand-600", bg: "bg-brand-50" },
-          { title: "INSTANT DEPLOY", text: "Launch your entire niche enterprise in under 60 seconds.", icon: Rocket, color: "text-emerald-600", bg: "bg-emerald-50" },
-          { title: "FULL CONTROL", text: "Modify every aspect of your content and design anytime.", icon: Layout, color: "text-orange-600", bg: "bg-orange-50" },
-        ].map((feat, i) => (
-          <div key={i} className="flex items-center gap-5 p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:border-brand-200 transition-colors">
-            <div className={`w-12 h-12 rounded-xl ${feat.bg} ${feat.color} flex items-center justify-center shrink-0`}>
-              <feat.icon size={20} />
+      {activePreview && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-gray-950/90 backdrop-blur-sm" onClick={() => setActivePreview(null)} />
+          <div className="relative w-full max-w-6xl bg-white rounded-3xl border border-gray-200 shadow-2xl overflow-hidden flex flex-col h-[90vh]">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center">
+                  <Globe size={20} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-black text-gray-900 uppercase tracking-tight italic">{activePreview.name}</h2>
+                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{activePreview.niche} • {activePreview.theme}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setActivePreview(null)}
+                className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-950 shadow-sm transition-all"
+              >
+                <X size={20} />
+              </button>
             </div>
-            <div>
-              <h4 className="text-[11px] font-black text-gray-950 italic tracking-wider">{feat.title}</h4>
-              <p className="text-[10px] text-gray-500 leading-tight mt-1 font-medium">{feat.text}</p>
+
+            <div className="flex-1 overflow-y-auto bg-[#FDFDFF] p-10 pt-20">
+               <div className="max-w-4xl mx-auto space-y-20">
+                  <div className="text-center space-y-6">
+                     <span className="px-4 py-2 rounded-full bg-brand-50 text-brand-600 text-[10px] font-black uppercase tracking-widest">{activePreview.niche}</span>
+                     <h1 className="text-6xl font-black tracking-tighter text-gray-950 leading-none italic">Discover. Shop. Love.</h1>
+                     <p className="text-lg text-gray-500 font-medium max-w-2xl mx-auto">{activePreview.description}</p>
+                     <div className="pt-4">
+                        <button className="px-8 py-4 rounded-2xl bg-brand-600 text-white font-black uppercase tracking-widest shadow-xl shadow-brand-500/20">Get Started Today</button>
+                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10 py-20 border-t border-gray-100">
+                    <div className="space-y-4">
+                       <h2 className="text-3xl font-black italic">Why choose {activePreview.name}?</h2>
+                       <p className="text-gray-500 font-medium">Everything you need to launch your niche enterprise instantly.</p>
+                    </div>
+                    <div className="grid grid-cols-1 gap-6">
+                       {[
+                         { t: "SEO Optimized", d: "Pre-written posts and metadata." },
+                         { t: "Premium Design", d: "High-end aesthetic for better conversion." }
+                       ].map((f, i) => (
+                         <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white border border-gray-100 shadow-sm">
+                            <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                               <Check size={18} />
+                            </div>
+                            <div>
+                               <h4 className="font-bold text-gray-950">{f.t}</h4>
+                               <p className="text-xs text-gray-500">{f.d}</p>
+                            </div>
+                         </div>
+                       ))}
+                    </div>
+                  </div>
+               </div>
+            </div>
+
+            <div className="p-6 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
+               <button onClick={() => setActivePreview(null)} className="px-8 py-4 rounded-2xl bg-gray-200 text-gray-600 font-black uppercase tracking-widest hover:bg-gray-300 transition-all">Cancel</button>
+               <button 
+                 onClick={() => { handleClaim(activePreview); setActivePreview(null); }}
+                 disabled={claiming === activePreview.id}
+                 className="px-8 py-4 rounded-2xl bg-brand-600 text-white font-black uppercase tracking-widest shadow-xl shadow-brand-600/20 flex items-center gap-2 hover:bg-brand-500 transition-all"
+               >
+                 <Plus size={18} /> {claiming === activePreview.id ? "Claiming..." : "Add to my websites"}
+               </button>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
-  </div>
   );
 }

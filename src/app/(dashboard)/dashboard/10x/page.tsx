@@ -151,7 +151,14 @@ export default function TenXPage() {
         }),
       });
 
-      const data = await res.json();
+      let data;
+      const text = await res.text();
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        console.error("Server returned non-JSON response:", text);
+        throw new Error(`Server Error: ${text.slice(0, 100) || "Invalid response from server"}`);
+      }
 
       if (res.ok) {
         if (!data.posts || !Array.isArray(data.posts) || data.posts.length === 0) {
@@ -171,8 +178,9 @@ export default function TenXPage() {
         setLoading(false);
         if (progressRef.current) clearInterval(progressRef.current);
       }
-    } catch (err) {
-      setError("Failed to connect to AI service.");
+    } catch (err: any) {
+      console.error("10X Error:", err);
+      setError(err?.message || "Failed to connect to AI service.");
       setLoading(false);
       if (progressRef.current) clearInterval(progressRef.current);
     }
@@ -318,12 +326,12 @@ export default function TenXPage() {
             <button 
               onClick={handleGenerate}
               disabled={loading}
-              className="w-full group relative overflow-hidden bg-gray-900 hover:bg-black text-white font-black py-5 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full group relative overflow-hidden bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black py-5 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed shadow-indigo-500/20"
             >
               {loading ? (
-                <Loader2 size={20} className="animate-spin text-indigo-400" />
+                <Loader2 size={20} className="animate-spin text-white/50" />
               ) : (
-                <Sparkles size={20} className="text-amber-400 fill-amber-400/20" />
+                <Sparkles size={20} className="text-amber-300 fill-amber-300/20" />
               )}
               {loading ? "AI Crafting your posts..." : "Generate 10 Intelligent Posts"}
             </button>

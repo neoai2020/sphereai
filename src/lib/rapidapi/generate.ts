@@ -7,10 +7,18 @@ interface AIResponse {
   status: boolean;
 }
 
+function unescapeHTML(str: string): string {
+  return str
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
+
 async function callAI(prompt: string, retries = 2): Promise<string> {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      // Use 75s timeout — must be below Next.js maxDuration (120s) to fail gracefully
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 75000);
 
@@ -25,8 +33,6 @@ async function callAI(prompt: string, retries = 2): Promise<string> {
           messages: [{ role: "user", content: prompt }],
           system_prompt: "",
           temperature: 0.3,
-          top_k: 5,
-          top_p: 0.9,
           max_tokens: 2000,
           web_access: false,
         }),
@@ -37,29 +43,24 @@ async function callAI(prompt: string, retries = 2): Promise<string> {
 
       if (!response.ok) {
         const errText = await response.text().catch(() => response.statusText);
-        throw new Error(`AI service error (${response.status}): ${errText.slice(0, 200)}`);
+        console.error(`AI Service Error (${response.status}):`, errText);
+        throw new Error(`AI service error (${response.status}): ${errText.slice(0, 100)}`);
       }
 
       const data: AIResponse = await response.json();
-      if (!data.result) throw new Error("AI service returned empty response — please try again");
+      if (!data.result) throw new Error("AI service returned empty response");
       return data.result;
     } catch (err: any) {
       const isAbort = err?.name === "AbortError";
-      const isLastAttempt = attempt >= retries;
-
-      if (!isLastAttempt) {
-        console.warn(`AI call attempt ${attempt + 1} failed, retrying in 1s...`, err?.message);
+      if (attempt < retries) {
+        console.warn(`AI attempt ${attempt + 1} failed, retrying...`, err?.message);
         await new Promise(r => setTimeout(r, 1000));
         continue;
       }
-
-      if (isAbort) {
-        throw new Error("AI service took too long to respond — please try again");
-      }
-      throw new Error(err?.message || "Failed to connect to AI service");
+      throw new Error(isAbort ? "Request timed out" : err?.message || "Connection failed");
     }
   }
-  throw new Error("AI call failed after all retries — please try again");
+  throw new Error("Failed after retries");
 }
 
 function extractJSON(text: string): any {
@@ -406,11 +407,14 @@ export async function generateFacebookPosts(
   productDescription: string,
   productLink?: string
 ): Promise<string[]> {
+  const sanitizedName = unescapeHTML(productName).trim().slice(0, 200);
+  const sanitizedDesc = unescapeHTML(productDescription).trim().slice(0, 1000);
   const linkPlaceholder = productLink ? productLink : "[YOUR LINK HERE]";
+  
   const prompt = `قم بتوليد 10 منشورات تسويقية لفيسبوك لهذا المنتج بشكل احترافي.
 
-اسم المنتج: ${productName}
-وصف المنتج: ${productDescription}
+اسم المنتج: ${sanitizedName}
+وصف المنتج: ${sanitizedDesc}
 الرابط الترويجي: ${linkPlaceholder}
 
 قواعد صارمة:
