@@ -6,6 +6,50 @@ import { Check, ArrowRight, Zap, Star, ShieldCheck, Sparkles, Rocket, Target } f
 
 const FEATURE_ICONS = [Zap, ShieldCheck, Rocket, Target, Sparkles, Star];
 
+// ─── Diverse Hero Image Pool ───────────────────────────────────────────────────
+const HERO_IMAGES = [
+  "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1600", // tech abstract
+  "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1600", // office modern
+  "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=1600", // ecommerce
+  "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=1600", // team meeting
+  "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1600", // analytics
+  "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1600", // circuit tech
+  "https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?auto=format&fit=crop&q=80&w=1600", // workspace laptop
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=1600", // portrait professional
+  "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1600", // startup team
+  "https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?auto=format&fit=crop&q=80&w=1600", // coding laptop
+  "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=1600", // developer
+  "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=1600", // office work
+  "https://images.unsplash.com/photo-1477244075012-5cc28286e465?auto=format&fit=crop&q=80&w=1600", // city skyline
+  "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?auto=format&fit=crop&q=80&w=1600", // web design
+  "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?auto=format&fit=crop&q=80&w=1600", // health wellness
+  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=1600", // mountain
+  "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&q=80&w=1600", // laptop code
+  "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1600", // collaboration
+  "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1600", // modern office
+  "https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&q=80&w=1600", // finance
+  "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=1600", // business
+  "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?auto=format&fit=crop&q=80&w=1600", // light bulb idea
+  "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?auto=format&fit=crop&q=80&w=1600", // gaming
+  "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&q=80&w=1600", // retail
+  "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=1600", // medical
+  "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1600", // coworking
+  "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&q=80&w=1600", // education
+  "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?auto=format&fit=crop&q=80&w=1600", // saas dashboard
+  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1600", // video call
+  "https://images.unsplash.com/photo-1565372195458-9de0b320ef04?auto=format&fit=crop&q=80&w=1600", // e-learning
+];
+
+/** Deterministic image selection based on the project slug/name so each site gets a unique image */
+function getHeroImage(seed?: string): string {
+  if (!seed) return HERO_IMAGES[0];
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) & 0xffffffff;
+  }
+  return HERO_IMAGES[Math.abs(hash) % HERO_IMAGES.length];
+}
+
 interface LandingContent {
   hero?: {
     headline: string;
@@ -90,7 +134,7 @@ function Template1({
               <div className="relative w-full max-w-lg">
                 <div className="absolute inset-0 rounded-3xl blur-3xl opacity-20" style={{ backgroundColor: primaryColor }} />
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/20 aspect-[4/3]">
-                  <Image src={heroImage || "https://images.unsplash.com/photo-1551288049-bbb652167c80?auto=format&fit=crop&q=80&w=1200"} alt="Product Preview" fill className="object-cover" />
+                  <Image src={heroImage || getHeroImage(productName)} alt="Product Preview" fill className="object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                 </div>
               </div>
@@ -128,7 +172,7 @@ function Template1({
         <section className={cn(styles.section)}>
           <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
             <div className="relative rounded-2xl overflow-hidden aspect-[4/3]">
-              <Image src="https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?auto=format&fit=crop&q=80&w=1200" alt="Benefits" fill className="object-cover" />
+              <Image src={heroImage || getHeroImage((productName || "") + "_benefits")} alt="Benefits" fill className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
             </div>
             <div className="space-y-8">
@@ -214,7 +258,7 @@ function Template2({
             <div className="mt-16 max-w-5xl mx-auto relative">
               <div className="absolute inset-0 rounded-3xl blur-3xl opacity-10" style={{ backgroundColor: primaryColor }} />
               <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/10 aspect-video">
-                <Image src={heroImage || "https://images.unsplash.com/photo-1551288049-bbb652167c80?auto=format&fit=crop&q=80&w=1400"} alt="Product" fill className="object-cover" />
+                <Image src={heroImage || getHeroImage(productName)} alt="Product" fill className="object-cover" />
               </div>
             </div>
           )}
@@ -310,7 +354,7 @@ function Template3({
       {content.hero && (
         <section className="relative min-h-screen flex items-center overflow-hidden">
           <div className="absolute inset-0">
-            <Image src={heroImage || "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1600"} alt="Hero" fill className="object-cover opacity-30" />
+            <Image src={heroImage || getHeroImage(productName)} alt="Hero" fill className="object-cover opacity-30" />
             <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${primaryColor}99 0%, #000000ee 60%)` }} />
           </div>
           <div className="relative z-10 max-w-6xl mx-auto px-8 py-32 space-y-10">
@@ -525,7 +569,7 @@ function Template5({
     <div className={cn("overflow-x-hidden", isDark ? "bg-gray-950" : "bg-white")}>
       {content.hero && (
         <section className="relative h-[90vh] flex items-end overflow-hidden">
-          <Image src={heroImage || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1600"} alt="Hero" fill className="object-cover" />
+          <Image src={heroImage || getHeroImage(productName)} alt="Hero" fill className="object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
           <div className="relative z-10 max-w-7xl mx-auto px-8 pb-20 w-full">
             <div className="max-w-3xl space-y-6">

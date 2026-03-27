@@ -58,17 +58,25 @@ export function WebsiteLayout({ project, children, activePath }: LayoutProps) {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-8">
           {/* Logo */}
           <Link href={`/software/user/${project.id}`} className="flex items-center gap-2.5 shrink-0 group">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform"
-              style={{ backgroundColor: primaryColor }}
-            >
-              {project.site_logo
-                ? <img src={project.site_logo} alt="logo" className="w-5 h-5 object-contain" />
-                : <Globe size={15} />}
-            </div>
-            <span className="text-sm font-black text-gray-900 tracking-tight truncate max-w-[160px]">
-              {brandName}
-            </span>
+            {project.site_logo ? (
+              <img
+                src={project.site_logo}
+                alt="logo"
+                className="h-9 w-auto max-w-[120px] object-contain group-hover:scale-105 transition-transform"
+              />
+            ) : (
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform"
+                style={{ backgroundColor: primaryColor }}
+              >
+                <Globe size={15} />
+              </div>
+            )}
+            {!project.site_logo && (
+              <span className="text-sm font-black text-gray-900 tracking-tight truncate max-w-[160px]">
+                {brandName}
+              </span>
+            )}
           </Link>
 
           {/* Desktop Nav */}
@@ -159,11 +167,20 @@ export function WebsiteLayout({ project, children, activePath }: LayoutProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
             <div className="space-y-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white" style={{ backgroundColor: primaryColor }}>
-                  {project.site_logo
-                    ? <img src={project.site_logo} alt="logo" className="w-5 h-5 object-contain" />
-                    : <Globe size={15} />}
-                </div>
+                {project.site_logo ? (
+                  <img
+                    src={project.site_logo}
+                    alt="logo"
+                    className="h-8 w-auto max-w-[100px] object-contain"
+                  />
+                ) : (
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
+                    style={{ backgroundColor: primaryColor }}
+                  >
+                    <Globe size={15} />
+                  </div>
+                )}
                 <span className="font-black text-sm">{brandName}</span>
               </div>
               <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
