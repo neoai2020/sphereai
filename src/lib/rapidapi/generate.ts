@@ -10,9 +10,9 @@ interface AIResponse {
 async function callAI(prompt: string, retries = 2): Promise<string> {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      // Use 45s timeout — must be below Next.js maxDuration (120s) to fail gracefully
+      // Use 75s timeout — must be below Next.js maxDuration (120s) to fail gracefully
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 45000);
+      const timeout = setTimeout(() => controller.abort(), 75000);
 
       const response = await fetch(RAPIDAPI_URL, {
         method: "POST",
@@ -27,7 +27,7 @@ async function callAI(prompt: string, retries = 2): Promise<string> {
           temperature: 0.7,
           top_k: 5,
           top_p: 0.9,
-          max_tokens: 3000,
+          max_tokens: 2000,
           web_access: false,
         }),
         signal: controller.signal,
@@ -396,7 +396,7 @@ Promotional Link: ${linkPlaceholder}
 
 STRICT RULES:
 - Return ONLY a raw JSON array of 10 strings. No explanation, no markdown, no extra text.
-- Each string is one complete Facebook post (50-150 words).
+- Each string is one complete Facebook post (50-80 words).
 - Use a different angle for each post: Storytelling, Curiosity, Pain Point, Benefit, Social Proof, FOMO, Educational, Myth-Busting, Comparative, Personal Invite.
 - Include the link ${linkPlaceholder} naturally in each post.
 - Use emojis sparingly.
