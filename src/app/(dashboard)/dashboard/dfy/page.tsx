@@ -231,28 +231,24 @@ export default function DFYPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFDFF] -m-6 p-6 pb-20 space-y-8 text-gray-900">
+    <div className="min-h-screen bg-[#FDFDFF] -m-6 p-6 pb-20 space-y-10 text-gray-900">
       
       {/* Header Section */}
-      <div className="space-y-4">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-1">
-             <div className="flex items-center gap-3">
-               <div className="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600 shadow-sm">
-                 <Sparkles size={20} />
-               </div>
-               <h1 className="text-3xl font-black tracking-tight text-gray-950 italic">DFY Library</h1>
-             </div>
-             <p className="text-gray-400 font-bold uppercase text-[9px] tracking-widest pl-14">180+ websites with 200 SEO posts each</p>
-          </div>
-          
-          <div className="flex bg-white/80 backdrop-blur-md p-1 rounded-2xl border border-gray-100 shadow-sm no-scrollbar overflow-x-auto">
+      <div className="space-y-8">
+        <div className="text-center space-y-2">
+           <h1 className="text-4xl font-black tracking-tight text-gray-950 italic">DFY Library</h1>
+           <p className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.2em]">180+ websites with 200 SEO posts each</p>
+        </div>
+
+        {/* Filters / Tab Bar */}
+        <div className="flex justify-center">
+          <div className="inline-flex bg-white p-1 rounded-2xl border border-gray-100 shadow-[0_2px_15px_rgba(0,0,0,0.03)] max-w-full overflow-x-auto no-scrollbar">
             <button
               onClick={() => { setActiveType("All"); setVisibleCount(12); }}
-              className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
+              className={`px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
                 activeType === "All" 
-                  ? "bg-brand-600 text-white shadow-md shadow-brand-500/20" 
-                  : "text-gray-500 hover:bg-gray-50"
+                  ? "bg-brand-600 text-white shadow-lg shadow-brand-500/20" 
+                  : "text-gray-400 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >
               All
@@ -261,10 +257,10 @@ export default function DFYPage() {
               <button
                 key={type}
                 onClick={() => { setActiveType(type); setVisibleCount(12); }}
-                className={`px-4 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap ${
+                className={`px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
                   activeType === type 
-                    ? "bg-brand-600 text-white shadow-md shadow-brand-500/20" 
-                    : "text-gray-500 hover:bg-gray-50"
+                    ? "bg-brand-600 text-white shadow-lg shadow-brand-500/20" 
+                    : "text-gray-400 hover:text-gray-900 hover:bg-gray-50"
                 }`}
               >
                 {type}
@@ -275,46 +271,49 @@ export default function DFYPage() {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {visibleSites.map((site) => {
           const isClaimed = claimedIds.has(site.id);
           return (
             <div 
               key={site.id} 
-              className="group bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col"
+              className="group bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-xl hover:shadow-brand-500/5 transition-all duration-500 flex flex-col"
             >
               <div className="relative aspect-[16/10] overflow-hidden bg-gray-50">
                 <img 
                   src={site.image} 
                   alt={site.name} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = `https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800`;
+                  }}
                 />
                 <div className="absolute top-3 left-3">
-                  <span className={cn("px-3 py-1 rounded-lg text-[8px] font-black text-white uppercase tracking-wider shadow-sm", TYPE_COLORS[site.type])}>
+                  <span className={cn("px-3 py-1.5 rounded-lg text-[9px] font-black text-white uppercase tracking-widest shadow-sm", TYPE_COLORS[site.type])}>
                     {site.type}
                   </span>
                 </div>
                 {isClaimed && (
                   <div className="absolute inset-0 bg-white/90 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center">
-                    <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-2 animate-bounce">
+                    <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-2">
                       <CheckCircle2 size={24} />
                     </div>
                     <p className="text-gray-900 font-black text-sm uppercase italic">Claimed</p>
-                    <Link href="/dashboard/projects" className="mt-2 text-[10px] font-black text-brand-600 hover:underline uppercase tracking-widest">
+                    <Link href="/dashboard/projects" className="mt-2 text-[10px] font-black text-brand-600 hover:underline uppercase tracking-[0.1em]">
                       Asset Vault →
                     </Link>
                   </div>
                 )}
               </div>
 
-              <div className="p-5 flex flex-col flex-1 gap-4">
-                <div className="space-y-1">
-                  <h3 className="font-black text-gray-900 text-sm line-clamp-1 italic">{site.name}</h3>
+              <div className="p-6 flex flex-col flex-1 gap-5">
+                <div className="space-y-1.5">
+                  <h3 className="font-black text-gray-950 text-base line-clamp-1 italic">{site.name}</h3>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-brand-600 font-black uppercase tracking-widest">{site.niche}</span>
-                    <span className="w-1 h-1 rounded-full bg-gray-300" />
-                    <span className="text-[10px] text-gray-400 font-bold uppercase flex items-center gap-1">
-                      <Sparkles size={10} className="text-brand-500" />
+                    <span className="w-1 h-1 rounded-full bg-gray-200" />
+                    <span className="text-[10px] text-gray-400 font-bold uppercase flex items-center gap-1.5">
+                      <Sparkles size={11} className="text-brand-500" />
                       {site.posts} Posts
                     </span>
                   </div>
@@ -324,10 +323,10 @@ export default function DFYPage() {
                   {site.description}
                 </p>
                 
-                <div className="flex items-center gap-2 mt-auto pt-3 border-t border-gray-50">
+                <div className="flex items-center gap-2 mt-auto pt-4 border-t border-gray-50">
                   <button
                     onClick={() => window.open(site.image, '_blank')}
-                    className="flex-1 px-4 py-2 rounded-xl border border-gray-100 hover:bg-gray-50 text-gray-600 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-gray-100 hover:bg-gray-50 text-gray-600 text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2"
                   >
                     <ExternalLink size={14} /> Demo
                   </button>
@@ -335,7 +334,7 @@ export default function DFYPage() {
                     <button
                       onClick={() => handleClaim(site)}
                       disabled={claiming === site.id}
-                      className="flex-[2] py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 shadow-md shadow-brand-500/20 flex items-center justify-center gap-2"
+                      className="flex-[2] py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-[10px] font-black uppercase tracking-wider transition-all disabled:opacity-50 shadow-lg shadow-brand-500/10 flex items-center justify-center gap-2"
                     >
                       {claiming === site.id ? "Claiming..." : "Claim Now"}
                       <ArrowRight size={14} />
@@ -352,7 +351,7 @@ export default function DFYPage() {
         <div className="flex justify-center pt-8 pb-12">
           <button
             onClick={() => setVisibleCount(p => p + 12)}
-            className="px-8 py-3 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 text-gray-900 text-xs font-black uppercase tracking-widest transition-all hover:scale-105 shadow-sm"
+            className="px-10 py-3.5 rounded-2xl bg-white border border-gray-200 hover:border-gray-300 text-gray-900 text-xs font-black uppercase tracking-[0.2em] transition-all hover:scale-105 shadow-sm"
           >
             Load More Assets
           </button>
@@ -360,18 +359,18 @@ export default function DFYPage() {
       )}
 
       {/* Security Bottom */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-10 border-t border-gray-100">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-12 border-t border-gray-100">
         {[
           { title: "AI OPTIMIZED", text: "Ready-to-use assets optimized for maximum AI throughput.", icon: Zap, color: "text-brand-600", bg: "bg-brand-50" },
           { title: "INSTANT DEPLOY", text: "Launch your entire niche enterprise in under 60 seconds.", icon: Rocket, color: "text-emerald-600", bg: "bg-emerald-50" },
           { title: "FULL CONTROL", text: "Modify every aspect of your content and design anytime.", icon: Layout, color: "text-orange-600", bg: "bg-orange-50" },
         ].map((feat, i) => (
-          <div key={i} className="flex items-center gap-4 p-5 rounded-2xl bg-white border border-gray-100 shadow-sm hover:border-brand-200 transition-colors">
+          <div key={i} className="flex items-center gap-5 p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:border-brand-200 transition-colors">
             <div className={`w-12 h-12 rounded-xl ${feat.bg} ${feat.color} flex items-center justify-center shrink-0`}>
               <feat.icon size={20} />
             </div>
             <div>
-              <h4 className="text-xs font-black text-gray-950 italic">{feat.title}</h4>
+              <h4 className="text-[11px] font-black text-gray-950 italic tracking-wider">{feat.title}</h4>
               <p className="text-[10px] text-gray-500 leading-tight mt-1 font-medium">{feat.text}</p>
             </div>
           </div>
