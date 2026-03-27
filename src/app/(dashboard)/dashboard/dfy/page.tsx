@@ -237,9 +237,9 @@ export default function DFYPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFDFF] -m-6 p-6 pb-20 space-y-10 text-gray-900">
-      
-      {/* Header Section */}
+    <div className="min-h-screen bg-[#FDFDFF] -m-6 p-6 pb-20 text-gray-900">
+      <div className="max-w-6xl mx-auto space-y-10">
+        {/* Header Section */}
       <div className="space-y-8">
         <div className="text-center space-y-2">
            <h1 className="text-4xl font-black tracking-tight text-gray-950 italic">DFY Library</h1>
@@ -397,5 +397,6 @@ export default function DFYPage() {
         ))}
       </div>
     </div>
+  </div>
   );
 }
