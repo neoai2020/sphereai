@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import logo from "./assets/logo.png";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -76,12 +78,15 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col fixed left-0 top-0 overflow-y-auto">
-      <div className="p-6 border-b border-gray-100 shrink-0">
-        <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-brand-600 flex items-center justify-center">
-            <Globe size={18} className="text-white" />
-          </div>
-          <span className="text-xl font-bold text-gray-900">SphereAI</span>
+      <div className="p-6 border-b border-gray-100 shrink-0 mb-2">
+        <Link href="/dashboard" className="flex items-center">
+          <Image 
+            src={logo} 
+            alt="SphereAI" 
+            height={32} 
+            className="h-8 w-auto object-contain" 
+            priority
+          />
         </Link>
       </div>
 

@@ -3,6 +3,8 @@
 import { Suspense, useEffect, useState } from "react";
 import { Sparkles, CheckCircle2, Lock, Loader2, ArrowRight, ShieldCheck, Mail, Zap, MousePointer2, Layout } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import logo from "@/components/dashboard/assets/logo.png";
+import Image from "next/image";
 import Link from "next/link";
 
 
@@ -75,11 +77,14 @@ function ActivateContent() {
         
         {/* Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center">
-              {config ? <config.icon className="text-white" size={20} /> : <Sparkles className="text-white" size={20} />}
-            </div>
-            <span className="text-2xl font-bold text-gray-900">SphereAI</span>
+          <Link href="/" className="inline-flex items-center mb-8">
+            <Image 
+              src={logo} 
+              alt="SphereAI" 
+              height={40} 
+              className="h-10 w-auto object-contain" 
+              priority
+            />
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">
             {config ? `Activate ${config.title}` : "Activate Your Access"}

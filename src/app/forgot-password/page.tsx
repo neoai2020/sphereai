@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2, Mail, CheckCircle2 } from "lucide-react";
+import logo from "@/components/dashboard/assets/logo.png";
+import Image from "next/image";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -44,11 +46,14 @@ export default function ForgotPasswordPage() {
 
       <div className="w-full max-w-md relative z-10 space-y-10">
         <div className="text-center space-y-6">
-          <Link href="/" className="inline-flex items-center gap-3 group">
-            <div className="w-12 h-12 rounded-[1.25rem] bg-gray-950 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
-              <span className="text-white font-black text-xl">S</span>
-            </div>
-            <span className="text-2xl font-black text-gray-900 tracking-tighter">SphereAI</span>
+          <Link href="/" className="inline-flex items-center mb-8">
+            <Image 
+              src={logo} 
+              alt="SphereAI" 
+              height={40} 
+              className="h-10 w-auto object-contain" 
+              priority
+            />
           </Link>
           <div className="space-y-2">
             <h1 className="text-3xl font-black text-gray-900 tracking-tighter leading-tight">Master Recovery</h1>
