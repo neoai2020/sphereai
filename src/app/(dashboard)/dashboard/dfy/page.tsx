@@ -194,7 +194,11 @@ export default function DFYPage() {
       await fetch("/api/dfy/claim", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ siteName: site.name, type: site.type }),
+        body: JSON.stringify({ 
+          projectId: project.id,
+          siteName: site.name, 
+          type: site.type 
+        }),
       });
 
       setClaimedIds(prev => new Set(prev).add(site.id));
@@ -320,18 +324,30 @@ export default function DFYPage() {
                     <div className="pt-4 mt-auto flex items-center justify-between border-t border-gray-50">
                       <div className="flex flex-col">
                         <span className="text-[10px] text-gray-400 font-black uppercase tracking-tighter">Content</span>
-                        <span className="text-sm font-black text-gray-900">{site.posts} Posts</span>
-                      </div>
-                      {!isClaimed && (
-                        <button
-                          onClick={() => handleClaim(site)}
-                          disabled={claiming === site.id}
-                          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gray-900 hover:bg-indigo-600 text-white text-sm font-bold transition-all disabled:opacity-50"
-                        >
-                          {claiming === site.id ? "Claiming..." : "Claim Now"}
-                          <ArrowRight size={16} />
+                        <button className="text-sm font-black text-brand-600 hover:text-brand-700 flex items-center gap-1 group/posts">
+                          {site.posts} Posts
+                          <Sparkles size={12} className="group-hover/posts:rotate-12 transition-transform" />
                         </button>
-                      )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => window.open(site.image, '_blank')}
+                          className="p-2.5 rounded-xl border border-gray-100 hover:bg-gray-50 text-gray-600 transition-all"
+                          title="View Demo"
+                        >
+                          <ExternalLink size={18} />
+                        </button>
+                        {!isClaimed && (
+                          <button
+                            onClick={() => handleClaim(site)}
+                            disabled={claiming === site.id}
+                            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gray-900 hover:bg-brand-600 text-white text-sm font-bold transition-all disabled:opacity-50 shadow-xl shadow-black/10"
+                          >
+                            {claiming === site.id ? "Claiming..." : "Claim Now"}
+                            <ArrowRight size={16} />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
