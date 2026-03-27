@@ -7,11 +7,12 @@ interface AIResponse {
   status: boolean;
 }
 
-async function callAI(prompt: string, retries = 1): Promise<string> {
+async function callAI(prompt: string, retries = 2): Promise<string> {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
+      // Use 45s timeout — must be below Next.js maxDuration (120s) to fail gracefully
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 60000); // 60s timeout
+      const timeout = setTimeout(() => controller.abort(), 45000);
 
       const response = await fetch(RAPIDAPI_URL, {
         method: "POST",
@@ -35,21 +36,30 @@ async function callAI(prompt: string, retries = 1): Promise<string> {
       clearTimeout(timeout);
 
       if (!response.ok) {
-        throw new Error(`RapidAPI error: ${response.status} ${response.statusText}`);
+        const errText = await response.text().catch(() => response.statusText);
+        throw new Error(`AI service error (${response.status}): ${errText.slice(0, 200)}`);
       }
 
       const data: AIResponse = await response.json();
-      if (!data.result) throw new Error("Empty AI response");
+      if (!data.result) throw new Error("AI service returned empty response — please try again");
       return data.result;
-    } catch (err) {
-      if (attempt < retries) {
-        console.warn(`AI call attempt ${attempt + 1} failed, retrying...`, err);
+    } catch (err: any) {
+      const isAbort = err?.name === "AbortError";
+      const isLastAttempt = attempt >= retries;
+
+      if (!isLastAttempt) {
+        console.warn(`AI call attempt ${attempt + 1} failed, retrying in 1s...`, err?.message);
+        await new Promise(r => setTimeout(r, 1000));
         continue;
       }
-      throw err;
+
+      if (isAbort) {
+        throw new Error("AI service took too long to respond — please try again");
+      }
+      throw new Error(err?.message || "Failed to connect to AI service");
     }
   }
-  throw new Error("AI call failed after all retries");
+  throw new Error("AI call failed after all retries — please try again");
 }
 
 function extractJSON(text: string): any {

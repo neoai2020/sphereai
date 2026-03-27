@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 import { createClient } from "@/lib/supabase/server";
 import { generateFacebookPosts } from "@/lib/rapidapi/generate";
 
