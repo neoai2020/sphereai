@@ -2,14 +2,14 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { LandingRenderer } from "@/components/pages/landing-renderer";
-
-export const dynamic = "force-dynamic";
 import { AboutRenderer } from "@/components/pages/about-renderer";
 import { FAQRenderer } from "@/components/pages/faq-renderer";
 import { BlogRenderer } from "@/components/pages/blog-renderer";
 import { ReviewsRenderer } from "@/components/pages/reviews-renderer";
 import { WebsiteLayout } from "@/components/pages/WebsiteLayout";
 import type { PageType } from "@/types/database";
+
+export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ slug: string[] }>;

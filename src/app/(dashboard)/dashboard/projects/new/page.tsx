@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { generateSlug } from "@/lib/utils";
@@ -49,7 +49,7 @@ export default function NewProjectPage() {
   });
   
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const [form, setForm] = useState({
     projectType: "service" as ProjectType,

@@ -1,7 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getThemeStyles } from "@/lib/themes";
 import { cn } from "@/lib/utils";
-import { Check, ArrowRight, Zap, Star, ShieldCheck, Sparkles, Rocket, Target, Shield, Users } from "lucide-react";
+import { Check, ArrowRight, Zap, Star, ShieldCheck, Sparkles, Rocket, Target } from "lucide-react";
 
 const FEATURE_ICONS = [Zap, ShieldCheck, Rocket, Target, Sparkles, Star];
 
@@ -74,7 +75,7 @@ function Template1({
                   <div className="flex -space-x-2">
                     {[1,2,3].map(i => (
                       <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-100 overflow-hidden shadow-sm">
-                        <img src={`https://i.pravatar.cc/32?img=${i+10}`} alt="avatar" />
+                        <Image src={`https://i.pravatar.cc/32?img=${i+10}`} alt="avatar" width={32} height={32} />
                       </div>
                     ))}
                   </div>
@@ -89,7 +90,7 @@ function Template1({
               <div className="relative w-full max-w-lg">
                 <div className="absolute inset-0 rounded-3xl blur-3xl opacity-20" style={{ backgroundColor: primaryColor }} />
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/20 aspect-[4/3]">
-                  <img src={heroImage || "https://images.unsplash.com/photo-1551288049-bbb652167c80?auto=format&fit=crop&q=80&w=1200"} alt="Product Preview" className="w-full h-full object-cover" />
+                  <Image src={heroImage || "https://images.unsplash.com/photo-1551288049-bbb652167c80?auto=format&fit=crop&q=80&w=1200"} alt="Product Preview" fill className="object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                 </div>
               </div>
@@ -127,7 +128,7 @@ function Template1({
         <section className={cn(styles.section)}>
           <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
             <div className="relative rounded-2xl overflow-hidden aspect-[4/3]">
-              <img src="https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?auto=format&fit=crop&q=80&w=1200" alt="Benefits" className="w-full h-full object-cover" />
+              <Image src="https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?auto=format&fit=crop&q=80&w=1200" alt="Benefits" fill className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
             </div>
             <div className="space-y-8">
@@ -213,7 +214,7 @@ function Template2({
             <div className="mt-16 max-w-5xl mx-auto relative">
               <div className="absolute inset-0 rounded-3xl blur-3xl opacity-10" style={{ backgroundColor: primaryColor }} />
               <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/10 aspect-video">
-                <img src={heroImage || "https://images.unsplash.com/photo-1551288049-bbb652167c80?auto=format&fit=crop&q=80&w=1400"} alt="Product" className="w-full h-full object-cover" />
+                <Image src={heroImage || "https://images.unsplash.com/photo-1551288049-bbb652167c80?auto=format&fit=crop&q=80&w=1400"} alt="Product" fill className="object-cover" />
               </div>
             </div>
           )}
@@ -309,7 +310,7 @@ function Template3({
       {content.hero && (
         <section className="relative min-h-screen flex items-center overflow-hidden">
           <div className="absolute inset-0">
-            <img src={heroImage || "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1600"} alt="Hero" className="w-full h-full object-cover opacity-30" />
+            <Image src={heroImage || "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1600"} alt="Hero" fill className="object-cover opacity-30" />
             <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${primaryColor}99 0%, #000000ee 60%)` }} />
           </div>
           <div className="relative z-10 max-w-6xl mx-auto px-8 py-32 space-y-10">
@@ -524,7 +525,7 @@ function Template5({
     <div className={cn("overflow-x-hidden", isDark ? "bg-gray-950" : "bg-white")}>
       {content.hero && (
         <section className="relative h-[90vh] flex items-end overflow-hidden">
-          <img src={heroImage || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1600"} alt="Hero" className="absolute inset-0 w-full h-full object-cover" />
+          <Image src={heroImage || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1600"} alt="Hero" fill className="object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
           <div className="relative z-10 max-w-7xl mx-auto px-8 pb-20 w-full">
             <div className="max-w-3xl space-y-6">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Palette, Save, Loader2, Check, Globe, Upload, X, Image as ImageIcon, Link as LinkIcon, RefreshCw, ChevronDown, CheckCircle2, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -179,7 +179,7 @@ export function SiteCustomizer({ project }: CustomizerProps) {
 
   useEffect(() => { setOrigin(window.location.origin); }, []);
 
-  function buildPreviewUrl(cfg: typeof config, page: string) {
+  const buildPreviewUrl = useCallback((cfg: typeof config, page: string) => {
     const pageSlug  = page === "landing" ? "" : `/${page}`;
     const activeTpl = cfg.selected_templates[page] ?? 1;
     const params    = new URLSearchParams({
@@ -189,28 +189,28 @@ export function SiteCustomizer({ project }: CustomizerProps) {
       __tpl:   String(activeTpl),
     });
     return `/software/user/${project.id}${pageSlug}?${params}`;
-  }
+  }, [project.id]);
 
-  function updatePreview(cfg: typeof config, page: string) {
+  const updatePreview = useCallback((cfg: typeof config, page: string) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       if (iframeRef.current) iframeRef.current.src = buildPreviewUrl(cfg, page);
     }, 300);
-  }
+  }, [buildPreviewUrl]);
 
-  function updateConfig(partial: Partial<typeof config>) {
+  const updateConfig = useCallback((partial: Partial<typeof config>) => {
     setConfig(prev => {
       const next = { ...prev, ...partial };
       updatePreview(next, activePage);
       return next;
     });
-  }
+  }, [updatePreview, activePage]);
 
-  function handlePageChange(page: string) {
+  const handlePageChange = useCallback((page: string) => {
     setActivePage(page);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (iframeRef.current) iframeRef.current.src = buildPreviewUrl(config, page);
-  }
+  }, [buildPreviewUrl, config]);
 
   const handleLogoUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
@@ -250,9 +250,11 @@ export function SiteCustomizer({ project }: CustomizerProps) {
     finally { setLoading(false); }
   }
 
-  const templates  = PAGE_TEMPLATES[activePage] || [];
-  const pageSlug   = activePage === "landing" ? "" : `/${activePage}`;
-  const addressUrl = `/software/user/${project.id}${pageSlug}`;
+  const templates  = useMemo(() => PAGE_TEMPLATES[activePage] || [], [activePage]);
+  const addressUrl = useMemo(() => {
+    const pageSlug = activePage === "landing" ? "" : `/${activePage}`;
+    return `/software/user/${project.id}${pageSlug}`;
+  }, [activePage, project.id]);
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">

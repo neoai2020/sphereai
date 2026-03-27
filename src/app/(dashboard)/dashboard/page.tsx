@@ -3,23 +3,17 @@ import { redirect } from "next/navigation";
 import { NetworkActivity } from "@/components/dashboard/network-activity";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { 
-  FolderOpen, 
-  Plus, 
-  Globe, 
-  BarChart3, 
-  Play, 
-  Zap, 
-  MessageSquare, 
-  TrendingUp, 
+import {
+  Plus,
+  Globe,
+  Play,
+  Zap,
+  MessageSquare,
+  TrendingUp,
   Award,
   ArrowUpRight,
-  ShieldCheck,
   Search,
   Users,
-  CheckCircle2,
-  Clock,
-  Sparkles
 } from "lucide-react";
 
 export default async function DashboardPage() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import logo from "./assets/logo2.png";
 import Image from "next/image";
 import Link from "next/link";
@@ -55,7 +55,7 @@ const navSections = [
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const [userInfo, setUserInfo] = useState<{ email: string | null; name: string | null }>({ email: null, name: null });
   const [subscriptions, setSubscriptions] = useState<Record<string, boolean>>({
     has_10x: false,
@@ -91,7 +91,7 @@ export function Sidebar() {
       }
     }
     getData();
-  }, [supabase]);
+  }, []);
 
 
   async function handleLogout() {
