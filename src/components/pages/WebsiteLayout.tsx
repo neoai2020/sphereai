@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Globe, Menu, X } from "lucide-react";
 import type { Project } from "@/types/database";
@@ -24,17 +25,18 @@ function getBrandName(name: string): string {
 
 export function WebsiteLayout({ project, children, activePath }: LayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
 
-  // Auto-reload when dashboard saves changes
+  // Auto-refresh when dashboard saves changes (bypasses browser cache)
   useEffect(() => {
     const channel = new BroadcastChannel("site-updates");
     channel.onmessage = (e) => {
       if (e.data?.projectId === project.id) {
-        window.location.reload();
+        router.refresh();
       }
     };
     return () => channel.close();
-  }, [project.id]);
+  }, [project.id, router]);
 
   const navItems = [
     { label: "Home", path: "" },
