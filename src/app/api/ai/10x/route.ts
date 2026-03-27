@@ -13,13 +13,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { productName, productDescription } = await request.json();
+    const { productName, productDescription, productLink } = await request.json();
 
     if (!productName || !productDescription) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const posts = await generateFacebookPosts(productName, productDescription);
+    const posts = await generateFacebookPosts(productName, productDescription, productLink);
 
     return NextResponse.json({ posts });
   } catch (err) {

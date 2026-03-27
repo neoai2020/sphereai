@@ -53,24 +53,55 @@ async function callAI(prompt: string, retries = 1): Promise<string> {
 }
 
 function extractJSON(text: string): any {
-  // 1. Try to find json block
+  // 1. Try direct parse first
+  try { return JSON.parse(text.trim()); } catch (e) {}
+
+  // 2. Try ```json code block
   const jsonCodeBlock = text.match(/```json\s*([\s\S]*?)```/);
   if (jsonCodeBlock) {
-    try {
-      return JSON.parse(jsonCodeBlock[1].trim());
-    } catch (e) {}
+    try { return JSON.parse(jsonCodeBlock[1].trim()); } catch (e) {}
   }
 
-  // 2. Try to find anything starting with [ or { and ending with ] or }
-  const jsonMatch = text.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
-  if (jsonMatch) {
-    try {
-      return JSON.parse(jsonMatch[0].trim());
-    } catch (e) {}
+  // 3. Try any ``` code block
+  const anyCodeBlock = text.match(/```\s*([\s\S]*?)```/);
+  if (anyCodeBlock) {
+    try { return JSON.parse(anyCodeBlock[1].trim()); } catch (e) {}
+  }
+
+  // 4. Try to extract array [...] - most lenient, for Facebook posts
+  const arrMatch = text.match(/\[[\s\S]*\]/);
+  if (arrMatch) {
+    try { return JSON.parse(arrMatch[0].trim()); } catch (e) {}
+  }
+
+  // 5. Try to extract object {...}
+  const objMatch = text.match(/\{[\s\S]*\}/);
+  if (objMatch) {
+    try { return JSON.parse(objMatch[0].trim()); } catch (e) {}
+  }
+
+  // 6. Try to find first [ or { and match to last ] or }
+  const firstBracket = text.indexOf('[');
+  const firstBrace = text.indexOf('{');
+  let startIdx = -1;
+  let endChar = '';
+
+  if (firstBracket !== -1 && (firstBrace === -1 || firstBracket < firstBrace)) {
+    startIdx = firstBracket; endChar = ']';
+  } else if (firstBrace !== -1) {
+    startIdx = firstBrace; endChar = '}';
+  }
+
+  if (startIdx !== -1) {
+    const lastIdx = text.lastIndexOf(endChar);
+    if (lastIdx > startIdx) {
+      try { return JSON.parse(text.slice(startIdx, lastIdx + 1)); } catch (e) {}
+    }
   }
 
   throw new Error("Could not extract JSON from AI response");
 }
+
 
 interface ProductInfo {
   productName: string;
@@ -343,25 +374,43 @@ export async function generateSEO(
 
 export async function generateFacebookPosts(
   productName: string,
-  productDescription: string
+  productDescription: string,
+  productLink?: string
 ): Promise<string[]> {
-  const prompt = `Based on the following product details, generate 10 unique, high-converting Facebook posts.
-  
-  Product: ${productName}
-  Description: ${productDescription}
-  
-  Guidelines:
-  - Each post must have a different marketing angle (e.g., Storytelling, Curiosity, Pain Point, Direct Benefit, Social Proof, FOMO, Educational, Controversy/Myth-Busting, Comparative, Personal Invite).
-  - Use emojis sparingly but effectively.
-  - Include placeholders for links like [YOUR LINK HERE].
-  - Keep each post between 50 and 150 words.
-  - Return ONLY a valid JSON array of strings.
-  
-  Expected Output Format:
-  ["Post 1 body...", "Post 2 body...", ... "Post 10 body..."]`;
+  const linkPlaceholder = productLink ? productLink : "[YOUR LINK HERE]";
+  const prompt = `Generate exactly 10 Facebook marketing posts for this product.
+
+Product Name: ${productName}
+Product Description: ${productDescription}
+Promotional Link: ${linkPlaceholder}
+
+STRICT RULES:
+- Return ONLY a raw JSON array of 10 strings. No explanation, no markdown, no extra text.
+- Each string is one complete Facebook post (50-150 words).
+- Use a different angle for each post: Storytelling, Curiosity, Pain Point, Benefit, Social Proof, FOMO, Educational, Myth-Busting, Comparative, Personal Invite.
+- Include the link ${linkPlaceholder} naturally in each post.
+- Use emojis sparingly.
+
+OUTPUT FORMAT (copy exactly):
+["post 1 text here", "post 2 text here", "post 3 text here", "post 4 text here", "post 5 text here", "post 6 text here", "post 7 text here", "post 8 text here", "post 9 text here", "post 10 text here"]`;
 
   const rawResponse = await callAI(prompt);
-  const parsed = extractJSON(rawResponse);
   
-  return Array.isArray(parsed) ? parsed : [];
+  try {
+    const parsed = extractJSON(rawResponse);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed.map((p: string) => 
+        typeof p === 'string' ? p.replace(/\[YOUR LINK HERE\]/g, linkPlaceholder) : String(p)
+      );
+    }
+  } catch (e) {
+    // fallback: try to split by numbered lines "1. ... 2. ..."
+    const lines = rawResponse.split(/\n\d+\.\s+/).filter(l => l.trim().length > 20);
+    if (lines.length >= 5) {
+      return lines.slice(0, 10).map(l => l.trim());
+    }
+  }
+
+  return [];
 }
+
