@@ -70,122 +70,95 @@ function ActivateContent() {
   const config = featureActivated ? FEATURE_CONFIG[featureActivated] : null;
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Decorative patterns */}
-      <div className="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-gray-50 to-white pointer-events-none" />
-      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-brand-50/30 rounded-full blur-[120px] pointer-events-none" />
-      
-      <div className="max-w-md w-full space-y-10 relative z-10">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 via-white to-brand-100 px-4 py-12">
+      <div className="w-full max-w-md">
         
-        {/* 1. Brand/Header */}
-        <div className="text-center space-y-6">
-          <div className="inline-flex items-center justify-center p-4 bg-gray-950 rounded-[2rem] shadow-2xl relative group">
-             <div className="absolute inset-0 bg-brand-500 rounded-[2rem] blur opacity-10 group-hover:opacity-20 transition-opacity" />
-             {config ? <config.icon className="text-white relative z-10" size={32} /> : <Sparkles className="text-white relative z-10" size={32} />}
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-3xl font-black text-gray-900 tracking-tighter leading-tight">
-              {config ? `Activate ${config.title}` : "Activate Your Access"}
-            </h1>
-            <p className="text-gray-400 font-medium text-sm max-w-[280px] mx-auto leading-relaxed">
-              Enter your registration details below to unlock your custom platform access.
-            </p>
-          </div>
+        {/* Header */}
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-flex items-center gap-2 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center">
+              {config ? <config.icon className="text-white" size={20} /> : <Sparkles className="text-white" size={20} />}
+            </div>
+            <span className="text-2xl font-bold text-gray-900">SphereAI</span>
+          </Link>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {config ? `Activate ${config.title}` : "Activate Your Access"}
+          </h1>
+          <p className="text-gray-500 mt-1">Enter your details to unlock access</p>
         </div>
 
-        {/* 2. Main Action Card */}
-        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] p-10 md:p-12">
+        {/* Main Card */}
+        <div className="bg-white rounded-2xl shadow-xl shadow-brand-100/50 border border-gray-100 p-8">
           {status === "success" ? (
-            <div className="text-center space-y-8 py-6 animate-in zoom-in duration-500">
-              <div className="w-20 h-20 bg-emerald-50 rounded-[2rem] flex items-center justify-center mx-auto text-emerald-500 border border-emerald-100">
-                <CheckCircle2 size={40} />
+            <div className="text-center space-y-4 py-4 animate-in zoom-in duration-300">
+              <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto text-emerald-500">
+                <CheckCircle2 size={32} />
               </div>
-              <div className="space-y-3">
-                <h2 className="text-2xl font-black text-gray-900 tracking-tight">{message}</h2>
-                <p className="text-gray-400 font-bold text-xs uppercase tracking-widest italic">Redirecting to project vault...</p>
-              </div>
-              <Loader2 className="animate-spin text-gray-900 mx-auto" size={24} />
+              <h2 className="text-xl font-bold text-gray-900">{message}</h2>
+              <p className="text-sm text-gray-500">Redirecting to project vault...</p>
+              <Loader2 className="animate-spin text-brand-600 mx-auto" size={20} />
             </div>
           ) : (
-            <form onSubmit={handleActivate} className="space-y-10">
+            <form onSubmit={handleActivate} className="space-y-5">
               {status === "error" && (
-                <div className="p-4 rounded-2xl bg-red-50/50 border border-red-100 text-red-600 text-[10px] font-black uppercase tracking-widest flex items-center gap-3 animate-shake">
-                  <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-sm border border-red-100">
-                    <Lock size={14} />
-                  </div>
+                <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100">
                   {message}
                 </div>
               )}
 
-              <div className="space-y-6">
-                <div className="space-y-2.5">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Target Account Email</label>
-                  <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-gray-950 transition-colors">
-                      <Mail size={18} />
-                    </div>
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="e.g. user@domain.com"
-                      className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-4 pl-12 pr-6 text-gray-900 font-bold placeholder:text-gray-300 focus:bg-white focus:border-gray-900 focus:ring-4 focus:ring-gray-950/5 transition-all outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2.5">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] pl-1">Access Key</label>
-                  <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-gray-950 transition-colors">
-                      <ShieldCheck size={18} />
-                    </div>
-                    <input
-                      type="text"
-                      required
-                      value={code}
-                      onChange={(e) => setCode(e.target.value)}
-                      placeholder="XXXX-XXXX-XXXX"
-                      className="w-full bg-gray-50/50 border border-gray-100 rounded-2xl py-4 pl-12 pr-6 text-gray-900 font-bold placeholder:text-gray-300 focus:bg-white focus:border-gray-900 focus:ring-4 focus:ring-gray-950/5 transition-all outline-none uppercase tracking-[0.1em]"
-                    />
-                  </div>
-                </div>
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1.5">
+                  <Mail size={14} className="text-gray-400" />
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@domain.com"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition-all text-gray-900"
+                />
               </div>
 
-              <div className="space-y-6">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-gray-950 hover:bg-black disabled:opacity-50 text-white font-black py-5 rounded-2xl shadow-2xl flex items-center justify-center gap-4 transition-all active:scale-[0.98] group"
-                >
-                  {loading ? (
-                    <Loader2 className="animate-spin" size={24} />
-                  ) : (
-                    <>
-                      <span className="text-xs uppercase tracking-[0.2em]">Activate Access</span>
-                      <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                    </>
-                  )}
-                </button>
-                <p className="text-center text-[9px] font-black text-gray-300 uppercase tracking-[0.3em] font-mono">
-                  Secure Redemption Portal v2.0
-                </p>
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1.5">
+                  <ShieldCheck size={14} className="text-gray-400" />
+                  Access Key
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  placeholder="XXXX-XXXX-XXXX"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition-all text-gray-900 uppercase tracking-widest"
+                />
               </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 px-4 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <Loader2 className="animate-spin" size={20} />
+                ) : (
+                  <>
+                    <span>Activate Access</span>
+                    <ArrowRight size={18} />
+                  </>
+                )}
+              </button>
             </form>
           )}
         </div>
 
-        {/* 3. Support/Footer */}
-        <div className="text-center space-y-4">
-           <p className="text-gray-400 text-[9px] uppercase font-black tracking-[0.2em] leading-loose">
-            Need assistance? <br />
-            <span className="text-gray-900">contact support at getshpereaccess.com</span>
+        {/* Footer */}
+        <div className="text-center mt-8">
+           <p className="text-sm text-gray-400">
+            Need help? <Link href="/dashboard/support" className="text-brand-600 hover:text-brand-700 font-medium ml-1">Contact Support</Link>
            </p>
-           <div className="flex items-center justify-center gap-4 pt-4 border-t border-gray-50">
-             <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-             <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">Server Status: Operational</span>
-           </div>
         </div>
       </div>
     </div>
