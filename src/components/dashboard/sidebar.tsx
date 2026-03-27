@@ -30,13 +30,13 @@ const navSections = [
       { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { href: "/dashboard/projects/new", label: "Site Forge", icon: Zap },
       { href: "/dashboard/projects", label: "Asset Vault", icon: FolderLock },
+      { href: "/dashboard/logo-generator", label: "Logo Generator", icon: Wand2 },
     ],
   },
   {
     title: "Resources",
     items: [
       { href: "/dashboard/training", label: "Training", icon: GraduationCap },
-      { href: "/dashboard/logo-generator", label: "Logo Generator", icon: Wand2 },
       { href: "/dashboard/support", label: "Support", icon: MessagesSquare },
     ],
   },
