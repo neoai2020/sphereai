@@ -226,6 +226,12 @@ export default function TenXPage() {
         </p>
       </div>
 
+      {/* Training Video */}
+      <VideoPlaceholder 
+        title="10X Facebook Strategy — Full Walkthrough"
+        subtitle="Video training coming soon"
+      />
+
       {/* Feature Highlights */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {features.map((f, i) => (
@@ -383,12 +389,6 @@ export default function TenXPage() {
           </div>
         </div>
       )}
-
-      {/* Training Video Placeholder */}
-      <VideoPlaceholder 
-        title="10X Facebook Strategy — Full Walkthrough"
-        subtitle="Video training coming soon"
-      />
 
       {/* Pro Tips Section */}
       <div className="bg-white border border-gray-100 rounded-[40px] p-8 md:p-12 shadow-sm space-y-12">

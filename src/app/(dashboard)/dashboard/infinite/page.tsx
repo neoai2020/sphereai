@@ -59,6 +59,12 @@ export default async function InfinitePage() {
         </p>
       </div>
 
+      {/* Training Video */}
+      <VideoPlaceholder
+        title="Infinite Plan — Full Strategy Walkthrough"
+        subtitle="Video training coming soon"
+      />
+
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
@@ -98,12 +104,6 @@ export default async function InfinitePage() {
           <InfiniteClient projects={projects} />
         )}
       </div>
-
-      {/* Training Video */}
-      <VideoPlaceholder
-        title="Infinite Plan — Full Strategy Walkthrough"
-        subtitle="Video training coming soon"
-      />
     </div>
   );
 }

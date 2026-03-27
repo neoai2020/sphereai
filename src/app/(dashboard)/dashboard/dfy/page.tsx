@@ -246,6 +246,12 @@ export default function DFYPage() {
            <p className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.2em]">180+ websites with 200 SEO posts each</p>
         </div>
 
+        {/* Training Video */}
+        <VideoPlaceholder
+          title="DFY Library — How to Claim &amp; Launch"
+          subtitle="Video training coming soon"
+        />
+
         {/* Filters / Tab Bar */}
         <div className="flex justify-center">
           <div className="inline-flex bg-white p-1 rounded-2xl border border-gray-100 shadow-[0_2px_15px_rgba(0,0,0,0.03)] max-w-full overflow-x-auto no-scrollbar">
@@ -371,12 +377,6 @@ export default function DFYPage() {
           </button>
         </div>
       )}
-
-      {/* Training Video */}
-      <VideoPlaceholder
-        title="DFY Library — How to Claim & Launch"
-        subtitle="Video training coming soon"
-      />
 
       {/* Security Bottom */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-12 border-t border-gray-100">
