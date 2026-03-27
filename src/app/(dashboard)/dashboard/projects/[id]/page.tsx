@@ -15,7 +15,9 @@ import {
   LayoutDashboard,
   Layers,
   Sparkles,
-  Settings2
+  Settings2,
+  MessageCircleQuestion,
+  User2
 } from "lucide-react";
 import { SiteCustomizer } from "@/components/dashboard/projects/SiteCustomizer";
 import { cn } from "@/lib/utils";
@@ -25,8 +27,8 @@ const pageTypeConfig: Record<
   { label: string; icon: any; path: string }
 > = {
   landing: { label: "Landing Page", icon: Globe, path: "" },
-  about: { label: "About Page", icon: Info, path: "/about" },
-  faq: { label: "FAQ Page", icon: HelpCircle, path: "/faq" },
+  about: { label: "About Page", icon: User2, path: "/about" },
+  faq: { label: "FAQ Page", icon: MessageCircleQuestion, path: "/faq" },
   blog: { label: "Blog Article", icon: BookOpen, path: "/blog" },
   reviews: { label: "Reviews Page", icon: Star, path: "/reviews" },
 };
@@ -186,8 +188,8 @@ export default async function ProjectDetailPage({
                     className="bg-white rounded-3xl border border-gray-100 p-6 flex items-center justify-between hover:shadow-xl hover:shadow-brand-100/20 transition-all border-b-4 border-b-transparent hover:border-b-brand-500 group"
                   >
                     <div className="flex items-center gap-5">
-                      <div className="w-14 h-14 rounded-2xl bg-gray-50 group-hover:bg-brand-50 flex items-center justify-center transition-colors shadow-inner">
-                        <Icon size={24} className="text-gray-400 group-hover:text-brand-600" />
+                      <div className="w-14 h-14 rounded-2xl bg-gray-50 group-hover:bg-brand-50 flex items-center justify-center transition-colors shadow-inner shrink-0 scale-95 origin-center">
+                        <Icon size={24} className="text-gray-400 group-hover:text-brand-600 transition-transform duration-500 group-hover:scale-110" />
                       </div>
                       <div>
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">{config.label}</p>
