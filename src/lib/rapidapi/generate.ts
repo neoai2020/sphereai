@@ -24,7 +24,7 @@ async function callAI(prompt: string, retries = 2): Promise<string> {
         body: JSON.stringify({
           messages: [{ role: "user", content: prompt }],
           system_prompt: "",
-          temperature: 0.7,
+          temperature: 0.3,
           top_k: 5,
           top_p: 0.9,
           max_tokens: 2000,
@@ -407,21 +407,21 @@ export async function generateFacebookPosts(
   productLink?: string
 ): Promise<string[]> {
   const linkPlaceholder = productLink ? productLink : "[YOUR LINK HERE]";
-  const prompt = `Generate exactly 10 Facebook marketing posts for this product.
+  const prompt = `قم بتوليد 10 منشورات تسويقية لفيسبوك لهذا المنتج بشكل احترافي.
 
-Product Name: ${productName}
-Product Description: ${productDescription}
-Promotional Link: ${linkPlaceholder}
+اسم المنتج: ${productName}
+وصف المنتج: ${productDescription}
+الرابط الترويجي: ${linkPlaceholder}
 
-STRICT RULES:
-- Return ONLY a raw JSON array of 10 strings. No explanation, no markdown, no extra text.
-- Each string is one complete Facebook post (50-80 words).
-- Use a different angle for each post: Storytelling, Curiosity, Pain Point, Benefit, Social Proof, FOMO, Educational, Myth-Busting, Comparative, Personal Invite.
-- Include the link ${linkPlaceholder} naturally in each post.
-- Use emojis sparingly.
+قواعد صارمة:
+- أرجع فقط مصفوفة JSON (Array) تحتوي على 10 نصوص فقط. بدون أي شرح أو مقدمات.
+- كل نص يجب أن يكون منشور فيسبوك كامل (50-80 كلمة).
+- استخدم زوايا تسويقية مختلفة لكل منشور (قصة، فضول، حل مشكلة، فوائد، خوف من فوات الفرصة، إلخ).
+- أدرج رابط ${linkPlaceholder} بشكل طبيعي في كل منشور.
+- استخدم الرموز التعبيرية (Emojis) بشكل معتدل واحترافي.
 
-OUTPUT FORMAT (copy exactly):
-["post 1 text here", "post 2 text here", "post 3 text here", "post 4 text here", "post 5 text here", "post 6 text here", "post 7 text here", "post 8 text here", "post 9 text here", "post 10 text here"]`;
+صيغة المخرجات (التزم بها تماماً):
+["نص المنشور 1 هنا", "نص المنشور 2 هنا", ..., "نص المنشور 10 هنا"]`;
 
   const rawResponse = await callAI(prompt);
   
