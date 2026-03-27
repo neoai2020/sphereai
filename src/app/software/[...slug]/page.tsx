@@ -103,8 +103,20 @@ export default async function SoftwarePage({ params, searchParams }: Props) {
     .single();
 
   if (pageErr || !page) {
-    console.error("Page not found for project:", project.id, "type:", activePageType, "error:", pageErr);
-    notFound();
+    // Show a friendly placeholder instead of a 404 when page content hasn't been generated yet
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center space-y-4 px-6">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto">
+            <svg className="w-8 h-8 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h2 className="text-lg font-bold text-gray-900">Page is being generated…</h2>
+          <p className="text-sm text-gray-400 max-w-xs">Your content is being built. This usually takes a few seconds. Refresh to check.</p>
+        </div>
+      </div>
+    );
   }
 
   // If ?lang=X is set, try to load translated content from project_translations
