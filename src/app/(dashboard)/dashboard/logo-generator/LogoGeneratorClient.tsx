@@ -41,54 +41,54 @@ function svgToDataUrl(svg: string) {
 }
 
 export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
-  // Manual builder state
+  const [activeTab, setActiveTab] = useState<"manual" | "ai">("manual");
+
+  // Manual state
   const [letter,    setLetter]    = useState("S");
   const [color,     setColor]     = useState("#4F46E5");
   const [shape,     setShape]     = useState<typeof SHAPES[number]["id"]>("rounded");
   const [bgMode,    setBgMode]    = useState<"solid" | "gradient">("gradient");
   const [textColor, setTextColor] = useState("#FFFFFF");
 
-  // AI generation state
-  const [brandText,   setBrandText]   = useState("");
-  const [aiStyle,     setAiStyle]     = useState("modern");
-  const [generating,  setGenerating]  = useState(false);
-  const [aiLogo,      setAiLogo]      = useState<string | null>(null);
-  const [aiError,     setAiError]     = useState<string | null>(null);
+  // AI state
+  const [brandText,  setBrandText]  = useState("");
+  const [aiStyle,    setAiStyle]    = useState("modern");
+  const [aiColor,    setAiColor]    = useState("#4F46E5");
+  const [generating, setGenerating] = useState(false);
+  const [aiLogo,     setAiLogo]     = useState<string | null>(null);
+  const [aiDebug,    setAiDebug]    = useState<string | null>(null);
+  const [aiError,    setAiError]    = useState<string | null>(null);
 
-  // Which logo to use (manual svg or AI result)
-  const [activeTab, setActiveTab] = useState<"manual" | "ai">("manual");
+  // Apply state
+  const [selectedProject, setSelectedProject] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved,  setSaved]  = useState(false);
 
-  // Apply to project state
-  const [selectedProject, setSelectedProject] = useState<string>("");
-  const [saving,    setSaving]    = useState(false);
-  const [saved,     setSaved]     = useState(false);
-
-  const rxVal   = SHAPES.find(s => s.id === shape)?.rx || "20";
-  const svgData = buildSvg(letter || "S", color, rxVal, bgMode, textColor);
-  const manualDataUrl = svgToDataUrl(svgData);
-  const currentLogo   = activeTab === "ai" && aiLogo ? aiLogo : manualDataUrl;
+  const rxVal      = SHAPES.find(s => s.id === shape)?.rx || "20";
+  const manualUrl  = svgToDataUrl(buildSvg(letter || "S", color, rxVal, bgMode, textColor));
+  const currentLogo = activeTab === "ai" && aiLogo ? aiLogo : manualUrl;
 
   async function generateWithAI() {
     if (!brandText.trim()) return;
-    setGenerating(true); setAiError(null); setAiLogo(null);
+    setGenerating(true); setAiError(null); setAiLogo(null); setAiDebug(null);
     try {
-      const res = await fetch("/api/logo-generate", {
+      const res  = await fetch("/api/logo-generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: brandText, style: aiStyle, color }),
+        body: JSON.stringify({ text: brandText, style: aiStyle, color: aiColor }),
       });
       const data = await res.json();
       if (data.image) {
         setAiLogo(data.image);
-        setActiveTab("ai");
-      } else if (data.url) {
-        setAiLogo(data.url);
-        setActiveTab("ai");
+      } else if (data.error) {
+        setAiError(data.error);
       } else {
-        setAiError(data.error || "No image returned from API");
+        // Show raw debug so we know what the API returns
+        setAiDebug(JSON.stringify(data, null, 2));
+        setAiError("API returned unexpected format — see debug below");
       }
-    } catch {
-      setAiError("Network error — check console");
+    } catch (e: any) {
+      setAiError(e.message);
     } finally {
       setGenerating(false);
     }
@@ -110,167 +110,183 @@ export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
   function downloadLogo() {
     const a = document.createElement("a");
     a.href = currentLogo;
-    a.download = `logo-${brandText || letter}.svg`;
+    a.download = `logo.svg`;
     a.click();
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-10 pb-24 px-4">
+    <div className="max-w-5xl mx-auto pb-24 px-4 space-y-8">
+
       {/* Header */}
-      <div className="space-y-2 pt-2">
+      <div className="pt-2">
         <h1 className="text-3xl font-black text-gray-900 tracking-tighter flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-brand-50 flex items-center justify-center border border-brand-100">
+          <div className="w-12 h-12 rounded-2xl bg-brand-50 flex items-center justify-center border border-brand-100 shrink-0">
             <Wand2 size={24} className="text-brand-600" />
           </div>
           Logo Generator
         </h1>
-        <p className="text-gray-400 font-medium text-sm ml-16">Design or AI-generate a logo and apply it to any of your websites</p>
+        <p className="text-gray-400 font-medium text-sm mt-1 ml-16">Design or AI-generate a logo and apply it to any of your websites</p>
       </div>
 
       {/* Mode Tabs */}
-      <div className="flex gap-2 bg-gray-100 p-1.5 rounded-2xl w-fit">
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-2xl w-fit">
         {(["manual","ai"] as const).map(t => (
-          <button
-            key={t}
-            onClick={() => setActiveTab(t)}
+          <button key={t} onClick={() => setActiveTab(t)}
             className={cn(
-              "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
+              "px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap",
               activeTab === t ? "bg-white text-gray-900 shadow-md" : "text-gray-400 hover:text-gray-700"
-            )}
-          >
+            )}>
             {t === "manual" ? "✏️ Manual Builder" : "✨ AI Generate"}
           </button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Preview */}
-        <div className="bg-white rounded-3xl border border-gray-100 p-10 flex flex-col items-center justify-center gap-8 shadow-sm min-h-[320px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {/* ── Preview ── */}
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col items-center justify-center gap-6 p-10 min-h-[300px]">
           {generating ? (
-            <div className="flex flex-col items-center gap-4 text-gray-400">
+            <div className="flex flex-col items-center gap-4">
               <Loader2 size={48} className="animate-spin text-brand-500" />
-              <p className="text-sm font-bold">Generating your logo…</p>
+              <p className="text-sm font-bold text-gray-400">Generating…</p>
             </div>
           ) : (
-            <img src={currentLogo} alt="logo preview" className="w-40 h-40 rounded-3xl shadow-2xl shadow-gray-200/80 object-contain" />
+            <img src={currentLogo} alt="preview"
+              className="w-40 h-40 object-contain rounded-3xl shadow-2xl shadow-gray-200/80" />
           )}
-          <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">
-            {activeTab === "ai" && aiLogo ? "AI Generated" : "Manual Preview"}
-          </p>
+          <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">
+            {activeTab === "ai" && aiLogo ? "AI Result" : "Preview"}
+          </span>
         </div>
 
-        {/* Controls */}
-        <div className="space-y-6">
+        {/* ── Controls ── */}
+        <div className="space-y-5">
 
-          {/* ─── AI Panel ─── */}
+          {/* AI Panel */}
           {activeTab === "ai" && (
-            <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-4">
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 space-y-5">
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                <Sparkles size={12} /> AI Logo Generation
+                <Sparkles size={11} /> AI Generation
               </p>
-              <input
-                type="text"
-                value={brandText}
-                onChange={e => setBrandText(e.target.value)}
-                placeholder="Enter your brand name..."
-                className="w-full px-4 py-3.5 rounded-2xl border border-gray-100 text-sm font-bold text-gray-900 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 transition-all"
-              />
+
+              <input type="text" value={brandText} onChange={e => setBrandText(e.target.value)}
+                placeholder="Enter your brand name…"
+                className="w-full px-4 py-3 rounded-2xl border border-gray-100 text-sm font-bold text-gray-900 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 transition-all" />
+
+              {/* Style */}
               <div className="flex flex-wrap gap-2">
                 {STYLES.map(s => (
-                  <button
-                    key={s}
-                    onClick={() => setAiStyle(s)}
+                  <button key={s} onClick={() => setAiStyle(s)}
                     className={cn(
-                      "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all",
+                      "px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all whitespace-nowrap",
                       aiStyle === s
                         ? "bg-gray-900 text-white border-gray-900"
                         : "bg-gray-50 text-gray-400 border-gray-100 hover:bg-white hover:text-gray-900"
-                    )}
-                  >
+                    )}>
                     {s}
                   </button>
                 ))}
               </div>
-              {/* Color for AI */}
-              <div className="flex flex-wrap gap-2">
+
+              {/* Color */}
+              <div className="flex flex-wrap gap-2 items-center">
                 {COLORS.map(c => (
-                  <button key={c} onClick={() => setColor(c)}
-                    className={cn("w-7 h-7 rounded-lg border-2 transition-all hover:scale-110",
-                      color === c ? "border-gray-900 scale-110 shadow" : "border-transparent")}
+                  <button key={c} onClick={() => setAiColor(c)}
+                    className={cn("w-7 h-7 rounded-lg border-2 transition-all hover:scale-110 shrink-0",
+                      aiColor === c ? "border-gray-900 scale-110 shadow" : "border-transparent")}
                     style={{ backgroundColor: c }} />
                 ))}
-                <input type="color" value={color} onChange={e => setColor(e.target.value)}
-                  className="w-7 h-7 rounded-lg cursor-pointer border-0" />
+                <input type="color" value={aiColor} onChange={e => setAiColor(e.target.value)}
+                  className="w-7 h-7 rounded-lg cursor-pointer border-0 shrink-0" />
               </div>
+
               {aiError && (
-                <p className="text-xs font-bold text-red-500 bg-red-50 px-3 py-2 rounded-xl border border-red-100">✕ {aiError}</p>
+                <p className="text-[11px] font-bold text-red-500 bg-red-50 px-3 py-2 rounded-xl border border-red-100">
+                  ✕ {aiError}
+                </p>
               )}
-              <button
-                onClick={generateWithAI}
-                disabled={!brandText.trim() || generating}
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-brand-600 text-white text-sm font-black hover:bg-brand-700 transition-all disabled:opacity-40 shadow-lg shadow-brand-500/20"
-              >
+              {aiDebug && (
+                <pre className="text-[10px] font-mono bg-gray-50 border border-gray-100 rounded-2xl p-3 overflow-auto max-h-40 text-gray-500">
+                  {aiDebug}
+                </pre>
+              )}
+
+              <button onClick={generateWithAI} disabled={!brandText.trim() || generating}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-brand-600 text-white text-sm font-black hover:bg-brand-700 transition-all disabled:opacity-40 shadow-lg shadow-brand-500/20 whitespace-nowrap">
                 {generating
-                  ? <><Loader2 size={16} className="animate-spin" /> Generating…</>
-                  : <><Sparkles size={16} /> Generate Logo</>}
+                  ? <><Loader2 size={15} className="animate-spin" /> Generating…</>
+                  : <><Sparkles size={15} /> Generate Logo</>}
               </button>
             </div>
           )}
 
-          {/* ─── Manual Panel ─── */}
+          {/* Manual Panel */}
           {activeTab === "manual" && (
             <>
-              <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-4">
+              <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 space-y-4">
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Icon / Letter</p>
                 <div className="flex flex-wrap gap-2">
                   {ICON_PRESETS.map(ic => (
                     <button key={ic} onClick={() => setLetter(ic)}
-                      className={cn("w-10 h-10 rounded-xl text-lg flex items-center justify-center transition-all border",
-                        letter === ic ? "border-brand-500 bg-brand-50 scale-110 shadow-md" : "border-gray-100 bg-gray-50 hover:bg-white hover:scale-105")}>
+                      className={cn("w-9 h-9 rounded-xl text-base flex items-center justify-center border transition-all",
+                        letter === ic
+                          ? "border-brand-500 bg-brand-50 scale-110 shadow-md"
+                          : "border-gray-100 bg-gray-50 hover:bg-white hover:scale-105")}>
                       {ic}
                     </button>
                   ))}
                 </div>
                 <input type="text" value={letter} onChange={e => setLetter(e.target.value.slice(-2))}
-                  placeholder="Or type a letter..." maxLength={2}
-                  className="w-full px-4 py-3 rounded-2xl border border-gray-100 text-sm font-black text-gray-900 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 transition-all" />
+                  placeholder="Or type a letter…" maxLength={2}
+                  className="w-full px-4 py-2.5 rounded-2xl border border-gray-100 text-sm font-black text-gray-900 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 transition-all" />
               </div>
 
-              <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-4">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Color & Shape</p>
-                <div className="flex flex-wrap gap-2">
+              <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 space-y-4">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Color & Style</p>
+
+                <div className="flex flex-wrap gap-2 items-center">
                   {COLORS.map(c => (
                     <button key={c} onClick={() => setColor(c)}
-                      className={cn("w-8 h-8 rounded-xl border-2 transition-all hover:scale-110",
+                      className={cn("w-7 h-7 rounded-lg border-2 transition-all hover:scale-110 shrink-0",
                         color === c ? "border-gray-900 scale-110 shadow-lg" : "border-transparent")}
                       style={{ backgroundColor: c }} />
                   ))}
                   <input type="color" value={color} onChange={e => setColor(e.target.value)}
-                    className="w-8 h-8 rounded-xl cursor-pointer border-0" />
+                    className="w-7 h-7 rounded-lg cursor-pointer border-0 shrink-0" />
                 </div>
-                <div className="flex gap-2">
-                  {(["#FFFFFF","#000000"] as const).map(c => (
+
+                {/* Text color */}
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Text</span>
+                  {["#FFFFFF","#000000"].map(c => (
                     <button key={c} onClick={() => setTextColor(c)}
-                      className={cn("w-8 h-8 rounded-xl border-2 transition-all",
+                      className={cn("w-7 h-7 rounded-lg border-2 transition-all shrink-0",
                         textColor === c ? "border-brand-500 scale-110" : "border-gray-200")}
                       style={{ backgroundColor: c }} />
                   ))}
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest self-center ml-1">Text</span>
                 </div>
+
+                {/* Shape */}
                 <div className="flex gap-2">
                   {SHAPES.map(s => (
                     <button key={s.id} onClick={() => setShape(s.id)}
-                      className={cn("flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl border transition-all",
-                        shape === s.id ? "bg-gray-900 text-white border-gray-900" : "bg-gray-50 text-gray-400 border-gray-100 hover:bg-white hover:text-gray-900")}>
+                      className={cn("flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl border transition-all whitespace-nowrap",
+                        shape === s.id
+                          ? "bg-gray-900 text-white border-gray-900"
+                          : "bg-gray-50 text-gray-400 border-gray-100 hover:bg-white hover:text-gray-900")}>
                       {s.label}
                     </button>
                   ))}
                 </div>
+
+                {/* BG Mode */}
                 <div className="flex gap-2">
                   {(["solid","gradient"] as const).map(m => (
                     <button key={m} onClick={() => setBgMode(m)}
-                      className={cn("flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl border transition-all",
-                        bgMode === m ? "bg-gray-900 text-white border-gray-900" : "bg-gray-50 text-gray-400 border-gray-100 hover:bg-white hover:text-gray-900")}>
+                      className={cn("flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl border transition-all whitespace-nowrap",
+                        bgMode === m
+                          ? "bg-gray-900 text-white border-gray-900"
+                          : "bg-gray-50 text-gray-400 border-gray-100 hover:bg-white hover:text-gray-900")}>
                       {m}
                     </button>
                   ))}
@@ -282,47 +298,55 @@ export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
       </div>
 
       {/* Apply to Project */}
-      <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm space-y-6">
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 space-y-5">
         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-          <Link2 size={12} /> Apply to Website
+          <Link2 size={11} /> Apply to Website
         </p>
+
         {projects.length === 0 ? (
           <p className="text-sm text-gray-400 font-medium">No websites found. Create one first from Site Forge.</p>
         ) : (
           <>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
               <select value={selectedProject} onChange={e => setSelectedProject(e.target.value)}
-                className="flex-1 px-5 py-3.5 rounded-2xl border border-gray-100 bg-white text-sm font-bold text-gray-900 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 transition-all">
-                <option value="">Select a website...</option>
+                className="flex-1 px-4 py-3 rounded-2xl border border-gray-100 bg-white text-sm font-bold text-gray-900 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 transition-all min-w-0">
+                <option value="">Select a website…</option>
                 {projects.map(p => (
                   <option key={p.id} value={p.id}>{p.product_name || p.name}</option>
                 ))}
               </select>
-              <div className="flex gap-3">
+
+              <div className="flex gap-2 shrink-0">
                 <button onClick={downloadLogo}
-                  className="flex items-center gap-2 px-6 py-3.5 rounded-2xl border border-gray-100 text-sm font-black text-gray-600 hover:bg-gray-50 transition-all">
-                  <Download size={16} /> Download
+                  className="flex items-center gap-2 px-5 py-3 rounded-2xl border border-gray-100 text-sm font-black text-gray-600 hover:bg-gray-50 transition-all whitespace-nowrap">
+                  <Download size={15} /> Download
                 </button>
                 <button onClick={applyToProject} disabled={!selectedProject || saving}
-                  className="flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-gray-900 text-white text-sm font-black hover:bg-black transition-all disabled:opacity-40 shadow-xl shadow-black/10">
-                  {saving ? <><Loader2 size={16} className="animate-spin" /> Applying…</>
-                  : saved  ? <><Check size={16} className="text-emerald-400" /> Applied!</>
-                  :          <><Wand2 size={16} /> Apply Logo</>}
+                  className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gray-900 text-white text-sm font-black hover:bg-black transition-all disabled:opacity-40 shadow-xl shadow-black/10 whitespace-nowrap">
+                  {saving ? <><Loader2 size={15} className="animate-spin" /> Applying…</>
+                  : saved  ? <><Check size={15} className="text-emerald-400" /> Applied!</>
+                  :          <><Wand2 size={15} /> Apply Logo</>}
                 </button>
               </div>
             </div>
-            <div className="flex flex-wrap gap-3 pt-1">
+
+            {/* Project chips */}
+            <div className="flex flex-wrap gap-2">
               {projects.map(p => (
                 <button key={p.id} onClick={() => setSelectedProject(p.id)}
-                  className={cn("flex items-center gap-3 px-4 py-2.5 rounded-2xl border transition-all",
-                    selectedProject === p.id ? "border-brand-500 bg-brand-50 shadow-md" : "border-gray-100 bg-gray-50 hover:bg-white")}>
+                  className={cn("flex items-center gap-2 px-3 py-2 rounded-2xl border transition-all",
+                    selectedProject === p.id
+                      ? "border-brand-500 bg-brand-50 shadow-md"
+                      : "border-gray-100 bg-gray-50 hover:bg-white")}>
                   {p.site_logo
-                    ? <img src={p.site_logo} className="w-7 h-7 rounded-lg object-contain" alt="" />
-                    : <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-black"
+                    ? <img src={p.site_logo} className="w-6 h-6 rounded-lg object-contain shrink-0" alt="" />
+                    : <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[10px] font-black shrink-0"
                            style={{ backgroundColor: p.primary_color || "#4F46E5" }}>
                         {(p.product_name || p.name).charAt(0).toUpperCase()}
                       </div>}
-                  <span className="text-xs font-black text-gray-700 max-w-[120px] truncate">{p.product_name || p.name}</span>
+                  <span className="text-[11px] font-black text-gray-700 max-w-[100px] truncate whitespace-nowrap">
+                    {p.product_name || p.name}
+                  </span>
                 </button>
               ))}
             </div>
