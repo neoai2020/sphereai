@@ -18,7 +18,8 @@ interface LayoutProps {
   activePath: string;
 }
 
-function getBrandName(name: string): string {
+function getBrandName(name: string | null | undefined): string {
+  if (!name) return "";
   const words = name.trim().split(/\s+/);
   return words.slice(0, 2).join(" ");
 }
