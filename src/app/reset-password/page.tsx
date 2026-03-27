@@ -286,12 +286,12 @@ export default function ResetPasswordPage() {
 
       <div className="w-full max-w-md relative z-10 space-y-10">
         <div className="text-center space-y-6">
-          <div className="flex justify-center mb-10 overflow-hidden">
-            <Link href="/" className="inline-flex items-center scale-[1.8]">
+          <div className="flex justify-center mb-0">
+            <Link href="/" className="inline-flex items-center">
               <Image 
                 src={logo} 
                 alt="SphereAI" 
-                width={180} 
+                width={280} 
                 className="w-full h-auto object-contain" 
                 priority
               />
