@@ -92,6 +92,7 @@ export default async function SoftwarePage({ params, searchParams }: Props) {
   }
 
   const activePageType = (pageType || "landing") as PageType;
+  const requestedLang = sp.lang ? decodeURIComponent(sp.lang) : null;
 
   // Try to find the page, even if not explicitly marked as published
   const { data: page, error: pageErr } = await supabase
@@ -106,7 +107,20 @@ export default async function SoftwarePage({ params, searchParams }: Props) {
     notFound();
   }
 
-  const content = page.content as Record<string, unknown>;
+  // If ?lang=X is set, try to load translated content from project_translations
+  let content = page.content as Record<string, unknown>;
+  if (requestedLang) {
+    const { data: translation } = await supabase
+      .from("project_translations")
+      .select("content")
+      .eq("project_id", project.id)
+      .eq("language", requestedLang)
+      .eq("page_type", activePageType)
+      .single();
+    if (translation?.content) {
+      content = translation.content as Record<string, unknown>;
+    }
+  }
   const baseUrl = `/software/${username}/${projectIdOrSlug}`;
 
   // URL param overrides for live customizer preview (prefixed with __)

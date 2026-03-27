@@ -1,7 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Plus, ExternalLink, Settings } from "lucide-react";
+import { Plus, ExternalLink, Settings, Globe } from "lucide-react";
+
+const LANG_FLAGS: Record<string, string> = {
+  Arabic: "🇸🇦", French: "🇫🇷", Spanish: "🇪🇸", German: "🇩🇪", Turkish: "🇹🇷",
+  Portuguese: "🇵🇹", Italian: "🇮🇹", Dutch: "🇳🇱", Russian: "🇷🇺", Chinese: "🇨🇳",
+  Japanese: "🇯🇵", Korean: "🇰🇷", Hindi: "🇮🇳", Bengali: "🇧🇩", Urdu: "🇵🇰",
+  Persian: "🇮🇷", Polish: "🇵🇱", Swedish: "🇸🇪", Norwegian: "🇳🇴", Danish: "🇩🇰",
+  Greek: "🇬🇷", Hebrew: "🇮🇱", Romanian: "🇷🇴", Ukrainian: "🇺🇦", Indonesian: "🇮🇩",
+};
 
 export default async function ProjectsPage() {
   const supabase = await createClient();
@@ -13,7 +21,7 @@ export default async function ProjectsPage() {
 
   const { data: projects } = await supabase
     .from("projects")
-    .select("*")
+    .select("*, available_languages")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -92,6 +100,22 @@ export default async function ProjectsPage() {
                       </span>
                     </span>
                   </div>
+                  {/* Translated language links */}
+                  {project.available_languages && project.available_languages.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1.5 mt-3">
+                      <Globe size={12} className="text-gray-400" />
+                      {(project.available_languages as string[]).map((lang: string) => (
+                        <Link
+                          key={lang}
+                          href={`/software/user/${project.id}?lang=${encodeURIComponent(lang)}`}
+                          target="_blank"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-600 text-[11px] font-medium border border-indigo-100 hover:bg-indigo-100 transition-colors"
+                        >
+                          {LANG_FLAGS[lang] || "🌐"} {lang}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 ml-4">
                   {project.status === "published" && (
