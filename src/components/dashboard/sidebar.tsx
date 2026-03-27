@@ -80,13 +80,13 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col fixed left-0 top-0 overflow-y-auto">
-      <div className="p-6 border-b border-gray-100 shrink-0 mb-2">
-        <Link href="/dashboard" className="flex items-center">
+      <div className="p-6 border-b border-gray-100 shrink-0 mb-4 flex justify-center">
+        <Link href="/dashboard" className="flex items-center w-full">
           <Image 
             src={logo} 
             alt="SphereAI" 
-            height={44} 
-            className="h-11 w-auto object-contain" 
+            width={220} 
+            className="w-[200px] h-auto object-contain" 
             priority
           />
         </Link>

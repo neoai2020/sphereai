@@ -77,12 +77,12 @@ function ActivateContent() {
         
         {/* Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center mb-8">
+          <Link href="/" className="inline-flex items-center mb-10">
             <Image 
               src={logo} 
               alt="SphereAI" 
-              height={64} 
-              className="h-16 w-auto object-contain" 
+              width={350} 
+              className="w-[320px] h-auto object-contain" 
               priority
             />
           </Link>
