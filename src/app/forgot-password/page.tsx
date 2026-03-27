@@ -46,15 +46,17 @@ export default function ForgotPasswordPage() {
 
       <div className="w-full max-w-md relative z-10 space-y-10">
         <div className="text-center space-y-6">
-          <Link href="/" className="inline-flex items-center mb-10">
-            <Image 
-              src={logo} 
-              alt="SphereAI" 
-              width={350} 
-              className="w-[320px] h-auto object-contain" 
-              priority
-            />
-          </Link>
+          <div className="flex justify-center mb-12 overflow-hidden">
+            <Link href="/" className="inline-flex items-center scale-[3.0]">
+              <Image 
+                src={logo} 
+                alt="SphereAI" 
+                width={150} 
+                className="w-[140px] h-auto object-contain" 
+                priority
+              />
+            </Link>
+          </div>
           <div className="space-y-2">
             <h1 className="text-3xl font-black text-gray-900 tracking-tighter leading-tight">Master Recovery</h1>
             <p className="text-gray-400 font-medium text-sm max-w-[280px] mx-auto leading-relaxed">

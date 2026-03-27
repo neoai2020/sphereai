@@ -77,15 +77,17 @@ function ActivateContent() {
         
         {/* Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center mb-10">
-            <Image 
-              src={logo} 
-              alt="SphereAI" 
-              width={350} 
-              className="w-[320px] h-auto object-contain" 
-              priority
-            />
-          </Link>
+          <div className="flex justify-center mb-10 overflow-hidden">
+            <Link href="/" className="inline-flex items-center scale-[2.5]">
+              <Image 
+                src={logo} 
+                alt="SphereAI" 
+                width={200} 
+                className="w-[180px] h-auto object-contain" 
+                priority
+              />
+            </Link>
+          </div>
           <h1 className="text-2xl font-bold text-gray-900">
             {config ? `Activate ${config.title}` : "Activate Your Access"}
           </h1>

@@ -41,15 +41,17 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 via-white to-brand-100 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center mb-10">
-            <Image 
-              src={logo} 
-              alt="SphereAI" 
-              width={350} 
-              className="w-[300px] h-auto object-contain" 
-              priority
-            />
-          </Link>
+          <div className="flex justify-center mb-10 overflow-hidden">
+            <Link href="/" className="inline-flex items-center scale-[2.5]">
+              <Image 
+                src={logo} 
+                alt="SphereAI" 
+                width={200} 
+                className="w-[180px] h-auto object-contain" 
+                priority
+              />
+            </Link>
+          </div>
           <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
           <p className="text-gray-500 mt-1">Sign in to your account</p>
         </div>
