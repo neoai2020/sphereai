@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { Sparkles, CheckCircle2, Lock, Loader2, ArrowRight, ShieldCheck, Mail, Zap, MousePointer2, Layout } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import logo from "@/components/dashboard/assets/logo.png";
+import logo from "@/components/dashboard/assets/logo.jpeg";
 import Image from "next/image";
 import Link from "next/link";
 

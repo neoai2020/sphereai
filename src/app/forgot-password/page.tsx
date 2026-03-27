@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2, Mail, CheckCircle2 } from "lucide-react";
-import logo from "@/components/dashboard/assets/logo.png";
+import logo from "@/components/dashboard/assets/logo.jpeg";
 import Image from "next/image";
 
 export default function ForgotPasswordPage() {
