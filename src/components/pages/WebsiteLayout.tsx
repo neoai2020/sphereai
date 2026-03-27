@@ -36,7 +36,8 @@ export function WebsiteLayout({ project, children, activePath }: LayoutProps) {
       }
     };
     return () => channel.close();
-  }, [project.id, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [project.id]);
 
   const navItems = [
     { label: "Home", path: "" },
