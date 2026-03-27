@@ -56,6 +56,8 @@ export default function InfinitePage() {
     checkAccessAndLoad();
   }, []);
 
+  const [translated, setTranslated] = useState<Record<string, string[]>>({});
+
   const handleTranslate = async (projectId: string, language: string) => {
     setTranslating(projectId);
     try {
@@ -65,7 +67,10 @@ export default function InfinitePage() {
         body: JSON.stringify({ projectId, language }),
       });
       if (!response.ok) throw new Error("Translation failed");
-      alert(`Website successfully translated to ${language}!`);
+      setTranslated(prev => ({
+        ...prev,
+        [projectId]: [...(prev[projectId] || []).filter(l => l !== language), language],
+      }));
     } catch (error) {
       console.error(error);
       alert("Translation failed. Please try again.");
@@ -171,20 +176,58 @@ export default function InfinitePage() {
                         onChange={(e) => {
                           if (e.target.value) {
                             handleTranslate(project.id, e.target.value);
-                            e.target.value = ""; // reset select after triggering
+                            e.target.value = "";
                           }
                         }}
                         disabled={translating === project.id}
-                        className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-50"
+                        className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-50"
                       >
-                        <option value="">Translate Website...</option>
-                        <option value="Arabic">Arabic</option>
-                        <option value="French">French</option>
-                        <option value="Spanish">Spanish</option>
-                        <option value="German">German</option>
-                        <option value="Turkish">Turkish</option>
+                        <option value="">🌐 Translate Website...</option>
+                        <option value="Arabic">🇸🇦 Arabic</option>
+                        <option value="French">🇫🇷 French</option>
+                        <option value="Spanish">🇪🇸 Spanish</option>
+                        <option value="German">🇩🇪 German</option>
+                        <option value="Turkish">🇹🇷 Turkish</option>
+                        <option value="Portuguese">🇵🇹 Portuguese</option>
+                        <option value="Italian">🇮🇹 Italian</option>
+                        <option value="Dutch">🇳🇱 Dutch</option>
+                        <option value="Russian">🇷🇺 Russian</option>
+                        <option value="Chinese">🇨🇳 Chinese</option>
+                        <option value="Japanese">🇯🇵 Japanese</option>
+                        <option value="Korean">🇰🇷 Korean</option>
+                        <option value="Hindi">🇮🇳 Hindi</option>
+                        <option value="Bengali">🇧🇩 Bengali</option>
+                        <option value="Urdu">🇵🇰 Urdu</option>
+                        <option value="Persian">🇮🇷 Persian</option>
+                        <option value="Polish">🇵🇱 Polish</option>
+                        <option value="Swedish">🇸🇪 Swedish</option>
+                        <option value="Norwegian">🇳🇴 Norwegian</option>
+                        <option value="Danish">🇩🇰 Danish</option>
+                        <option value="Greek">🇬🇷 Greek</option>
+                        <option value="Hebrew">🇮🇱 Hebrew</option>
+                        <option value="Romanian">🇷🇴 Romanian</option>
+                        <option value="Ukrainian">🇺🇦 Ukrainian</option>
+                        <option value="Indonesian">🇮🇩 Indonesian</option>
                       </select>
+                      {translating === project.id && (
+                        <div className="w-5 h-5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin shrink-0" />
+                      )}
                     </div>
+                    {/* Show translated languages as links */}
+                    {(translated[project.id] || []).length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {(translated[project.id] || []).map(lang => (
+                          <a
+                            key={lang}
+                            href={`/software/user/${project.id}?lang=${encodeURIComponent(lang)}`}
+                            target="_blank"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-600 text-[10px] font-semibold border border-indigo-100 hover:bg-indigo-100 transition-colors"
+                          >
+                            {lang} <ExternalLink size={9} />
+                          </a>
+                        ))}
+                      </div>
+                    )}
                     <div className="flex items-center gap-2 pt-2 border-t border-gray-50">
                       <Link
                         href={`/dashboard/projects/${project.id}`}

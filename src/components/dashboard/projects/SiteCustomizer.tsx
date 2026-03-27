@@ -255,72 +255,69 @@ export function SiteCustomizer({ project }: CustomizerProps) {
   const addressUrl = `/software/user/${project.id}${pageSlug}`;
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
+    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
 
       {/* ══ HEADER ROW ═══════════════════════════════════════════════════════ */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between px-8 py-6 border-b border-gray-100 gap-6">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-brand-50 flex items-center justify-center">
-            <Palette size={24} className="text-brand-600" />
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-brand-50 flex items-center justify-center">
+            <Palette size={18} className="text-brand-600" />
           </div>
           <div>
-            <p className="text-lg font-black text-gray-900 leading-none tracking-tight">Design Architect</p>
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] mt-2 flex items-center gap-1.5">
-               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" /> Live Editing Platform
+            <p className="text-sm font-bold text-gray-900 leading-none">Design Architect</p>
+            <p className="text-[10px] text-gray-400 mt-0.5 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live Editing
             </p>
           </div>
         </div>
 
-        {/* Page Tabs */}
-        <div className="flex items-center gap-1.5 bg-gray-100/50 p-1.5 rounded-2xl">
-          {PAGE_TABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => handlePageChange(tab.id)}
-              className={cn(
-                "px-6 py-2.5 rounded-xl text-xs font-black transition-all whitespace-nowrap",
-                activePage === tab.id
-                  ? "bg-white text-gray-950 shadow-md ring-1 ring-black/5 scale-[1.02]"
-                  : "text-gray-400 hover:text-gray-900"
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* Save button in header */}
+        <div className="flex flex-col items-end gap-1">
+          <button
+            onClick={handleSave}
+            disabled={loading}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-950 text-white text-xs font-bold hover:bg-black transition-all active:scale-95 disabled:opacity-50"
+          >
+            {loading   ? <><Loader2 size={14} className="animate-spin" /> Saving…</>
+             : success ? <><CheckCircle2 size={14} className="text-emerald-400" /> Published</>
+             :           <><Save size={14} /> Save & Publish</>}
+          </button>
+          {errorMsg && (
+            <span className="text-[10px] font-medium text-red-500">✕ {errorMsg}</span>
+          )}
         </div>
       </div>
 
-      {/* ══ ALWAYS VISIBLE CORE SETTINGS ═══════════════════════════════════════ */}
-      <div className="px-8 py-10 border-b border-gray-100 bg-gray-50/20">
+      {/* ══ CORE SETTINGS ═══════════════════════════════════════════════════ */}
+      <div className="px-6 py-6 border-b border-gray-100">
         <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
         <input ref={heroInputRef} type="file" accept="image/*" className="hidden" onChange={handleHeroUpload} />
-        
-        <div className="flex items-center gap-3 mb-8">
-           <div className="bg-gray-900 text-white p-1.5 rounded-lg shadow-lg">
-              <Globe size={14} />
-           </div>
-           <p className="text-[11px] font-black text-gray-900 uppercase tracking-[0.2em]">Core Site Configuration</p>
+
+        <div className="flex items-center gap-2 mb-5">
+          <div className="bg-gray-900 text-white p-1 rounded-md">
+            <Globe size={12} />
+          </div>
+          <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Core Site Configuration</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Site Name */}
-          <div className="space-y-3">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Brand Name</label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {/* Brand Name */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">Brand Name</label>
             <input
               type="text" value={config.name}
               onChange={e => updateConfig({ name: e.target.value })}
               placeholder="Your Business Name"
-              className="w-full px-5 py-3.5 rounded-2xl bg-white border border-gray-100 outline-none focus:border-brand-500 text-sm font-black text-gray-950 shadow-sm transition-all focus:ring-4 focus:ring-brand-500/5"
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-100 outline-none focus:border-brand-400 focus:bg-white text-sm font-semibold text-gray-900 transition-all"
             />
           </div>
 
           {/* CTA Link */}
-          <div className="space-y-3">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-              <LinkIcon size={10} /> Link Destination
+          <div className="space-y-2">
+            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+              <LinkIcon size={9} /> Link Destination
             </label>
-            {/* Type toggle */}
-            <div className="flex gap-1 bg-gray-100 p-1 rounded-xl">
+            <div className="flex gap-0.5 bg-gray-100 p-0.5 rounded-lg mb-2">
               {(["url", "email", "affiliate"] as const).map(t => (
                 <button
                   key={t}
@@ -330,7 +327,7 @@ export function SiteCustomizer({ project }: CustomizerProps) {
                     updateConfig({ product_url: t === "email" ? `mailto:${raw}` : raw });
                   }}
                   className={cn(
-                    "flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                    "flex-1 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-wider transition-all",
                     linkType === t ? "bg-white text-gray-900 shadow-sm" : "text-gray-400 hover:text-gray-600"
                   )}
                 >
@@ -349,67 +346,64 @@ export function SiteCustomizer({ project }: CustomizerProps) {
                 linkType === "affiliate" ? "https://example.com/?ref=YOU" :
                 "https://your-product.com"
               }
-              className="w-full px-5 py-3.5 rounded-2xl bg-white border border-gray-100 outline-none focus:border-brand-500 text-sm font-bold text-gray-950 shadow-sm transition-all focus:ring-4 focus:ring-brand-500/5"
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-100 outline-none focus:border-brand-400 focus:bg-white text-sm text-gray-900 transition-all"
             />
           </div>
 
           {/* Logo */}
-          <div className="space-y-3">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Primary Logo</label>
-            <div className="flex items-center gap-4 bg-white p-2 rounded-2xl border border-gray-50 shadow-sm group/logo">
+          <div className="space-y-2">
+            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">Primary Logo</label>
+            <div className="flex items-center gap-3 bg-gray-50 p-2 rounded-xl border border-gray-100 group/logo">
               <div
                 onClick={() => logoInputRef.current?.click()}
-                className="w-12 h-12 rounded-xl bg-gray-50 border border-dashed border-gray-200 flex items-center justify-center overflow-hidden cursor-pointer group-hover/logo:border-brand-500 transition-all"
+                className="w-11 h-11 rounded-lg bg-white border border-dashed border-gray-200 flex items-center justify-center overflow-hidden cursor-pointer group-hover/logo:border-brand-400 transition-all shrink-0"
               >
                 {config.site_logo
-                  ? <img src={config.site_logo} className="w-full h-full object-contain p-2" alt="logo" />
-                  : <Upload size={16} className="text-gray-300" />}
+                  ? <img src={config.site_logo} className="w-full h-full object-contain p-1.5" alt="logo" />
+                  : <Upload size={14} className="text-gray-300" />}
               </div>
               <div className="flex flex-col gap-1">
-                 <button onClick={() => logoInputRef.current?.click()} className="text-[10px] font-black text-gray-400 hover:text-brand-600 uppercase tracking-widest text-left">Upload</button>
-                 {config.site_logo && (
-                    <button onClick={() => updateConfig({ site_logo: "" })} className="text-[9px] font-bold text-red-400 hover:text-red-600 transition-colors text-left uppercase">Clear</button>
-                 )}
+                <button onClick={() => logoInputRef.current?.click()} className="text-[10px] font-semibold text-gray-500 hover:text-brand-600 uppercase tracking-wider text-left">Upload</button>
+                {config.site_logo && (
+                  <button onClick={() => updateConfig({ site_logo: "" })} className="text-[9px] text-red-400 hover:text-red-600 transition-colors text-left">Clear</button>
+                )}
               </div>
             </div>
           </div>
 
           {/* Hero Image */}
-          <div className="space-y-3">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Hero Media</label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">Hero Media</label>
             {config.custom_images?.hero ? (
               <div className="relative group/asset">
-                <img src={config.custom_images.hero} className="w-full h-14 object-cover rounded-2xl border border-gray-100 shadow-sm" alt="hero" />
+                <img src={config.custom_images.hero} className="w-full h-[52px] object-cover rounded-xl border border-gray-100" alt="hero" />
                 <button
                   onClick={() => setConfig(prev => ({ ...prev, custom_images: { ...prev.custom_images, hero: "" } }))}
-                  className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover/asset:opacity-100 transition-all scale-75 group-hover/asset:scale-100"
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover/asset:opacity-100 transition-all"
                 >
-                  <X size={12} />
+                  <X size={10} />
                 </button>
               </div>
             ) : (
               <button
                 onClick={() => heroInputRef.current?.click()}
-                className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl border border-dashed border-gray-200 text-[10px] font-black text-gray-400 hover:border-brand-500 hover:text-brand-600 hover:bg-white bg-gray-50/10 transition-all h-14 shadow-inner"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gray-200 text-[10px] font-semibold text-gray-400 hover:border-brand-400 hover:text-brand-600 bg-gray-50 transition-all h-[52px]"
               >
-                <ImageIcon size={14} /> UPDATE COVER
+                <ImageIcon size={13} /> Update Cover
               </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* ══ STYLE & TONE ROW ══════════════════════════════════════════════════ */}
-      <div className="px-8 py-10 border-b border-gray-50 bg-white">
-        <div className="flex items-center justify-between mb-8">
-           <div>
-              <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Elite Color Palettes</p>
-              <p className="text-xs text-gray-400 font-medium italic">Hand-crafted styles for modern conversion</p>
-           </div>
-           <div className="h-px flex-1 bg-gray-50 mx-8" />
+      {/* ══ COLOR PALETTES ═══════════════════════════════════════════════════ */}
+      <div className="px-6 py-6 border-b border-gray-100">
+        <div className="flex items-center gap-3 mb-5">
+          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Color Palette</p>
+          <div className="h-px flex-1 bg-gray-100" />
         </div>
 
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-3">
           {STYLE_PRESETS.map(preset => {
             const isActive = config.theme_id === preset.themeId && config.primary_color === preset.primary;
             return (
@@ -417,20 +411,20 @@ export function SiteCustomizer({ project }: CustomizerProps) {
                 key={preset.id}
                 onClick={() => updateConfig({ theme_id: preset.themeId, primary_color: preset.primary })}
                 className={cn(
-                  "flex flex-col items-center gap-3 p-3 rounded-2xl border-2 transition-all w-24 sm:w-28",
+                  "flex flex-col items-center gap-2 p-2.5 rounded-xl border transition-all w-[88px]",
                   isActive
-                    ? "border-brand-500 bg-white shadow-xl shadow-brand-500/10 scale-105 z-10 ring-4 ring-brand-500/5 font-black text-gray-950"
-                    : "border-transparent bg-gray-50 overflow-hidden opacity-60 hover:opacity-100 hover:bg-white hover:border-gray-100 hover:scale-105"
+                    ? "border-brand-400 bg-white ring-2 ring-brand-400/20"
+                    : "border-gray-100 bg-gray-50 hover:bg-white hover:border-gray-200"
                 )}
               >
-                <div className="flex w-full h-12 rounded-xl overflow-hidden shadow-inner font-bold">
+                <div className="flex w-full h-10 rounded-lg overflow-hidden">
                   {preset.colors.map((c, i) => (
                     <div key={i} className="flex-1" style={{ backgroundColor: c }} />
                   ))}
                 </div>
                 <span className={cn(
-                  "text-[10px] font-black uppercase tracking-widest",
-                  isActive ? "text-gray-950" : "text-gray-400"
+                  "text-[9px] font-bold uppercase tracking-wider",
+                  isActive ? "text-brand-600" : "text-gray-400"
                 )}>
                   {preset.name}
                 </span>
@@ -439,8 +433,8 @@ export function SiteCustomizer({ project }: CustomizerProps) {
           })}
 
           {/* Custom color */}
-          <div className="flex flex-col items-center gap-3 p-3 rounded-2xl border-2 border-transparent bg-gray-50 w-24 sm:w-28 opacity-60 hover:opacity-100 hover:bg-white hover:border-gray-100 transition-all hover:scale-105">
-            <div className="w-full h-12 rounded-xl overflow-hidden shadow-inner relative">
+          <div className="flex flex-col items-center gap-2 p-2.5 rounded-xl border border-gray-100 bg-gray-50 w-[88px] hover:bg-white hover:border-gray-200 transition-all">
+            <div className="w-full h-10 rounded-lg overflow-hidden relative">
               <input
                 type="color"
                 value={config.primary_color}
@@ -449,56 +443,66 @@ export function SiteCustomizer({ project }: CustomizerProps) {
                 title="Custom color"
               />
             </div>
-            <span className="text-[10px] font-mono text-gray-400 font-bold">{config.primary_color}</span>
+            <span className="text-[9px] font-mono text-gray-400">{config.primary_color}</span>
           </div>
         </div>
       </div>
 
-      {/* ══ TEMPLATES ROW ════════════════════════════════════════════════════ */}
-      <div className="px-8 py-12 bg-gray-50/30 border-b border-gray-100">
-        <div className="flex items-center justify-between mb-10">
-           <div>
-              <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Structural Layouts</p>
-              <p className="text-xs text-gray-400 font-medium italic">Optimized for {activePage} content</p>
-           </div>
-           <div className="h-px flex-1 bg-gray-200/50 mx-8" />
+      {/* ══ TEMPLATES ════════════════════════════════════════════════════════ */}
+      <div className="px-6 py-6 border-b border-gray-100">
+        {/* Page Tabs directly above templates */}
+        <div className="flex items-center gap-3 mb-5">
+          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest shrink-0">Page Layout</p>
+          <div className="flex items-center gap-1 bg-gray-100/70 p-1 rounded-xl">
+            {PAGE_TABS.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => handlePageChange(tab.id)}
+                className={cn(
+                  "px-4 py-1.5 rounded-lg text-[11px] font-semibold transition-all",
+                  activePage === tab.id
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-400 hover:text-gray-700"
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {templates.map(tpl => {
             const isSelected = config.selected_templates[activePage] === tpl.tplId;
             return (
               <button
                 key={tpl.tplId}
                 onClick={() => {
-                  updateConfig({ 
-                    selected_templates: { ...config.selected_templates, [activePage]: tpl.tplId } 
+                  updateConfig({
+                    selected_templates: { ...config.selected_templates, [activePage]: tpl.tplId }
                   });
                 }}
                 className={cn(
-                  "group/tpl flex flex-col rounded-2xl border-2 overflow-hidden transition-all h-full",
+                  "flex flex-col rounded-xl border overflow-hidden transition-all",
                   isSelected
-                    ? "border-gray-950 bg-white shadow-2xl scale-[1.02] z-10"
-                    : "border-transparent bg-white hover:border-gray-200 hover:shadow-xl opacity-70 hover:opacity-100"
+                    ? "border-gray-900 bg-white ring-2 ring-gray-900/10"
+                    : "border-gray-100 bg-gray-50/60 hover:border-gray-200 hover:bg-white"
                 )}
               >
-                <div className={cn(
-                  "p-5 space-y-2 flex-1",
-                  isSelected ? "bg-white" : "bg-gray-50/50"
-                )}>
+                <div className="p-4 space-y-1.5 flex-1">
                   {tpl.blocks.map((b, i) => <MiniBlock key={i} type={b} c={config.primary_color} />)}
                 </div>
                 <div className={cn(
-                  "px-5 py-3 flex items-center justify-between border-t",
-                  isSelected ? "bg-gray-950 border-gray-950" : "bg-white border-gray-50"
+                  "px-4 py-2 flex items-center justify-between border-t",
+                  isSelected ? "bg-gray-900 border-gray-900" : "bg-white border-gray-100"
                 )}>
                   <span className={cn(
-                    "text-[10px] font-black uppercase tracking-widest",
+                    "text-[9px] font-bold uppercase tracking-wider",
                     isSelected ? "text-white" : "text-gray-400"
                   )}>
                     {tpl.name}
                   </span>
-                  {isSelected && <CheckCircle2 size={12} className="text-white" />}
+                  {isSelected && <CheckCircle2 size={11} className="text-white" />}
                 </div>
               </button>
             );
@@ -506,68 +510,43 @@ export function SiteCustomizer({ project }: CustomizerProps) {
         </div>
       </div>
 
-      {/* ══ FULL-WIDTH PREVIEW + CONTROLS ════════════════════════════════════ */}
-      <div className="flex flex-col bg-white" style={{ height: "850px" }}>
-        {/* Preview status bar with SAVE button moved here */}
-        <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100 bg-white shrink-0">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-4">
-              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Live Preview</span>
-              <div className="h-4 w-px bg-gray-200" />
-              <span className="text-xs font-black text-gray-950 bg-gray-50 border border-gray-200 px-4 py-1.5 rounded-full capitalize">
-                {activePage}
-              </span>
-            </div>
-            
-            <button
-              onClick={() => { if (iframeRef.current) iframeRef.current.src = buildPreviewUrl(config, activePage); }}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black text-gray-400 hover:text-gray-900 transition-all"
-            >
-              <RefreshCw size={14} /> FORCE REFRESH
-            </button>
+      {/* ══ LIVE PREVIEW ═════════════════════════════════════════════════════ */}
+      <div className="flex flex-col" style={{ height: "800px" }}>
+        <div className="flex items-center justify-between px-6 py-3 border-b border-gray-100 shrink-0">
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Live Preview</span>
+            <span className="text-[10px] text-gray-500 bg-gray-100 px-3 py-1 rounded-full capitalize font-medium">{activePage}</span>
           </div>
-
-          {/* Moved Save Changes here */}
-          <div className="flex flex-col items-end gap-1">
-            <button
-              onClick={handleSave}
-              disabled={loading}
-              className="flex items-center gap-2.5 px-10 py-3.5 rounded-2xl bg-gray-950 text-white text-sm font-black hover:bg-black transition-all active:scale-95 disabled:opacity-50 shadow-2xl shadow-black/20"
-            >
-              {loading   ? <><Loader2 size={16} className="animate-spin" /> SYNCING…</>
-               : success ? <><CheckCircle2 size={16} className="text-emerald-400" /> CHANGES DEPLOYED</>
-               :           <><Save size={16} /> SAVE & PUBLISH</>}
-            </button>
-            {errorMsg && (
-              <span className="text-[10px] font-bold text-red-500 bg-red-50 px-3 py-1 rounded-lg border border-red-100">
-                ✕ {errorMsg}
-              </span>
-            )}
-          </div>
+          <button
+            onClick={() => { if (iframeRef.current) iframeRef.current.src = buildPreviewUrl(config, activePage); }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-medium text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-all"
+          >
+            <RefreshCw size={12} /> Force Refresh
+          </button>
         </div>
 
         {/* Browser chrome */}
-        <div className="px-8 pt-6 pb-0 bg-gray-50/50 shrink-0">
-          <div className="bg-white rounded-t-[2.5rem] border border-b-0 border-gray-100 px-8 py-4 flex items-center gap-8 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.06)]">
-            <div className="flex gap-2.5">
-              <div className="w-3.5 h-3.5 rounded-full bg-red-400/20 border border-red-400/30" />
-              <div className="w-3.5 h-3.5 rounded-full bg-yellow-400/20 border border-yellow-400/30" />
-              <div className="w-3.5 h-3.5 rounded-full bg-green-400/20 border border-green-400/30" />
+        <div className="px-6 pt-4 pb-0 bg-gray-50 shrink-0">
+          <div className="bg-white rounded-t-2xl border border-b-0 border-gray-100 px-6 py-3 flex items-center gap-6">
+            <div className="flex gap-2">
+              <div className="w-3 h-3 rounded-full bg-red-300/60" />
+              <div className="w-3 h-3 rounded-full bg-yellow-300/60" />
+              <div className="w-3 h-3 rounded-full bg-green-300/60" />
             </div>
-            <div className="flex-1 bg-gray-50/80 rounded-2xl px-6 py-2.5 text-[10px] text-gray-400 font-mono flex items-center gap-4">
-              <div className="flex items-center gap-2 text-emerald-500 font-bold bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100/50">
-                <Check size={10} /> SSL SECURE
-              </div>
+            <div className="flex-1 bg-gray-50 rounded-xl px-4 py-2 text-[10px] text-gray-400 font-mono flex items-center gap-3">
+              <span className="text-emerald-500 font-medium flex items-center gap-1">
+                <Check size={9} /> SSL
+              </span>
               {origin}{addressUrl}
             </div>
           </div>
         </div>
 
-        <div className="flex-1 px-8 pb-8 overflow-hidden bg-gray-50/50">
+        <div className="flex-1 px-6 pb-6 overflow-hidden bg-gray-50">
           <iframe
             ref={iframeRef}
             src={buildPreviewUrl(config, activePage)}
-            className="w-full h-full rounded-b-[2.5rem] border border-gray-100 bg-white shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] ring-1 ring-black/5"
+            className="w-full h-full rounded-b-2xl border border-gray-100 bg-white"
             title="Site Preview"
           />
         </div>

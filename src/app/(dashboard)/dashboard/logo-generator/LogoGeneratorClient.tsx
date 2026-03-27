@@ -41,7 +41,7 @@ function svgToDataUrl(svg: string) {
 }
 
 export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
-  const [activeTab, setActiveTab] = useState<"manual" | "ai">("manual");
+  const [activeTab, setActiveTab] = useState<"manual" | "ai" | "upload">("manual");
 
   // Manual state
   const [letter,    setLetter]    = useState("S");
@@ -58,6 +58,10 @@ export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
   const [aiLogo,     setAiLogo]     = useState<string | null>(null);
   const [aiDebug,    setAiDebug]    = useState<string | null>(null);
   const [aiError,    setAiError]    = useState<string | null>(null);
+ 
+  // Upload state
+  const [uploadedLogo, setUploadedLogo] = useState<string | null>(null);
+  const [uploading,    setUploading]    = useState(false);
 
   // Apply state
   const [selectedProject, setSelectedProject] = useState("");
@@ -66,7 +70,11 @@ export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
 
   const rxVal      = SHAPES.find(s => s.id === shape)?.rx || "20";
   const manualUrl  = svgToDataUrl(buildSvg(letter || "S", color, rxVal, bgMode, textColor));
-  const currentLogo = activeTab === "ai" && aiLogo ? aiLogo : manualUrl;
+  const currentLogo = activeTab === "upload" && uploadedLogo 
+    ? uploadedLogo 
+    : activeTab === "ai" && aiLogo 
+      ? aiLogo 
+      : manualUrl;
 
   async function generateWithAI() {
     if (!brandText.trim()) return;
@@ -110,8 +118,26 @@ export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
   function downloadLogo() {
     const a = document.createElement("a");
     a.href = currentLogo;
-    a.download = `logo.svg`;
+    a.download = activeTab === "upload" ? "uploaded-logo" : `logo.svg`;
     a.click();
+  }
+
+  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload an image file");
+      return;
+    }
+
+    setUploading(true);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setUploadedLogo(event.target?.result as string);
+      setUploading(false);
+    };
+    reader.readAsDataURL(file);
   }
 
   return (
@@ -130,13 +156,13 @@ export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
 
       {/* Mode Tabs */}
       <div className="flex gap-1 bg-gray-100 p-1 rounded-2xl w-fit">
-        {(["manual","ai"] as const).map(t => (
+        {(["manual","ai","upload"] as const).map(t => (
           <button key={t} onClick={() => setActiveTab(t)}
             className={cn(
               "px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap",
               activeTab === t ? "bg-white text-gray-900 shadow-md" : "text-gray-400 hover:text-gray-700"
             )}>
-            {t === "manual" ? "✏️ Manual Builder" : "✨ AI Generate"}
+            {t === "manual" ? "✏️ Builder" : t === "ai" ? "✨ AI Generate" : "📤 Upload"}
           </button>
         ))}
       </div>
@@ -217,6 +243,49 @@ export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
                   ? <><Loader2 size={15} className="animate-spin" /> Generating…</>
                   : <><Sparkles size={15} /> Generate Logo</>}
               </button>
+            </div>
+          )}
+
+          {/* Upload Panel */}
+          {activeTab === "upload" && (
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 space-y-5">
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                <Download size={11} className="rotate-180" /> Upload Custom Logo
+              </p>
+              
+              <div className="relative group border-2 border-dashed border-gray-100 rounded-3xl p-10 hover:border-brand-300 transition-all flex flex-col items-center justify-center gap-3 bg-gray-50/50">
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleFileUpload}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+                <div className="w-12 h-12 rounded-2xl bg-white shadow-sm border border-gray-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Download size={20} className="text-gray-400 rotate-180" />
+                </div>
+                <div className="text-center">
+                  <p className="text-xs font-black text-gray-900 uppercase">Click or Drag Image</p>
+                  <p className="text-[10px] text-gray-400 font-medium mt-1">PNG, JPG, or SVG up to 2MB</p>
+                </div>
+              </div>
+
+              {uploadedLogo && (
+                <div className="p-4 bg-brand-50 rounded-2xl border border-brand-100 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-white p-1 border border-brand-100">
+                    <img src={uploadedLogo} className="w-full h-full object-contain" alt="" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[10px] font-black text-brand-900 uppercase">Logo uploaded</p>
+                    <p className="text-[9px] text-brand-600 font-medium">Ready to apply to your site</p>
+                  </div>
+                  <button 
+                    onClick={() => setUploadedLogo(null)}
+                    className="text-[10px] font-black text-red-500 uppercase hover:underline"
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
