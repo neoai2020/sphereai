@@ -133,31 +133,22 @@ export function Sidebar() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold transition-all group relative overflow-hidden",
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all group",
                       isActive
                         ? section.isPremium 
-                          ? "bg-gradient-to-r from-blue-600 to-magenta-600 text-white shadow-lg shadow-blue-500/20" 
-                          : "bg-blue-50 text-blue-700 border border-blue-100"
-                        : "text-gray-600 hover:bg-gray-50/80 hover:text-gray-900"
+                          ? "bg-white text-brand-700 shadow-sm border border-brand-100" 
+                          : "bg-brand-50 text-brand-700"
+                        : section.isPremium
+                          ? "text-gray-700 hover:bg-white/80 hover:text-brand-900"
+                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     )}
                   >
-                    <div className="flex items-center gap-3 relative z-10">
-                      <div className={cn(
-                        "p-1.5 rounded-lg transition-colors",
-                        isActive 
-                          ? section.isPremium ? "bg-white/20 text-white" : "bg-white text-blue-600 shadow-sm"
-                          : "bg-gray-100/50 text-gray-400 group-hover:text-gray-900"
-                      )}>
-                         <item.icon size={18} />
-                      </div>
-                      <span className="tracking-tight">{item.label}</span>
-                    </div>
-                    {isActive && !section.isPremium && (
-                      <div className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
-                    )}
-                    {isActive && section.isPremium && (
-                      <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                    )}
+                    <item.icon size={18} className={cn(
+                      "transition-transform group-hover:scale-110",
+                      isActive ? "text-brand-600" : "text-gray-400",
+                      section.isPremium && !isActive && "text-brand-500/70"
+                    )} />
+                    {item.label}
                   </Link>
                 );
               })}
