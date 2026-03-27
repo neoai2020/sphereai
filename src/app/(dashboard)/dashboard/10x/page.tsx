@@ -48,6 +48,7 @@ export default function TenXPage() {
   const [form, setForm] = useState({
     name: "",
     url: "",
+    description: "",
   });
 
   useEffect(() => {
@@ -145,7 +146,7 @@ export default function TenXPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productName: form.name,
-          productDescription: `Promotional link for ${form.name}. The target landing page URL is ${form.url}. Generate 10 high-converting Facebook posts to drive traffic.`,
+          productDescription: form.description || `Promotional link for ${form.name}. The target landing page URL is ${form.url}. Generate 10 high-converting Facebook posts to drive traffic.`,
           productLink: form.url,
         }),
       });
@@ -153,7 +154,9 @@ export default function TenXPage() {
       const data = await res.json();
 
       if (res.ok) {
-        setProgressStep(PROGRESS_STEPS.length - 1);
+        if (!data.posts || !Array.isArray(data.posts) || data.posts.length === 0) {
+          throw new Error("AI service didn't return any posts — please try a more detailed name or description.");
+        }
         const processedPosts = data.posts.map((p: string) => 
           p.replace(/\[YOUR LINK HERE\]/g, form.url)
         );
@@ -299,6 +302,16 @@ export default function TenXPage() {
                   />
                 </div>
               </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-sm font-black text-gray-900 uppercase tracking-widest ml-1">Product Description (Optional)</label>
+              <textarea 
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                placeholder="Briefly describe the product, its key benefits, or the target audience to get better AI results..."
+                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium h-32 resize-none"
+              />
             </div>
 
             {/* Generate Button */}

@@ -69,25 +69,44 @@ function extractJSON(text: string): any {
   // 2. Try ```json code block
   const jsonCodeBlock = text.match(/```json\s*([\s\S]*?)```/);
   if (jsonCodeBlock) {
-    try { return JSON.parse(jsonCodeBlock[1].trim()); } catch (e) {}
+    try {
+      const parsed = JSON.parse(jsonCodeBlock[1].trim());
+      if (Array.isArray(parsed)) return parsed;
+      if (typeof parsed === 'object' && (parsed as any).posts) return (parsed as any).posts;
+      return parsed;
+    } catch (e) {}
   }
 
   // 3. Try any ``` code block
   const anyCodeBlock = text.match(/```\s*([\s\S]*?)```/);
   if (anyCodeBlock) {
-    try { return JSON.parse(anyCodeBlock[1].trim()); } catch (e) {}
+    try {
+      const parsed = JSON.parse(anyCodeBlock[1].trim());
+      if (Array.isArray(parsed)) return parsed;
+      if (typeof parsed === 'object' && (parsed as any).posts) return (parsed as any).posts;
+      return parsed;
+    } catch (e) {}
   }
 
-  // 4. Try to extract array [...] - most lenient, for Facebook posts
+  // 4. Try to extract array [...]
   const arrMatch = text.match(/\[[\s\S]*\]/);
   if (arrMatch) {
-    try { return JSON.parse(arrMatch[0].trim()); } catch (e) {}
+    try {
+      const parsed = JSON.parse(arrMatch[0].trim());
+      if (Array.isArray(parsed)) return parsed;
+      if (typeof parsed === 'object' && (parsed as any).posts) return (parsed as any).posts;
+    } catch (e) {}
   }
 
   // 5. Try to extract object {...}
   const objMatch = text.match(/\{[\s\S]*\}/);
   if (objMatch) {
-    try { return JSON.parse(objMatch[0].trim()); } catch (e) {}
+    try {
+      const parsed = JSON.parse(objMatch[0].trim());
+      if (Array.isArray(parsed.posts)) return parsed.posts;
+      if (Array.isArray(parsed.results)) return parsed.results;
+      return parsed;
+    } catch (e) {}
   }
 
   // 6. Try to find first [ or { and match to last ] or }
@@ -409,16 +428,21 @@ OUTPUT FORMAT (copy exactly):
   try {
     const parsed = extractJSON(rawResponse);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed.map((p: string) => 
-        typeof p === 'string' ? p.replace(/\[YOUR LINK HERE\]/g, linkPlaceholder) : String(p)
-      );
+      return parsed.map((p: any) => 
+        typeof p === 'string' ? p : JSON.stringify(p)
+      ).slice(0, 10);
     }
   } catch (e) {
-    // fallback: try to split by numbered lines "1. ... 2. ..."
-    const lines = rawResponse.split(/\n\d+\.\s+/).filter(l => l.trim().length > 20);
-    if (lines.length >= 5) {
-      return lines.slice(0, 10).map(l => l.trim());
-    }
+    console.error("JSON extraction failed, trying fallback...", e);
+  }
+
+  // Robust Fallback: split by common markers if JSON fails
+  const lines = rawResponse.split(/\n(?:\d+[\.\)]|\-|\*|Post \d+:)\s+/)
+    .map(l => l.trim())
+    .filter(l => l.length > 30);
+
+  if (lines.length >= 3) {
+    return lines.slice(0, 10);
   }
 
   return [];
