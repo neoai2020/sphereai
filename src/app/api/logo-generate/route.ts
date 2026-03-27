@@ -43,11 +43,18 @@ export async function POST(req: Request) {
     try { parsed = JSON.parse(text2); } catch {}
 
     if (parsed) {
+      // Handle image_base64 field
+      const base64 =
+        parsed.image_base64 || parsed.data?.image_base64 ||
+        parsed.result?.image_base64;
+      if (base64) return NextResponse.json({ image: `data:image/png;base64,${base64}` });
+
       // Common field names APIs use for image URL
       const imageUrl =
         parsed.image || parsed.url || parsed.logo_url || parsed.logo ||
         parsed.result?.url || parsed.data?.url || parsed.output;
       if (imageUrl) return NextResponse.json({ image: imageUrl });
+
       // Return full response for debugging
       return NextResponse.json({ debug: parsed, status });
     }
