@@ -10,9 +10,9 @@ export async function POST(req: Request) {
   const { text, style, color } = body;
 
   const params = new URLSearchParams({
-    text:  text  || "Brand",
-    style: style || "modern",
-    color: (color || "#4F46E5").replace("#", ""),
+    prompt: `${style || "modern"} logo for brand named "${text || "Brand"}", color ${color || "#4F46E5"}, clean vector style, no background`,
+    width:  "512",
+    height: "512",
   });
 
   try {
