@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 export async function PATCH(
   req: Request,
@@ -48,6 +49,13 @@ export async function PATCH(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
+
+  // Invalidate cache for all pages of this project
+  revalidatePath(`/software/user/${id}`, "layout");
+  revalidatePath(`/software/user/${id}/about`);
+  revalidatePath(`/software/user/${id}/faq`);
+  revalidatePath(`/software/user/${id}/blog`);
+  revalidatePath(`/software/user/${id}/reviews`);
 
   return NextResponse.json(data);
 }

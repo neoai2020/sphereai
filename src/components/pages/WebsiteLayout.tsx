@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Globe, Menu, X } from "lucide-react";
 import type { Project } from "@/types/database";
@@ -24,6 +24,17 @@ function getBrandName(name: string): string {
 
 export function WebsiteLayout({ project, children, activePath }: LayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Auto-reload when dashboard saves changes
+  useEffect(() => {
+    const channel = new BroadcastChannel("site-updates");
+    channel.onmessage = (e) => {
+      if (e.data?.projectId === project.id) {
+        window.location.reload();
+      }
+    };
+    return () => channel.close();
+  }, [project.id]);
 
   const navItems = [
     { label: "Home", path: "" },

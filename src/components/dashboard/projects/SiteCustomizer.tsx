@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Palette, Save, Loader2, Check, Globe, Upload, X, Image as ImageIcon, Link as LinkIcon, RefreshCw, ChevronDown, CheckCircle2, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Project } from "@/types/database";
@@ -143,8 +144,10 @@ interface CustomizerProps {
 }
 
 export function SiteCustomizer({ project }: CustomizerProps) {
+  const router = useRouter();
   const [loading,    setLoading]    = useState(false);
   const [success,    setSuccess]    = useState(false);
+  const [errorMsg,   setErrorMsg]   = useState<string | null>(null);
   const [origin,     setOrigin]     = useState("");
   const [activePage, setActivePage] = useState("landing");
   const [config, setConfig] = useState({
@@ -212,15 +215,28 @@ export function SiteCustomizer({ project }: CustomizerProps) {
   }, []);
 
   async function handleSave() {
-    setLoading(true); setSuccess(false);
+    setLoading(true); setSuccess(false); setErrorMsg(null);
     try {
       const res = await fetch(`/api/projects/${project.id}/customize`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(config),
       });
-      if (res.ok) { setSuccess(true); setTimeout(() => setSuccess(false), 3000); }
-    } catch (err) { console.error(err); }
+      if (res.ok) {
+        setSuccess(true);
+        router.refresh();
+        // Notify any open tabs of the public website to reload
+        try {
+          new BroadcastChannel("site-updates").postMessage({ projectId: project.id });
+        } catch {}
+        setTimeout(() => setSuccess(false), 3000);
+      } else {
+        const body = await res.json().catch(() => ({}));
+        setErrorMsg(body.error || `Error ${res.status}`);
+      }
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Network error");
+    }
     finally { setLoading(false); }
   }
 
@@ -476,15 +492,22 @@ export function SiteCustomizer({ project }: CustomizerProps) {
           </div>
 
           {/* Moved Save Changes here */}
-          <button
-            onClick={handleSave}
-            disabled={loading}
-            className="flex items-center gap-2.5 px-10 py-3.5 rounded-2xl bg-gray-950 text-white text-sm font-black hover:bg-black transition-all active:scale-95 disabled:opacity-50 shadow-2xl shadow-black/20"
-          >
-            {loading   ? <><Loader2 size={16} className="animate-spin" /> SYNCING…</>
-             : success ? <><CheckCircle2 size={16} className="text-emerald-400" /> CHANGES DEPLOYED</>
-             :           <><Save size={16} /> SAVE & PUBLISH</>}
-          </button>
+          <div className="flex flex-col items-end gap-1">
+            <button
+              onClick={handleSave}
+              disabled={loading}
+              className="flex items-center gap-2.5 px-10 py-3.5 rounded-2xl bg-gray-950 text-white text-sm font-black hover:bg-black transition-all active:scale-95 disabled:opacity-50 shadow-2xl shadow-black/20"
+            >
+              {loading   ? <><Loader2 size={16} className="animate-spin" /> SYNCING…</>
+               : success ? <><CheckCircle2 size={16} className="text-emerald-400" /> CHANGES DEPLOYED</>
+               :           <><Save size={16} /> SAVE & PUBLISH</>}
+            </button>
+            {errorMsg && (
+              <span className="text-[10px] font-bold text-red-500 bg-red-50 px-3 py-1 rounded-lg border border-red-100">
+                ✕ {errorMsg}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Browser chrome */}
