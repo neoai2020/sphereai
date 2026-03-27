@@ -143,6 +143,13 @@ interface CustomizerProps {
   };
 }
 
+function detectLinkType(url: string): "url" | "email" | "affiliate" {
+  if (!url) return "url";
+  if (url.startsWith("mailto:")) return "email";
+  if (url.includes("?ref=") || url.includes("&ref=") || url.includes("aff") || url.includes("track")) return "affiliate";
+  return "url";
+}
+
 export function SiteCustomizer({ project }: CustomizerProps) {
   const router = useRouter();
   const [loading,    setLoading]    = useState(false);
@@ -150,6 +157,9 @@ export function SiteCustomizer({ project }: CustomizerProps) {
   const [errorMsg,   setErrorMsg]   = useState<string | null>(null);
   const [origin,     setOrigin]     = useState("");
   const [activePage, setActivePage] = useState("landing");
+  const [linkType,   setLinkType]   = useState<"url" | "email" | "affiliate">(
+    detectLinkType(project.product_url || "")
+  );
   const [config, setConfig] = useState({
     theme_id:           project.theme_id           || "1",
     primary_color:      project.primary_color      || "#4F46E5",
@@ -309,10 +319,36 @@ export function SiteCustomizer({ project }: CustomizerProps) {
             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
               <LinkIcon size={10} /> Link Destination
             </label>
+            {/* Type toggle */}
+            <div className="flex gap-1 bg-gray-100 p-1 rounded-xl">
+              {(["url", "email", "affiliate"] as const).map(t => (
+                <button
+                  key={t}
+                  onClick={() => {
+                    setLinkType(t);
+                    const raw = config.product_url.replace("mailto:", "");
+                    updateConfig({ product_url: t === "email" ? `mailto:${raw}` : raw });
+                  }}
+                  className={cn(
+                    "flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                    linkType === t ? "bg-white text-gray-900 shadow-sm" : "text-gray-400 hover:text-gray-600"
+                  )}
+                >
+                  {t === "url" ? "URL" : t === "email" ? "Email" : "Affiliate"}
+                </button>
+              ))}
+            </div>
             <input
-              type="url" value={config.product_url}
-              onChange={e => updateConfig({ product_url: e.target.value })}
-              placeholder="https://your-product.com"
+              type={linkType === "email" ? "email" : "text"}
+              value={linkType === "email" ? config.product_url.replace("mailto:", "") : config.product_url}
+              onChange={e => updateConfig({
+                product_url: linkType === "email" ? `mailto:${e.target.value}` : e.target.value
+              })}
+              placeholder={
+                linkType === "email" ? "you@example.com" :
+                linkType === "affiliate" ? "https://example.com/?ref=YOU" :
+                "https://your-product.com"
+              }
               className="w-full px-5 py-3.5 rounded-2xl bg-white border border-gray-100 outline-none focus:border-brand-500 text-sm font-bold text-gray-950 shadow-sm transition-all focus:ring-4 focus:ring-brand-500/5"
             />
           </div>

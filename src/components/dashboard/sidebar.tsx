@@ -19,7 +19,8 @@ import {
   Zap,
   FolderLock,
   MessagesSquare,
-  Star
+  Star,
+  Wand2
 } from "lucide-react";
 
 const navSections = [
@@ -35,6 +36,7 @@ const navSections = [
     title: "Resources",
     items: [
       { href: "/dashboard/training", label: "Training", icon: GraduationCap },
+      { href: "/dashboard/logo-generator", label: "Logo Generator", icon: Wand2 },
       { href: "/dashboard/support", label: "Support", icon: MessagesSquare },
     ],
   },
@@ -83,8 +85,8 @@ export function Sidebar() {
           <Image 
             src={logo} 
             alt="SphereAI" 
-            height={32} 
-            className="h-8 w-auto object-contain" 
+            height={44} 
+            className="h-11 w-auto object-contain" 
             priority
           />
         </Link>
