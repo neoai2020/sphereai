@@ -27,6 +27,14 @@ import { useState, useMemo, useEffect } from "react";
 import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import { createClient } from "@/lib/supabase/client";
 
+type AutomationProjectRow = {
+  id: string;
+  name: string;
+  product_name: string;
+  product_url: string | null;
+  slug: string;
+};
+
 export default function AutomationPage() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [checkingAccess, setCheckingAccess] = useState(true);
@@ -36,6 +44,11 @@ export default function AutomationPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
+  const [projects, setProjects] = useState<AutomationProjectRow[]>([]);
+  const [projectsLoading, setProjectsLoading] = useState(false);
+  /** Empty = paste your own link; otherwise use project URL */
+  const [selectedProjectId, setSelectedProjectId] = useState("");
+  const [publicBaseUrl, setPublicBaseUrl] = useState("");
 
   // Persistence and Access Control
   useEffect(() => {
@@ -58,9 +71,24 @@ export default function AutomationPage() {
       
       const hasAccess = sub?.has_automation || user.user_metadata?.plan === 'infinite';
       setIsSubscribed(hasAccess);
+      if (hasAccess) {
+        setProjectsLoading(true);
+        const { data: rows } = await supabase
+          .from("projects")
+          .select("id, name, product_name, product_url, slug")
+          .eq("user_id", user.id)
+          .order("updated_at", { ascending: false });
+        setProjects((rows as AutomationProjectRow[]) || []);
+        setProjectsLoading(false);
+      }
       setCheckingAccess(false);
     }
     checkAccess();
+  }, []);
+
+  useEffect(() => {
+    const base = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/$/, "");
+    setPublicBaseUrl(base || (typeof window !== "undefined" ? window.location.origin : ""));
   }, []);
 
   useEffect(() => {
@@ -148,8 +176,20 @@ export default function AutomationPage() {
 
   const progressPercent = Math.round((completedSources.length / rawSources.length) * 100);
 
+  const effectivePromoLink = useMemo(() => {
+    if (selectedProjectId) {
+      const p = projects.find((x) => x.id === selectedProjectId);
+      if (!p) return userLink.trim();
+      const url = (p.product_url || "").trim();
+      if (url) return url;
+      if (publicBaseUrl && p.slug) return `${publicBaseUrl}/s/${p.slug}`;
+      return userLink.trim();
+    }
+    return userLink.trim();
+  }, [selectedProjectId, projects, userLink, publicBaseUrl]);
+
   const getSnippet = (rawSnippet: string) => {
-    const link = userLink || "https://your-asset.com/link";
+    const link = effectivePromoLink || "https://your-asset.com/link";
     return rawSnippet.replace(/\[LINK\]/g, link);
   };
 
@@ -243,26 +283,65 @@ export default function AutomationPage() {
       <div className="space-y-8 relative">
         <div className={`space-y-8`}>
           {/* Inputs */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="relative group">
-               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" size={20} />
-               <input 
-                 type="text"
-                 value={searchQuery}
-                 onChange={(e) => setSearchQuery(e.target.value)}
-                 placeholder="Search traffic sources..."
-                 className="w-full bg-white border border-gray-200 rounded-2xl pl-14 pr-6 py-4 text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all shadow-sm"
-               />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
+                Use your generated website
+              </label>
+              <select
+                value={selectedProjectId}
+                onChange={(e) => setSelectedProjectId(e.target.value)}
+                disabled={projectsLoading}
+                className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all shadow-sm appearance-none cursor-pointer disabled:opacity-60"
+              >
+                <option value="">Paste my promotional link manually</option>
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.product_name || p.name}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 font-medium ml-1">
+                {selectedProjectId
+                  ? "Snippets use your product URL if set, otherwise your public site URL."
+                  : projects.length === 0 && !projectsLoading
+                    ? "No websites yet — add your link below or create a site in Site Forge."
+                    : "Or pick a website to auto-fill the link in every snippet."}
+              </p>
             </div>
-            <div className="relative group">
-               <LinkIcon className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" size={20} />
-               <input 
-                 type="url"
-                 value={userLink}
-                 onChange={(e) => setUserLink(e.target.value)}
-                 placeholder="Link your asset here (e.g. https://your-site.com)"
-                 className="w-full bg-emerald-50 border-2 border-emerald-100 rounded-2xl pl-14 pr-6 py-4 text-gray-900 font-black focus:outline-none focus:ring-4 focus:ring-emerald-600/5 focus:border-emerald-600 transition-all shadow-sm placeholder:text-emerald-300"
-               />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="relative group">
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" size={20} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search traffic sources..."
+                  className="w-full bg-white border border-gray-200 rounded-2xl pl-14 pr-6 py-4 text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all shadow-sm"
+                />
+              </div>
+              {!selectedProjectId ? (
+                <div className="relative group">
+                  <LinkIcon className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" size={20} />
+                  <input
+                    type="url"
+                    value={userLink}
+                    onChange={(e) => setUserLink(e.target.value)}
+                    placeholder="Link your asset here (e.g. https://your-site.com)"
+                    className="w-full bg-emerald-50 border-2 border-emerald-100 rounded-2xl pl-14 pr-6 py-4 text-gray-900 font-black focus:outline-none focus:ring-4 focus:ring-emerald-600/5 focus:border-emerald-600 transition-all shadow-sm placeholder:text-emerald-300"
+                  />
+                </div>
+              ) : (
+                <div className="flex flex-col justify-center rounded-2xl border-2 border-emerald-100 bg-emerald-50/80 px-5 py-4 min-h-[56px]">
+                  <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest mb-1">
+                    Link in snippets
+                  </span>
+                  <span className="text-sm font-bold text-emerald-900 break-all">
+                    {effectivePromoLink || "…"}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -356,7 +435,7 @@ export default function AutomationPage() {
                             <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">MARKETING SNIPPET</h4>
                           </div>
                           <div className="relative group/snippet">
-                            <div className={`p-6 rounded-2xl border text-sm font-medium italic leading-relaxed pr-12 transition-all ${userLink ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-gray-50 border-gray-100 text-gray-500'}`}>
+                            <div className={`p-6 rounded-2xl border text-sm font-medium italic leading-relaxed pr-12 transition-all ${effectivePromoLink ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-gray-50 border-gray-100 text-gray-500'}`}>
                               "{getSnippet(source.snippet)}"
                             </div>
                             <button 
