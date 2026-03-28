@@ -2,6 +2,7 @@
 
 import Script from "next/script";
 import { cn } from "@/lib/utils";
+import { buildVimeoEmbedSrc } from "@/lib/vimeo-embed-url";
 
 const VIMEO_PLAYER_JS = "https://player.vimeo.com/api/player.js";
 
@@ -19,8 +20,7 @@ export function VimeoEmbed({
   className,
   variant = "none",
 }: VimeoEmbedProps) {
-  /** byline=0 & portrait=0 hide uploader name and avatar; title=0 hides title overlay chrome. */
-  const src = `https://player.vimeo.com/video/${videoId}?badge=0&autopause=0&player_id=0&app_id=58479&byline=0&portrait=0&title=0`;
+  const src = buildVimeoEmbedSrc(videoId);
 
   const frame = (
     <div className="relative aspect-video w-full overflow-hidden bg-black">
@@ -28,7 +28,7 @@ export function VimeoEmbed({
         src={src}
         className="absolute inset-0 h-full w-full"
         frameBorder={0}
-        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
         referrerPolicy="strict-origin-when-cross-origin"
         title={title}
         allowFullScreen

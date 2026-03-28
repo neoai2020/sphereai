@@ -1,3 +1,8 @@
+/**
+ * Vimeo video numeric IDs. Iframe query flags for all embeds live in
+ * `buildVimeoEmbedSrc` (`@/lib/vimeo-embed-url`) — use that when adding players.
+ */
+
 /** Featured “Getting Started” training video (dashboard + training page). */
 export const GETTING_STARTED_VIMEO_ID = "1177859402";
 
