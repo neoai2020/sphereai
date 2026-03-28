@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { VimeoEmbed } from "@/components/dashboard/vimeo-embed";
 import { ProductFaqSection } from "@/components/dashboard/product-faq-section";
 import {
@@ -8,7 +9,7 @@ import {
   SITE_FORGE_VIMEO_ID,
   LOGO_GENERATOR_VIMEO_ID,
 } from "@/lib/vimeo-config";
-import { GraduationCap, CheckCircle2 } from "lucide-react";
+import { GraduationCap, CheckCircle2, PlayCircle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const steps = [
@@ -34,8 +35,30 @@ const videoBlocks = [
   { title: "3 — Logo Generator", videoId: LOGO_GENERATOR_VIMEO_ID },
 ] as const;
 
+type ModalVideo = { videoId: string; title: string };
+
 export default function TrainingClient() {
   const [tab, setTab] = useState<"videos" | "faqs">("videos");
+  const [modalVideo, setModalVideo] = useState<ModalVideo | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!modalVideo) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setModalVideo(null);
+    };
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [modalVideo]);
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -81,7 +104,32 @@ export default function TrainingClient() {
                   <h2 className="text-base font-semibold text-gray-900">{block.title}</h2>
                 </div>
                 <div className="p-1 bg-white">
-                  <VimeoEmbed videoId={block.videoId} title={block.title} shell="inner" />
+                  <div className="relative rounded-[20px] overflow-hidden border border-gray-100">
+                    <div className="pointer-events-none select-none">
+                      <VimeoEmbed
+                        videoId={block.videoId}
+                        title={`${block.title} preview`}
+                        shell="inner"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setModalVideo({ videoId: block.videoId, title: block.title })
+                      }
+                      className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-black/40 hover:bg-black/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+                      aria-label={`Open ${block.title} full screen`}
+                    >
+                      <PlayCircle
+                        className="w-14 h-14 md:w-16 md:h-16 text-white drop-shadow-lg"
+                        strokeWidth={1.25}
+                        fill="rgba(255,255,255,0.15)"
+                      />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-white drop-shadow">
+                        Watch full size
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -133,6 +181,47 @@ export default function TrainingClient() {
           <ProductFaqSection />
         </div>
       )}
+
+      {mounted &&
+        modalVideo &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10 bg-black/80 backdrop-blur-md"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="training-video-modal-title"
+            onClick={() => setModalVideo(null)}
+          >
+            <div
+              className="relative w-full max-w-6xl max-h-[min(90vh,900px)] flex flex-col gap-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between gap-4 text-white shrink-0">
+                <h2 id="training-video-modal-title" className="text-lg md:text-xl font-bold truncate pr-4">
+                  {modalVideo.title}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setModalVideo(null)}
+                  className="shrink-0 p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  aria-label="Close video"
+                >
+                  <X size={22} />
+                </button>
+              </div>
+              <div className="min-h-0 flex-1 overflow-auto rounded-2xl border border-white/10 shadow-2xl shadow-black/50">
+                <VimeoEmbed
+                  key={modalVideo.videoId}
+                  videoId={modalVideo.videoId}
+                  title={modalVideo.title}
+                  shell="full"
+                  className="!shadow-none"
+                />
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
