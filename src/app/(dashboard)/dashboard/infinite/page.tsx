@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import { InfiniteHub } from "./InfiniteHub";
+import { userHasInfiniteAccess } from "@/lib/infinite-access";
 
 export default async function InfinitePage() {
   const supabase = await createClient();
@@ -13,13 +14,13 @@ export default async function InfinitePage() {
     redirect("/login");
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
+  const { data: sub } = await supabase
+    .from("user_subscriptions")
     .select("has_infinite")
-    .eq("id", user.id)
-    .single();
+    .eq("user_id", user.id)
+    .maybeSingle();
 
-  if (!profile?.has_infinite) {
+  if (!userHasInfiniteAccess(sub, user.user_metadata as { plan?: string | null } | undefined)) {
     return (
       <RestrictedContent
         title="Infinite Plan Required"

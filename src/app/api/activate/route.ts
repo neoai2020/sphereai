@@ -79,17 +79,32 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User account not found. Please sign up first with this email." }, { status: 404 });
     }
 
-    // 3. Grant access: Update the relevant feature flag
-    const featureColumn = `has_${token.feature}`;
-    const upgradeData: any = {
+    // 3. Grant access: merge into user_subscriptions (activation sets flags here; Infinite page reads this — not profiles)
+    const featureKey = `has_${token.feature}` as
+      | "has_10x"
+      | "has_automation"
+      | "has_infinite"
+      | "has_dfy";
+
+    const { data: existingSub } = await supabaseAdmin
+      .from("user_subscriptions")
+      .select("has_10x, has_automation, has_infinite, has_dfy")
+      .eq("user_id", profile.id)
+      .maybeSingle();
+
+    const merged = {
       user_id: profile.id,
-      status: "active",
+      status: "active" as const,
+      has_10x: existingSub?.has_10x ?? false,
+      has_automation: existingSub?.has_automation ?? false,
+      has_infinite: existingSub?.has_infinite ?? false,
+      has_dfy: existingSub?.has_dfy ?? false,
     };
-    upgradeData[featureColumn] = true;
+    merged[featureKey] = true;
 
     const { error: subErr } = await supabaseAdmin
       .from("user_subscriptions")
-      .upsert(upgradeData, { onConflict: "user_id" });
+      .upsert(merged, { onConflict: "user_id" });
 
     if (subErr) {
       console.error("Sub update error:", subErr);
