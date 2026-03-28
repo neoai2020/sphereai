@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Check, Loader2, Wand2, Download, Link2, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VimeoEmbed } from "@/components/dashboard/vimeo-embed";
-import { SITE_FORGE_VIMEO_ID } from "@/lib/vimeo-config";
+import { LOGO_GENERATOR_VIMEO_ID, SITE_FORGE_VIMEO_ID } from "@/lib/vimeo-config";
 
 interface Project {
   id: string;
@@ -161,6 +161,18 @@ export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
         <VimeoEmbed
           videoId={SITE_FORGE_VIMEO_ID}
           title="2 — Site Forge"
+          variant="training"
+        />
+      </div>
+
+      <div>
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">3 — Logo Generator</h2>
+        <p className="text-sm text-gray-500 mb-3">
+          How to use this page: builder, AI generation, upload, and applying a logo to your sites.
+        </p>
+        <VimeoEmbed
+          videoId={LOGO_GENERATOR_VIMEO_ID}
+          title="3 — Logo Generator"
           variant="training"
         />
       </div>

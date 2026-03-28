@@ -4,23 +4,23 @@ import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { generateSlug } from "@/lib/utils";
-import { 
-  Loader2, 
-  ArrowRight, 
-  ArrowLeft, 
-  Sparkles, 
-  Link as LinkIcon, 
-  Briefcase, 
+import {
+  Loader2,
+  ArrowRight,
+  ArrowLeft,
+  Sparkles,
+  Link as LinkIcon,
+  Briefcase,
   Search,
   CheckCircle2,
   AlertCircle,
-  Play,
   Zap,
   Globe,
-
-  ChevronRight
+  ChevronRight,
 } from "lucide-react";
 import type { PageType } from "@/types/database";
+import { VimeoEmbed } from "@/components/dashboard/vimeo-embed";
+import { SITE_FORGE_VIMEO_ID } from "@/lib/vimeo-config";
 
 type ProjectType = "affiliate" | "service";
 const PAGE_TYPES: PageType[] = ["landing", "about", "faq", "blog", "reviews"];
@@ -268,28 +268,25 @@ export default function NewProjectPage() {
         </p>
       </div>
 
-      {/* Explanatory Video Section (New) */}
+      {/* Site Forge walkthrough (step 1) */}
       {step === 1 && (
         <div className="mb-12 bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-200/50 p-1">
-           <div className="aspect-video bg-gray-100 rounded-[22px] overflow-hidden relative group cursor-pointer border border-gray-50">
-              <div className="absolute inset-0 bg-gradient-to-t from-brand-950/70 via-transparent to-transparent z-10" />
-              <img 
-                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop" 
-                alt="SiteForge Explainer" 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 opacity-90"
-              />
-              <div className="absolute inset-0 z-20 flex items-center justify-center">
-                <div className="w-20 h-20 rounded-full bg-white/95 flex items-center justify-center group-hover:scale-110 transition-all shadow-2xl border-4 border-brand-50">
-                  <Play size={40} className="text-brand-600 fill-brand-600 ml-1.5" />
-                </div>
-              </div>
-              <div className="absolute bottom-8 left-8 right-8 z-20">
-                <p className="text-white font-black text-3xl mb-1 drop-shadow-md">What is SiteForge?</p>
-                <p className="text-white/90 text-sm drop-shadow-sm font-bold flex items-center gap-2">
-                  <CheckCircle2 size={16} className="text-brand-400" /> Watch the 2-minute guide to AI Search supremacy.
-                </p>
-              </div>
+          <div className="overflow-hidden rounded-[22px] border border-gray-100">
+            <div className="px-5 pt-5 pb-3 border-b border-gray-100">
+              <p className="text-gray-900 font-black text-lg">What is SiteForge?</p>
+              <p className="text-gray-500 text-sm font-medium mt-1 flex items-center gap-2">
+                <CheckCircle2 size={16} className="text-brand-500 shrink-0" />
+                Watch the walkthrough to build your AI-optimized site.
+              </p>
             </div>
+            <div className="p-2 bg-black">
+              <VimeoEmbed
+                videoId={SITE_FORGE_VIMEO_ID}
+                title="2 — Site Forge"
+                variant="none"
+              />
+            </div>
+          </div>
         </div>
       )}
 

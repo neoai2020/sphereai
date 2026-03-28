@@ -1,5 +1,9 @@
 import { VimeoEmbed } from "@/components/dashboard/vimeo-embed";
-import { GETTING_STARTED_VIMEO_ID, SITE_FORGE_VIMEO_ID } from "@/lib/vimeo-config";
+import {
+  GETTING_STARTED_VIMEO_ID,
+  SITE_FORGE_VIMEO_ID,
+  LOGO_GENERATOR_VIMEO_ID,
+} from "@/lib/vimeo-config";
 import { GraduationCap, PlayCircle, BookOpen, CheckCircle2 } from "lucide-react";
 
 export default function TrainingPage() {
@@ -48,6 +52,17 @@ export default function TrainingPage() {
         <VimeoEmbed
           videoId={SITE_FORGE_VIMEO_ID}
           title="2 — Site Forge"
+          variant="training"
+        />
+      </div>
+
+      <div className="mb-12">
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+          3 — Logo Generator
+        </h2>
+        <VimeoEmbed
+          videoId={LOGO_GENERATOR_VIMEO_ID}
+          title="3 — Logo Generator"
           variant="training"
         />
       </div>
