@@ -154,13 +154,13 @@ export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">2 — Site Forge</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">Watch this training video first</h2>
         <p className="text-sm text-gray-500 mb-3">
-          Walkthrough for building your site in Site Forge before you attach a logo.
+          A short Site Forge walkthrough so you know how your sites are built before you attach a logo.
         </p>
         <VimeoEmbed
           videoId={SITE_FORGE_VIMEO_ID}
-          title="2 — Site Forge"
+          title="Site Forge walkthrough"
           variant="training"
         />
       </div>
