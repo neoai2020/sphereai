@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { generateSlug } from "@/lib/utils";
+import { generateSlug, cn } from "@/lib/utils";
 import {
   Loader2,
   ArrowRight,
@@ -57,6 +57,7 @@ export default function NewProjectPage() {
     limit: 5,
     windowHours: 24,
     nextSlotAt: null as string | null,
+    unlimited: false,
   });
   const [generationProgress, setGenerationProgress] = useState<Record<string, "pending" | "processing" | "done" | "error">>({
     landing: "pending",
@@ -96,13 +97,25 @@ export default function NewProjectPage() {
       const res = await fetch("/api/generations/remaining");
       if (res.ok) {
         const data = await res.json();
-        setRemainingInfo({
-          used: data.used ?? 0,
-          remaining: data.remaining ?? 5,
-          limit: data.limit ?? 5,
-          windowHours: data.windowHours ?? 24,
-          nextSlotAt: data.nextSlotAt ?? null,
-        });
+        if (data.unlimited === true) {
+          setRemainingInfo({
+            unlimited: true,
+            used: 0,
+            remaining: 999999,
+            limit: 5,
+            windowHours: data.windowHours ?? 24,
+            nextSlotAt: null,
+          });
+        } else {
+          setRemainingInfo({
+            unlimited: false,
+            used: data.used ?? 0,
+            remaining: data.remaining ?? 5,
+            limit: data.limit ?? 5,
+            windowHours: data.windowHours ?? 24,
+            nextSlotAt: data.nextSlotAt ?? null,
+          });
+        }
       }
     } catch (err) {
       console.error("Failed to fetch remaining generations:", err);
@@ -209,7 +222,7 @@ export default function NewProjectPage() {
         return;
       }
 
-      if (remainingInfo.remaining <= 0) {
+      if (!remainingInfo.unlimited && remainingInfo.remaining <= 0) {
         setError(
           `Site Forge limit reached (${remainingInfo.limit} full sites per ${remainingInfo.windowHours} hours on our servers).`
         );
@@ -686,16 +699,35 @@ export default function NewProjectPage() {
                   })()}
                 </div>
               ) : (
-                <div className="p-5 rounded-xl border border-gray-100 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div
+                  className={cn(
+                    "p-5 rounded-xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3",
+                    remainingInfo.unlimited
+                      ? "border-emerald-200 bg-emerald-50/80"
+                      : "border-gray-100 bg-gray-50"
+                  )}
+                >
                   <div>
                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
-                      Full sites left ({remainingInfo.windowHours}h rolling window, server)
+                      {remainingInfo.unlimited
+                        ? "Infinite plan — Site Forge"
+                        : `Full sites left (${remainingInfo.windowHours}h rolling window, server)`}
                     </span>
                     <div className="flex items-baseline gap-1.5">
-                      <span className="text-3xl font-black text-gray-900">{remainingInfo.remaining}</span>
-                      <span className="text-xs text-gray-400 font-bold">/ {remainingInfo.limit}</span>
+                      {remainingInfo.unlimited ? (
+                        <>
+                          <span className="text-3xl font-black text-emerald-800">∞</span>
+                          <span className="text-xs text-emerald-700 font-bold">No daily generation cap</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-3xl font-black text-gray-900">{remainingInfo.remaining}</span>
+                          <span className="text-xs text-gray-400 font-bold">/ {remainingInfo.limit}</span>
+                        </>
+                      )}
                     </div>
-                    {remainingInfo.remaining <= 0 &&
+                    {!remainingInfo.unlimited &&
+                      remainingInfo.remaining <= 0 &&
                       formatNextSlotAt(remainingInfo.nextSlotAt) && (
                         <p className="text-xs text-amber-800 font-medium mt-2 max-w-md">
                           Next slot opens around{" "}
@@ -707,10 +739,17 @@ export default function NewProjectPage() {
                   <div className="w-full sm:w-32 shrink-0">
                     <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-brand-600 transition-all duration-700 rounded-full"
-                        style={{
-                          width: `${Math.min(100, (remainingInfo.used / remainingInfo.limit) * 100)}%`,
-                        }}
+                        className={cn(
+                          "h-full transition-all duration-700 rounded-full",
+                          remainingInfo.unlimited ? "bg-emerald-500 w-full" : "bg-brand-600"
+                        )}
+                        style={
+                          remainingInfo.unlimited
+                            ? undefined
+                            : {
+                                width: `${Math.min(100, (remainingInfo.used / remainingInfo.limit) * 100)}%`,
+                              }
+                        }
                       />
                     </div>
                   </div>
@@ -724,7 +763,7 @@ export default function NewProjectPage() {
                   </button>
                   <button
                     onClick={handleSubmit}
-                    disabled={loading || remainingInfo.remaining <= 0}
+                    disabled={loading || (!remainingInfo.unlimited && remainingInfo.remaining <= 0)}
                     className="px-10 py-3.5 bg-gray-900 text-white rounded-xl font-black hover:bg-black disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 text-sm"
                   >
                     <Sparkles size={16} className="text-brand-400" />

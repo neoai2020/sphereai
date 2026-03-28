@@ -7,6 +7,7 @@ import {
   SITE_FORGE_GENERATION_LIMIT,
   siteForgeGenerationWindowStartISO,
 } from "@/lib/site-forge-generation-limit";
+import { getUserHasInfiniteAccess } from "@/lib/infinite-access";
 
 const PAGE_TYPES: PageType[] = ["landing", "about", "faq", "blog", "reviews"];
 
@@ -21,24 +22,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const isInfinite = await getUserHasInfiniteAccess(
+      supabase,
+      user.id,
+      user.user_metadata as { plan?: string | null }
+    );
+
     const since = siteForgeGenerationWindowStartISO();
 
-    const { count, error: countError } = await supabase
-      .from("generations")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .gte("created_at", since);
+    if (!isInfinite) {
+      const { count, error: countError } = await supabase
+        .from("generations")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .gte("created_at", since);
 
-    if (countError) {
-      console.error("Error checking generations:", countError);
-    } else if (count !== null && count >= SITE_FORGE_GENERATION_LIMIT) {
-      return NextResponse.json(
-        {
-          error: `Site Forge limit reached (${SITE_FORGE_GENERATION_LIMIT} full sites per 24 hours). Try again when a slot opens.`,
-          code: "GENERATION_LIMIT",
-        },
-        { status: 429 }
-      );
+      if (countError) {
+        console.error("Error checking generations:", countError);
+      } else if (count !== null && count >= SITE_FORGE_GENERATION_LIMIT) {
+        return NextResponse.json(
+          {
+            error: `Site Forge limit reached (${SITE_FORGE_GENERATION_LIMIT} full sites per 24 hours). Try again when a slot opens.`,
+            code: "GENERATION_LIMIT",
+          },
+          { status: 429 }
+        );
+      }
     }
 
     const { projectId, pageType } = await request.json();
@@ -162,6 +171,9 @@ export async function POST(request: NextRequest) {
 
     // Always mark as published (partial is better than stuck at "generating")
     if (isLastOne) {
+      if (isInfinite) {
+        await supabase.from("projects").update({ status: "published" }).eq("id", projectId);
+      } else {
       let genId: string | null = null;
 
       const rpcResult = await supabase.rpc("insert_generation_if_allowed", {
@@ -246,6 +258,7 @@ export async function POST(request: NextRequest) {
       }
 
       await supabase.from("projects").update({ status: "published" }).eq("id", projectId);
+      }
     }
 
     const allProcessed = results.every(r => r.success);

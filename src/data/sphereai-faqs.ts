@@ -22,7 +22,7 @@ export const SPHEREAI_FAQS: SphereAiFaq[] = [
   },
   {
     q: "How does the Site Forge generation limit work?",
-    a: "You can run up to **5 full Site Forge builds** per **rolling 24-hour window**. Each build is one new website (all five page types). The count is stored on our servers in your `generations` history—not in your browser. The builder shows how many slots you have left; when you are at the limit, the next slot opens when your oldest build in the window is more than 24 hours old. Infinite and other plans may offer different terms—contact support if your account should bypass the default cap.",
+    a: "Most accounts can run up to **5 full Site Forge builds** per **rolling 24-hour window** (one new website = all five page types). Counts are stored on our servers in your `generations` history—not in your browser. **Infinite** subscribers have **no Site Forge daily cap**: generation checks are skipped for your account, and builds are not counted against the five-slot limit. Everyone else sees remaining slots in the builder; when you are at the limit, the next slot opens when your oldest build in the window is more than 24 hours old.",
   },
   {
     q: "What is Asset Vault?",

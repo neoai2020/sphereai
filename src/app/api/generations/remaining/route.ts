@@ -5,6 +5,7 @@ import {
   SITE_FORGE_WINDOW_HOURS,
   siteForgeGenerationWindowStartISO,
 } from "@/lib/site-forge-generation-limit";
+import { getUserHasInfiniteAccess } from "@/lib/infinite-access";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,23 @@ export async function GET() {
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const isInfinite = await getUserHasInfiniteAccess(
+      supabase,
+      user.id,
+      user.user_metadata as { plan?: string | null }
+    );
+
+    if (isInfinite) {
+      return NextResponse.json({
+        unlimited: true,
+        used: 0,
+        remaining: null,
+        limit: null,
+        windowHours: SITE_FORGE_WINDOW_HOURS,
+        nextSlotAt: null,
+      });
     }
 
     const since = siteForgeGenerationWindowStartISO();
