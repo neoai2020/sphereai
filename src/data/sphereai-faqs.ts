@@ -21,8 +21,8 @@ export const SPHEREAI_FAQS: SphereAiFaq[] = [
     a: "Every project gets five pages: Landing (home), About, FAQ, Blog, and Reviews. Each can include titles, meta descriptions, block-based content, and JSON-LD-style schema helpers so search engines and AI systems can understand your pages.",
   },
   {
-    q: "How does the daily generation limit work?",
-    a: "Full Site Forge runs count against a daily allowance shown in the builder (remaining / limit). Counts reset on a UTC calendar day. If you reach the limit, try again after the reset or review your plan. Infinite subscribers get the Infinite area for high-volume positioning and translation workflows—contact support if limits do not match your subscription.",
+    q: "How does the Site Forge generation limit work?",
+    a: "You can run up to **5 full Site Forge builds** per **rolling 24-hour window**. Each build is one new website (all five page types). The count is stored on our servers in your `generations` history—not in your browser. The builder shows how many slots you have left; when you are at the limit, the next slot opens when your oldest build in the window is more than 24 hours old. Infinite and other plans may offer different terms—contact support if your account should bypass the default cap.",
   },
   {
     q: "What is Asset Vault?",

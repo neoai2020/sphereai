@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { VimeoEmbed } from "@/components/dashboard/vimeo-embed";
-import { FaqAccordion } from "@/components/dashboard/faq-accordion";
+import { ProductFaqSection } from "@/components/dashboard/product-faq-section";
 import {
   GETTING_STARTED_VIMEO_ID,
   SITE_FORGE_VIMEO_ID,
   LOGO_GENERATOR_VIMEO_ID,
 } from "@/lib/vimeo-config";
-import { SPHEREAI_FAQS } from "@/data/sphereai-faqs";
 import { GraduationCap, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -131,14 +130,7 @@ export default function TrainingClient() {
 
       {tab === "faqs" && (
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-          <div className="p-5 border-b border-gray-100">
-            <h2 className="text-lg font-bold text-gray-900">Frequently Asked Questions</h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Same answers as Support — covering Site Forge, Asset Vault, premium tools, and billing
-              help.
-            </p>
-          </div>
-          <FaqAccordion items={SPHEREAI_FAQS} defaultOpenIndex={null} variant="compact" />
+          <ProductFaqSection />
         </div>
       )}
     </div>

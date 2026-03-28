@@ -3,6 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import { generatePageContent } from "@/lib/rapidapi/generate";
 import { generateSchemaMarkup } from "@/lib/schema/generators";
 import type { PageType, Project, Page } from "@/types/database";
+import {
+  SITE_FORGE_GENERATION_LIMIT,
+  siteForgeGenerationWindowStartISO,
+} from "@/lib/site-forge-generation-limit";
 
 const PAGE_TYPES: PageType[] = ["landing", "about", "faq", "blog", "reviews"];
 
@@ -17,20 +21,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
+    const since = siteForgeGenerationWindowStartISO();
 
     const { count, error: countError } = await supabase
       .from("generations")
       .select("*", { count: "exact", head: true })
       .eq("user_id", user.id)
-      .gte("created_at", today.toISOString());
+      .gte("created_at", since);
 
     if (countError) {
       console.error("Error checking generations:", countError);
-    } else if (count !== null && count >= 5) {
+    } else if (count !== null && count >= SITE_FORGE_GENERATION_LIMIT) {
       return NextResponse.json(
-        { error: "Daily generation limit reached (5/5). Try again tomorrow." },
+        {
+          error: `Site Forge limit reached (${SITE_FORGE_GENERATION_LIMIT} full sites per 24 hours). Try again when a slot opens.`,
+          code: "GENERATION_LIMIT",
+        },
         { status: 429 }
       );
     }
@@ -156,16 +162,90 @@ export async function POST(request: NextRequest) {
 
     // Always mark as published (partial is better than stuck at "generating")
     if (isLastOne) {
-       await Promise.all([
-        supabase.from("generations").insert({
-          user_id: user.id,
-          project_id: projectId,
-        }),
-        supabase
-          .from("projects")
-          .update({ status: "published" })
-          .eq("id", projectId),
-      ]);
+      let genId: string | null = null;
+
+      const rpcResult = await supabase.rpc("insert_generation_if_allowed", {
+        p_user_id: user.id,
+        p_project_id: projectId,
+      });
+
+      if (rpcResult.error) {
+        const msg = rpcResult.error.message || "";
+        const rpcMissing =
+          rpcResult.error.code === "PGRST202" ||
+          msg.includes("insert_generation_if_allowed") ||
+          msg.includes("Could not find the function");
+
+        if (rpcMissing) {
+          console.warn(
+            "[generate] insert_generation_if_allowed missing — run supabase-migration-004; using non-atomic fallback"
+          );
+          const { count: c2 } = await supabase
+            .from("generations")
+            .select("*", { count: "exact", head: true })
+            .eq("user_id", user.id)
+            .gte("created_at", since);
+
+          if ((c2 ?? 0) >= SITE_FORGE_GENERATION_LIMIT) {
+            return NextResponse.json(
+              {
+                error: `Site Forge limit reached (${SITE_FORGE_GENERATION_LIMIT} full sites per 24 hours).`,
+                results,
+                status: "partial",
+                code: "GENERATION_LIMIT",
+              },
+              { status: 429 }
+            );
+          }
+
+          const { data: row, error: insErr } = await supabase
+            .from("generations")
+            .insert({ user_id: user.id, project_id: projectId })
+            .select("id")
+            .single();
+
+          if (insErr || !row) {
+            console.error("Fallback generation insert:", insErr);
+            return NextResponse.json(
+              {
+                error: "Could not record this Site Forge build.",
+                results,
+                status: "partial",
+                code: "GENERATION_RECORD_FAILED",
+              },
+              { status: 500 }
+            );
+          }
+          genId = row.id as string;
+        } else {
+          console.error("insert_generation_if_allowed RPC error:", rpcResult.error);
+          return NextResponse.json(
+            {
+              error: "Could not finalize this build. Try again or contact support.",
+              results,
+              status: "partial",
+              code: "GENERATION_RECORD_FAILED",
+            },
+            { status: 500 }
+          );
+        }
+      } else {
+        genId = (rpcResult.data as string | null) ?? null;
+      }
+
+      if (!genId) {
+        return NextResponse.json(
+          {
+            error: `Site Forge limit reached (${SITE_FORGE_GENERATION_LIMIT} full sites per 24 hours).`,
+            results,
+            status: "partial",
+            code: "GENERATION_LIMIT",
+          },
+          { status: 429 }
+        );
+      }
+
+      await supabase.from("projects").update({ status: "published" }).eq("id", projectId);
     }
 
     const allProcessed = results.every(r => r.success);

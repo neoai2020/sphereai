@@ -4,14 +4,12 @@ import {
   Mail, 
   MessageCircle, 
   ExternalLink, 
-  HelpCircle, 
   Headphones, 
   ShieldCheck, 
   FileText 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { FaqAccordion } from "@/components/dashboard/faq-accordion";
-import { SPHEREAI_FAQS } from "@/data/sphereai-faqs";
+import { ProductFaqSection } from "@/components/dashboard/product-faq-section";
 
 export default function SupportPage() {
 
@@ -67,17 +65,7 @@ export default function SupportPage() {
           
           {/* FAQ Column */}
           <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-            <div className="p-6 border-b border-gray-100 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600">
-                <HelpCircle size={16} />
-              </div>
-              <div>
-                <h2 className="text-lg font-black tracking-tight text-gray-900">Frequently Asked Questions</h2>
-                <p className="text-[9px] text-gray-400 uppercase tracking-widest font-black mt-0.5">Common queries and system documentation</p>
-              </div>
-            </div>
-            
-            <FaqAccordion items={SPHEREAI_FAQS} defaultOpenIndex={0} variant="default" />
+            <ProductFaqSection />
           </div>
 
           {/* Ask Anything Card */}

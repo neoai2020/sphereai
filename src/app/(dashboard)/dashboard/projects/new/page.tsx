@@ -33,13 +33,31 @@ const ACTION_MESSAGES: Record<string, string> = {
   reviews: "Creating Reviews Page",
 };
 
+function formatNextSlotAt(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  try {
+    return new Intl.DateTimeFormat(undefined, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(new Date(iso));
+  } catch {
+    return null;
+  }
+}
+
 export default function NewProjectPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [scraping, setScraping] = useState(false);
   const [generatingDescription, setGeneratingDescription] = useState(false);
   const [error, setError] = useState("");
-  const [remainingInfo, setRemainingInfo] = useState({ used: 0, remaining: 5, limit: 5 });
+  const [remainingInfo, setRemainingInfo] = useState({
+    used: 0,
+    remaining: 5,
+    limit: 5,
+    windowHours: 24,
+    nextSlotAt: null as string | null,
+  });
   const [generationProgress, setGenerationProgress] = useState<Record<string, "pending" | "processing" | "done" | "error">>({
     landing: "pending",
     about: "pending",
@@ -78,7 +96,13 @@ export default function NewProjectPage() {
       const res = await fetch("/api/generations/remaining");
       if (res.ok) {
         const data = await res.json();
-        setRemainingInfo(data);
+        setRemainingInfo({
+          used: data.used ?? 0,
+          remaining: data.remaining ?? 5,
+          limit: data.limit ?? 5,
+          windowHours: data.windowHours ?? 24,
+          nextSlotAt: data.nextSlotAt ?? null,
+        });
       }
     } catch (err) {
       console.error("Failed to fetch remaining generations:", err);
@@ -186,7 +210,9 @@ export default function NewProjectPage() {
       }
 
       if (remainingInfo.remaining <= 0) {
-        setError("Daily generation limit reached. Try again tomorrow.");
+        setError(
+          `Site Forge limit reached (${remainingInfo.limit} full sites per ${remainingInfo.windowHours} hours on our servers).`
+        );
         setLoading(false);
         return;
       }
@@ -228,22 +254,45 @@ export default function NewProjectPage() {
         reviews: "processing",
       });
 
-      await Promise.allSettled(
-        PAGE_TYPES.map(async (type) => {
-          try {
+      try {
+        await Promise.all(
+          PAGE_TYPES.map(async (type) => {
             const res = await fetch("/api/generate", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ projectId: project.id, pageType: type }),
             });
-            if (!res.ok) throw new Error(`Failed to generate ${type}`);
-            setGenerationProgress(prev => ({ ...prev, [type]: "done" }));
-          } catch (err) {
-            setGenerationProgress(prev => ({ ...prev, [type]: "error" }));
+            const data = await res.json().catch(() => ({} as { error?: string }));
+            if (res.status === 429) {
+              const lim = new Error(
+                data.error ||
+                  `Site Forge limit reached (${remainingInfo.limit} full sites per ${remainingInfo.windowHours} hours).`
+              ) as Error & { isLimit?: boolean };
+              lim.isLimit = true;
+              throw lim;
+            }
+            if (!res.ok) {
+              throw new Error(data.error || `Failed to generate ${type}`);
+            }
+            setGenerationProgress((prev) => ({ ...prev, [type]: "done" }));
+          })
+        );
+      } catch (genErr: unknown) {
+        const err = genErr as Error & { isLimit?: boolean };
+        setError(err.message || "Generation failed.");
+        setGenerationProgress((prev) => {
+          const next = { ...prev };
+          for (const t of PAGE_TYPES) {
+            if (next[t] === "processing") next[t] = "error";
           }
-        })
-      );
+          return next;
+        });
+        await fetchRemaining();
+        setLoading(false);
+        return;
+      }
 
+      await fetchRemaining();
       router.push(`/dashboard/projects/${project.id}`);
       router.refresh();
     } catch (err) {
@@ -637,19 +686,31 @@ export default function NewProjectPage() {
                   })()}
                 </div>
               ) : (
-                <div className="p-5 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-between">
+                <div className="p-5 rounded-xl border border-gray-100 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Generations left today</span>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
+                      Full sites left ({remainingInfo.windowHours}h rolling window, server)
+                    </span>
                     <div className="flex items-baseline gap-1.5">
                       <span className="text-3xl font-black text-gray-900">{remainingInfo.remaining}</span>
                       <span className="text-xs text-gray-400 font-bold">/ {remainingInfo.limit}</span>
                     </div>
+                    {remainingInfo.remaining <= 0 &&
+                      formatNextSlotAt(remainingInfo.nextSlotAt) && (
+                        <p className="text-xs text-amber-800 font-medium mt-2 max-w-md">
+                          Next slot opens around{" "}
+                          <span className="font-bold">{formatNextSlotAt(remainingInfo.nextSlotAt)}</span>{" "}
+                          (when your oldest build in this window ages out).
+                        </p>
+                      )}
                   </div>
-                  <div className="w-32">
+                  <div className="w-full sm:w-32 shrink-0">
                     <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-brand-600 transition-all duration-700 rounded-full"
-                        style={{ width: `${(remainingInfo.used / remainingInfo.limit) * 100}%` }}
+                        style={{
+                          width: `${Math.min(100, (remainingInfo.used / remainingInfo.limit) * 100)}%`,
+                        }}
                       />
                     </div>
                   </div>
