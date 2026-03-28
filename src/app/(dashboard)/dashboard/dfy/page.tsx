@@ -205,9 +205,11 @@ export default function DFYPage() {
 
   if (checkingAccess) {
     return (
-      <div className="max-w-7xl mx-auto flex flex-col items-center justify-center py-40 gap-4">
-        <Loader2 className="animate-spin text-brand-600" size={40} />
-        <p className="text-gray-400 font-black uppercase tracking-widest text-[10px] animate-pulse">Syncing DFY Library...</p>
+      <div className="max-w-6xl mx-auto flex flex-col items-center justify-center py-40 gap-4">
+        <Loader2 className="animate-spin text-indigo-600" size={40} />
+        <p className="text-gray-400 font-black uppercase tracking-widest text-xs animate-pulse">
+          Checking Permissions...
+        </p>
       </div>
     );
   }
@@ -230,59 +232,82 @@ export default function DFYPage() {
   const visibleSites = filteredSites.slice(0, visibleCount);
 
   return (
-    <div className="min-h-screen bg-[#FDFDFF] -m-6 p-6 pb-20 text-gray-900">
-      <div className="max-w-6xl mx-auto space-y-10">
-        <div className="space-y-8">
-          <div className="text-center space-y-2">
-             <h1 className="text-4xl font-black tracking-tight text-gray-950 italic">DFY Library</h1>
-             <p className="text-gray-400 font-bold uppercase text-[10px] tracking-[0.2em]">180+ websites with 200 SEO posts each</p>
+    <div className="max-w-6xl mx-auto space-y-12 pb-20">
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <Sparkles className="text-white fill-white/10" size={24} />
           </div>
-
-          <div className="max-w-4xl mx-auto w-full">
-            <VideoPlaceholder
-              title="DFY Library — How to Claim & Launch"
-              subtitle="Video training coming soon"
-            />
-          </div>
-
-          <div className="flex justify-center">
-            <div className="flex flex-wrap justify-center bg-white p-2 rounded-2xl border border-gray-100 shadow-sm gap-1">
-              <button
-                onClick={() => { setActiveType("All"); setVisibleCount(12); }}
-                className={`px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                  activeType === "All" 
-                    ? "bg-brand-600 text-white shadow-lg" 
-                    : "text-gray-400 hover:text-gray-900 hover:bg-gray-50"
-                }`}
-              >
-                All
-              </button>
-              {DFY_SITE_TYPES.map((type) => (
-                <button
-                  key={type}
-                  onClick={() => { setActiveType(type); setVisibleCount(12); }}
-                  className={`px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                    activeType === type 
-                      ? "bg-brand-600 text-white shadow-lg" 
-                      : "text-gray-400 hover:text-gray-900 hover:bg-gray-50"
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
+          <div className="flex flex-col">
+            <h1 className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600 leading-tight">
+              DFY Library
+            </h1>
+            <div className="flex items-center mt-1">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-100">
+                DFY Library Active
+              </span>
             </div>
           </div>
         </div>
+        <p className="text-xl text-gray-600 max-w-2xl leading-relaxed font-medium">
+          Claim 180+ ready-to-launch websites with pre-written content, SEO optimization, and premium
+          designs — each with 200 SEO posts.
+        </p>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <VideoPlaceholder
+        title="DFY Library — How to Claim & Launch"
+        subtitle="Video training coming soon"
+      />
+
+      <div className="bg-white border border-gray-100 rounded-[40px] shadow-sm p-6 md:p-8">
+        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-4">
+          Filter by niche
+        </p>
+        <div className="flex flex-wrap justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveType("All");
+              setVisibleCount(12);
+            }}
+            className={`px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all border whitespace-nowrap ${
+              activeType === "All"
+                ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-100"
+                : "bg-white text-gray-500 border-gray-100 hover:border-indigo-100 hover:bg-gray-50"
+            }`}
+          >
+            All
+          </button>
+          {DFY_SITE_TYPES.map((type) => (
+            <button
+              type="button"
+              key={type}
+              onClick={() => {
+                setActiveType(type);
+                setVisibleCount(12);
+              }}
+              className={`px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all border whitespace-nowrap ${
+                activeType === type
+                  ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-100"
+                  : "bg-white text-gray-500 border-gray-100 hover:border-indigo-100 hover:bg-gray-50"
+              }`}
+            >
+              {type}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {visibleSites.map((site) => {
             const projectSlug = claimedProjectMap[site.id];
             const isClaimed = !!projectSlug;
 
             return (
-              <div 
-                key={site.id} 
-                className="group relative bg-white rounded-3xl overflow-hidden shadow-sm transition-all hover:shadow-xl border border-gray-100 flex flex-col h-full"
+              <div
+                key={site.id}
+                className="group relative bg-white rounded-[32px] overflow-hidden shadow-sm transition-all hover:shadow-md border border-gray-100 flex flex-col h-full"
               >
                 <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
                   <img 
@@ -323,8 +348,8 @@ export default function DFYPage() {
                     <div className="px-3 py-1 rounded-full bg-gray-50 text-[10px] font-black text-gray-400 uppercase letter-spacing-widest">
                       {site.niche}
                     </div>
-                    <div className="flex items-center gap-1.5 text-[10px] font-black text-brand-600 uppercase tracking-widest">
-                       <Sparkles size={12} /> {site.posts} Posts
+                    <div className="flex items-center gap-1.5 text-[10px] font-black text-indigo-600 uppercase tracking-widest">
+                      <Sparkles size={12} /> {site.posts} Posts
                     </div>
                   </div>
                   
@@ -335,9 +360,9 @@ export default function DFYPage() {
                     >
                       <Eye size={14} /> Preview
                     </button>
-                    <button 
+                    <button
                       onClick={() => setActivePosts(site)}
-                      className="px-4 py-3 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-600 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border border-brand-100"
+                      className="px-4 py-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border border-indigo-100"
                     >
                       <Zap size={14} /> {site.posts} Posts
                     </button>
@@ -357,7 +382,7 @@ export default function DFYPage() {
                       <button
                         onClick={() => handleClaim(site)}
                         disabled={claiming === site.id}
-                        className="w-full py-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-brand-500/10"
+                        className="w-full py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20"
                       >
                         <Plus size={14} /> {claiming === site.id ? "Claiming..." : "Claim Now"}
                         <ArrowRight size={14} />
@@ -370,31 +395,33 @@ export default function DFYPage() {
           })}
         </div>
 
-        {visibleSites.length < filteredSites.length && (
-          <div className="flex justify-center pt-8">
-            <button
-              onClick={() => setVisibleCount(p => p + 12)}
-              className="px-10 py-3.5 rounded-2xl bg-white border border-gray-200 text-gray-900 text-xs font-black uppercase tracking-widest shadow-sm hover:bg-gray-50"
-            >
-              Load More Assets
-            </button>
-          </div>
-        )}
-      </div>
+      {visibleSites.length < filteredSites.length && (
+        <div className="flex justify-center pt-4">
+          <button
+            type="button"
+            onClick={() => setVisibleCount((p) => p + 12)}
+            className="px-10 py-3.5 rounded-2xl bg-white border border-indigo-100 text-indigo-700 text-xs font-black uppercase tracking-widest shadow-sm hover:bg-indigo-50 hover:border-indigo-200 transition-all"
+          >
+            Load More Assets
+          </button>
+        </div>
+      )}
 
       {/* MODALS */}
       {activePosts && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-gray-950/40 backdrop-blur-sm" onClick={() => setActivePosts(null)} />
-          <div className="relative w-full max-w-4xl bg-white rounded-3xl border border-gray-100 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="relative w-full max-w-4xl bg-white rounded-[40px] border border-gray-100 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
                   <FileSearch size={24} />
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-gray-900 uppercase tracking-tight">{activePosts.name}</h2>
-                  <p className="text-[10px] text-brand-600 font-bold uppercase tracking-widest">200 SEO Posts • {activePosts.type}</p>
+                  <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-widest">
+                    200 SEO Posts • {activePosts.type}
+                  </p>
                 </div>
               </div>
               <button onClick={() => setActivePosts(null)} className="p-2 text-gray-400 hover:text-gray-900 transition-colors">
@@ -410,7 +437,7 @@ export default function DFYPage() {
                    placeholder="Search posts..." 
                    value={searchQuery}
                    onChange={(e) => setSearchQuery(e.target.value)}
-                   className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                   className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                  />
                </div>
             </div>
@@ -425,7 +452,7 @@ export default function DFYPage() {
                  return (
                    <div key={i} className={cn(
                      "group rounded-2xl border transition-all duration-300",
-                     isOpen ? "bg-white border-brand-500/30 shadow-xl" : "bg-white border-gray-100 hover:border-brand-500/20 shadow-sm"
+                     isOpen ? "bg-white border-indigo-500/30 shadow-xl" : "bg-white border-gray-100 hover:border-indigo-500/20 shadow-sm"
                    )}>
                       <button 
                         onClick={() => setExpandedPostId(isOpen ? null : i)}
@@ -435,7 +462,7 @@ export default function DFYPage() {
                           <div className="flex items-center gap-3 mb-1">
                              <span className={cn(
                                "w-7 h-7 rounded-lg text-[10px] font-black flex items-center justify-center transition-colors",
-                               isOpen ? "bg-brand-600 text-white" : "bg-gray-50 text-gray-400 group-hover:bg-brand-50 group-hover:text-brand-600"
+                               isOpen ? "bg-indigo-600 text-white" : "bg-gray-50 text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-600"
                              )}>{i + 1}</span>
                              <h4 className={cn("font-bold text-sm transition-colors", isOpen ? "text-gray-950" : "text-gray-900")}>{title}</h4>
                           </div>
@@ -445,7 +472,7 @@ export default function DFYPage() {
                             </p>
                           )}
                         </div>
-                        <div className={cn("mt-1 transition-transform duration-300", isOpen ? "rotate-180 text-brand-600" : "text-gray-400")}>
+                        <div className={cn("mt-1 transition-transform duration-300", isOpen ? "rotate-180 text-indigo-600" : "text-gray-400")}>
                            <ChevronRight size={18} className="rotate-90" />
                         </div>
                       </button>
@@ -501,7 +528,7 @@ export default function DFYPage() {
       {activePreview && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-gray-950/90 backdrop-blur-sm" onClick={() => setActivePreview(null)} />
-          <div className="relative w-full max-w-6xl bg-white rounded-3xl border border-gray-200 shadow-2xl overflow-hidden flex flex-col h-[90vh]">
+          <div className="relative w-full max-w-6xl bg-white rounded-[40px] border border-gray-100 shadow-2xl overflow-hidden flex flex-col h-[90vh]">
             <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50 gap-4 shrink-0">
               <div className="flex items-center gap-4 min-w-0">
                 <div

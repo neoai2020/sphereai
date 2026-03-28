@@ -54,7 +54,10 @@ export function InfiniteClient({ projects }: { projects: Project[] }) {
         const langs = translatedMap[project.id] || [];
         const isTranslating = translating === project.id;
         return (
-          <div key={project.id} className="flex flex-col gap-4 p-5 rounded-2xl bg-white border border-gray-100 hover:border-indigo-100 transition-all">
+          <div
+            key={project.id}
+            className="flex flex-col gap-4 p-6 rounded-[32px] bg-white border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all"
+          >
             <div>
               <span className="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-indigo-50 text-indigo-600 border border-indigo-100 mb-2">
                 {project.project_type || "Service"}
