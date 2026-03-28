@@ -58,7 +58,6 @@ export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
   const [aiColor,    setAiColor]    = useState("#4F46E5");
   const [generating, setGenerating] = useState(false);
   const [aiLogo,     setAiLogo]     = useState<string | null>(null);
-  const [aiDebug,    setAiDebug]    = useState<string | null>(null);
   const [aiError,    setAiError]    = useState<string | null>(null);
  
   // Upload state
@@ -80,7 +79,7 @@ export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
 
   async function generateWithAI() {
     if (!brandText.trim()) return;
-    setGenerating(true); setAiError(null); setAiLogo(null); setAiDebug(null);
+    setGenerating(true); setAiError(null); setAiLogo(null);
     try {
       const res  = await fetch("/api/logo-generate", {
         method: "POST",
@@ -91,21 +90,9 @@ export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
       if (data.image) {
         setAiLogo(data.image);
       } else if (data.error) {
-        setAiError(typeof data.error === "string" ? data.error : JSON.stringify(data.error));
+        setAiError(typeof data.error === "string" ? data.error : "Could not generate logo");
       } else {
-        const dbg = data.debug;
-        if (
-          dbg &&
-          typeof dbg === "object" &&
-          dbg !== null &&
-          (dbg as { status?: string; message?: string }).status === "error" &&
-          typeof (dbg as { message?: string }).message === "string"
-        ) {
-          setAiError((dbg as { message: string }).message);
-        } else {
-          setAiDebug(JSON.stringify(data, null, 2));
-          setAiError("API returned unexpected format — see debug below");
-        }
+        setAiError("Could not generate logo");
       }
     } catch (e: any) {
       setAiError(e.message);
@@ -255,12 +242,6 @@ export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
                   ✕ {aiError}
                 </p>
               )}
-              {aiDebug && (
-                <pre className="text-[10px] font-mono bg-gray-50 border border-gray-100 rounded-2xl p-3 overflow-auto max-h-40 text-gray-500">
-                  {aiDebug}
-                </pre>
-              )}
-
               <button onClick={generateWithAI} disabled={!brandText.trim() || generating}
                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-brand-600 text-white text-sm font-black hover:bg-brand-700 transition-all disabled:opacity-40 shadow-lg shadow-brand-500/20 whitespace-nowrap">
                 {generating
