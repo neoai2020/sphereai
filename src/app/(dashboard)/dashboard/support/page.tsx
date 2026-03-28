@@ -1,29 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import { 
   Mail, 
   MessageCircle, 
   ExternalLink, 
-  ChevronDown, 
   HelpCircle, 
   Headphones, 
   ShieldCheck, 
   FileText 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const FAQS = [
-  { q: "What are the daily usage limits?", a: "Each plan comes with generous limits. Free users get 10 generations per day, while Infinite users enjoy unlimited throughput." },
-  { q: "Does SphereAI send emails for me?", a: "Yes, our automation engine can handle outreach campaigns directly through your connected SMTP or API providers." },
-  { q: "Why are some business emails unavailable?", a: "We prioritize verified data. If an email can't be 100% validated, we exclude it to protect your sender reputation." },
-  { q: "Are leads validated?", a: "Absolutely. Every lead goes through our multi-step validation process including syntax check and MX record verification." },
-  { q: "Which industries can I target in Lead Magnet?", a: "We support over 500+ industries globally across B2B and B2C segments." },
-  { q: "What offer types can I create?", a: "From discount codes to lead magnets and webinar registrations, our builder supports all high-converting offer types." },
-];
+import { FaqAccordion } from "@/components/dashboard/faq-accordion";
+import { SPHEREAI_FAQS } from "@/data/sphereai-faqs";
 
 export default function SupportPage() {
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   return (
     <div className="min-h-screen bg-[#FDFDFF] text-gray-900 pb-24 px-4 sm:px-8 relative overflow-hidden">
@@ -87,24 +77,7 @@ export default function SupportPage() {
               </div>
             </div>
             
-            <div className="divide-y divide-gray-50">
-              {FAQS.map((faq, i) => (
-                <div key={i} className="group">
-                  <button 
-                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="w-full px-8 py-5 flex items-center justify-between text-left hover:bg-gray-50/50 transition-colors"
-                  >
-                    <span className={cn("text-xs font-bold transition-colors", openFaq === i ? "text-brand-600 font-black" : "text-gray-600 group-hover:text-gray-950")}>{faq.q}</span>
-                    <ChevronDown size={14} className={cn("text-gray-300 transition-transform duration-300", openFaq === i && "rotate-180 text-brand-500")} />
-                  </button>
-                  {openFaq === i && (
-                    <div className="px-8 pb-5 text-gray-500 text-xs leading-relaxed animate-in fade-in slide-in-from-top-1 duration-200">
-                      {faq.a}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+            <FaqAccordion items={SPHEREAI_FAQS} defaultOpenIndex={0} variant="default" />
           </div>
 
           {/* Ask Anything Card */}
