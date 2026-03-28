@@ -17,6 +17,7 @@ import {
   Zap,
   Globe,
   ChevronRight,
+  Infinity,
 } from "lucide-react";
 import type { PageType } from "@/types/database";
 import { VimeoEmbed } from "@/components/dashboard/vimeo-embed";
@@ -381,6 +382,101 @@ export default function NewProjectPage() {
         ))}
       </div>
 
+      {/* Generation limiter — all steps; server-tracked rolling 24h window */}
+      <div className="mb-8 max-w-2xl mx-auto px-4">
+        <div
+          className={cn(
+            "rounded-2xl border p-4 sm:p-5 flex flex-col sm:flex-row sm:items-stretch gap-4 sm:gap-6",
+            remainingInfo.unlimited
+              ? "border-emerald-200 bg-gradient-to-br from-emerald-50 to-white shadow-sm shadow-emerald-100/50"
+              : "border-gray-200 bg-white shadow-sm"
+          )}
+        >
+          <div className="flex-1 min-w-0">
+            <p
+              className={cn(
+                "text-[10px] font-black uppercase tracking-[0.2em] mb-2",
+                remainingInfo.unlimited ? "text-emerald-700/80" : "text-gray-500"
+              )}
+            >
+              {remainingInfo.unlimited ? "Your plan" : "Daily generation limit"}
+            </p>
+            {remainingInfo.unlimited ? (
+              <div className="flex items-center gap-4">
+                <span
+                  className="text-5xl sm:text-6xl font-black text-emerald-700 leading-none tabular-nums"
+                  aria-label="Infinite generations"
+                >
+                  ∞
+                </span>
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-11 h-11 rounded-xl bg-emerald-100 border border-emerald-200 flex items-center justify-center shrink-0">
+                    <Infinity className="w-6 h-6 text-emerald-700" strokeWidth={2.5} />
+                  </div>
+                  <div>
+                    <p className="text-lg font-black text-emerald-950">Infinite</p>
+                    <p className="text-xs text-emerald-800 font-semibold leading-snug">
+                      Unlimited Site Forge builds — no daily cap.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <span className="text-4xl sm:text-5xl font-black text-brand-600 tabular-nums">
+                    {remainingInfo.remaining}
+                  </span>
+                  <span className="text-2xl sm:text-3xl font-black text-gray-300">/</span>
+                  <span className="text-4xl sm:text-5xl font-black text-gray-900 tabular-nums">
+                    {remainingInfo.limit}
+                  </span>
+                  <span className="text-sm sm:text-base font-bold text-gray-600 ml-1">
+                    full sites left today
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mt-3 leading-relaxed max-w-lg">
+                  <strong className="text-gray-700">5 generations per day</strong> on a{" "}
+                  <strong className="text-gray-700">rolling 24-hour window</strong> (not midnight). When
+                  you use a slot, it frees again <strong>24 hours</strong> after that build. Counted on
+                  our servers — not your browser or cookies.
+                </p>
+                {remainingInfo.remaining <= 0 && formatNextSlotAt(remainingInfo.nextSlotAt) && (
+                  <p className="text-xs text-amber-800 font-semibold mt-2 flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>
+                      Next slot after{" "}
+                      <span className="font-black">{formatNextSlotAt(remainingInfo.nextSlotAt)}</span>
+                    </span>
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+          {!remainingInfo.unlimited && (
+            <div className="w-full sm:w-40 shrink-0 flex flex-col justify-center gap-2">
+              <div className="flex justify-between text-[9px] font-black uppercase tracking-wider text-gray-400">
+                <span>Used</span>
+                <span className="text-gray-700">
+                  {remainingInfo.used} / {remainingInfo.limit}
+                </span>
+              </div>
+              <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden border border-gray-100">
+                <div
+                  className="h-full bg-gradient-to-r from-brand-500 to-brand-600 rounded-full transition-all duration-500"
+                  style={{
+                    width: `${Math.min(100, (remainingInfo.used / Math.max(1, remainingInfo.limit)) * 100)}%`,
+                  }}
+                />
+              </div>
+              <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wide text-center sm:text-left">
+                Resets every 24h
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/40 overflow-hidden">
         {error && (
           <div className="bg-red-50 text-red-600 text-sm p-5 border-b border-red-100 flex items-center gap-3 font-bold">
@@ -698,63 +794,7 @@ export default function NewProjectPage() {
                     );
                   })()}
                 </div>
-              ) : (
-                <div
-                  className={cn(
-                    "p-5 rounded-xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3",
-                    remainingInfo.unlimited
-                      ? "border-emerald-200 bg-emerald-50/80"
-                      : "border-gray-100 bg-gray-50"
-                  )}
-                >
-                  <div>
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
-                      {remainingInfo.unlimited
-                        ? "Infinite plan — Site Forge"
-                        : `Full sites left (${remainingInfo.windowHours}h rolling window, server)`}
-                    </span>
-                    <div className="flex items-baseline gap-1.5">
-                      {remainingInfo.unlimited ? (
-                        <>
-                          <span className="text-3xl font-black text-emerald-800">∞</span>
-                          <span className="text-xs text-emerald-700 font-bold">No daily generation cap</span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="text-3xl font-black text-gray-900">{remainingInfo.remaining}</span>
-                          <span className="text-xs text-gray-400 font-bold">/ {remainingInfo.limit}</span>
-                        </>
-                      )}
-                    </div>
-                    {!remainingInfo.unlimited &&
-                      remainingInfo.remaining <= 0 &&
-                      formatNextSlotAt(remainingInfo.nextSlotAt) && (
-                        <p className="text-xs text-amber-800 font-medium mt-2 max-w-md">
-                          Next slot opens around{" "}
-                          <span className="font-bold">{formatNextSlotAt(remainingInfo.nextSlotAt)}</span>{" "}
-                          (when your oldest build in this window ages out).
-                        </p>
-                      )}
-                  </div>
-                  <div className="w-full sm:w-32 shrink-0">
-                    <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className={cn(
-                          "h-full transition-all duration-700 rounded-full",
-                          remainingInfo.unlimited ? "bg-emerald-500 w-full" : "bg-brand-600"
-                        )}
-                        style={
-                          remainingInfo.unlimited
-                            ? undefined
-                            : {
-                                width: `${Math.min(100, (remainingInfo.used / remainingInfo.limit) * 100)}%`,
-                              }
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
+              ) : null}
 
               {!loading && (
                 <div className="flex justify-between pt-6 border-t border-gray-50">
