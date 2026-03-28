@@ -279,11 +279,11 @@ export default function NewProjectPage() {
                 Watch the walkthrough to build your AI-optimized site.
               </p>
             </div>
-            <div className="p-2 bg-black">
+            <div className="p-1 bg-white">
               <VimeoEmbed
                 videoId={SITE_FORGE_VIMEO_ID}
                 title="2 — Site Forge"
-                variant="none"
+                shell="inner"
               />
             </div>
           </div>

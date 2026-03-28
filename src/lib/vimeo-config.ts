@@ -1,6 +1,7 @@
 /**
- * Vimeo video numeric IDs. Iframe query flags for all embeds live in
- * `buildVimeoEmbedSrc` (`@/lib/vimeo-embed-url`) — use that when adding players.
+ * Vimeo video numeric IDs. Iframe query flags: `buildVimeoEmbedSrc` (`@/lib/vimeo-embed-url`).
+ * Visual chrome: use `<VimeoEmbed />` — default `shell="full"` matches the dashboard card; use
+ * `shell="inner"` when the player sits inside another bordered card (e.g. Site Forge, Training).
  */
 
 /** Featured “Getting Started” training video (dashboard + training page). */

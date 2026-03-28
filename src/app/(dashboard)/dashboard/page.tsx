@@ -65,7 +65,6 @@ export default async function DashboardPage() {
           <VimeoEmbed
             videoId={GETTING_STARTED_VIMEO_ID}
             title="1 — Getting Started"
-            variant="dashboard"
           />
           
           {/* 6. Live Success (Moved under video) */}

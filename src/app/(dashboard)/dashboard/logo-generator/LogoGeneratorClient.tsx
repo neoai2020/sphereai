@@ -161,7 +161,6 @@ export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
         <VimeoEmbed
           videoId={SITE_FORGE_VIMEO_ID}
           title="Site Forge walkthrough"
-          variant="training"
         />
       </div>
 

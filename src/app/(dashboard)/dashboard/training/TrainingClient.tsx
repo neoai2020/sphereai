@@ -81,8 +81,8 @@ export default function TrainingClient() {
                 <div className="px-4 py-3 border-b border-gray-100">
                   <h2 className="text-base font-semibold text-gray-900">{block.title}</h2>
                 </div>
-                <div className="p-2 bg-black">
-                  <VimeoEmbed videoId={block.videoId} title={block.title} variant="none" />
+                <div className="p-1 bg-white">
+                  <VimeoEmbed videoId={block.videoId} title={block.title} shell="inner" />
                 </div>
               </div>
             ))}
