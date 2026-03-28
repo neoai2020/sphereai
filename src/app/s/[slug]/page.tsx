@@ -66,12 +66,22 @@ export default async function LandingPage({ params }: Props) {
     notFound();
   }
 
+  const projectTpls = (project as { selected_templates?: Record<string, number> }).selected_templates || {};
+  const landingTemplateId = Number(projectTpls.landing ?? 1) || 1;
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(page.schema_markup),
+          __html: JSON.stringify(
+            page.schema_markup || {
+              "@context": "https://schema.org",
+              "@type": "WebPage",
+              name: page.title,
+              description: page.meta_description,
+            },
+          ),
         }}
       />
       <LandingRenderer
@@ -81,6 +91,8 @@ export default async function LandingPage({ params }: Props) {
         productName={project.product_name}
         themeId={project.theme_id}
         primaryColor={project.primary_color}
+        heroImage={(project as { custom_images?: { hero?: string } }).custom_images?.hero}
+        templateId={landingTemplateId}
       />
     </>
   );

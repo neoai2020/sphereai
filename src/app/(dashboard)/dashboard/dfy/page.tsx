@@ -27,121 +27,16 @@ import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { VideoPlaceholder } from "@/components/dashboard/video-placeholder";
+import {
+  getDfySites,
+  DFY_SITE_TYPES,
+  dfyPostTitle,
+  dfyPostBody,
+  dfyPostTags,
+  type DfySite,
+} from "@/lib/dfy-catalog";
 
-const TYPES = [
-  "E-commerce", "Service", "Portfolio", "Landing Page", "Blog", 
-  "Education", "Health/Medical", "Personal Branding", "Corporate"
-];
-
-const TYPE_IMAGES: Record<string, string[]> = {
-  "E-commerce": [
-    "https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&q=80&w=800"
-  ],
-  "Service": [
-    "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1581578731522-7455ee538bca?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1591955506264-3f5a6834570a?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&q=80&w=800"
-  ],
-  "Portfolio": [
-    "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1454165833267-0c1fd46585f5?auto=format&fit=crop&q=80&w=800"
-  ],
-  "Landing Page": [
-    "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80&w=800"
-  ],
-  "Blog": [
-    "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&q=80&w=800"
-  ],
-  "Education": [
-    "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1513258496099-48168024adb0?auto=format&fit=crop&q=80&w=800"
-  ],
-  "Health/Medical": [
-    "https://images.unsplash.com/photo-1505751172107-12939972c7dd?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1576091160550-217359f49f4c?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1631217816660-ad3535299921?auto=format&fit=crop&q=80&w=800"
-  ],
-  "Personal Branding": [
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800"
-  ],
-  "Corporate": [
-    "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=800",
-    "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=800"
-  ]
-};
-
-const SITE_VERBS = ["Pro", "Elite", "Hub", "Studio", "Labs", "Agency", "Works", "Co", "Space", "Ventures"];
-const SITE_ADJECTIVES = ["Premium", "Advanced", "Smart", "Modern", "Expert", "Digital", "Creative", "Dynamic", "Global", "Next-Gen"];
-
-const ALL_SITES = [
-  {
-    id: "dfy-cartflow",
-    name: "CartFlow",
-    niche: "E-commerce Solutions",
-    description: "Handcrafted goods from independent artisans, delivered worldwide. Optimized for speed and high conversion.",
-    type: "E-commerce",
-    image: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&q=80&w=800",
-    posts: 200,
-    theme: "Clean Theme"
-  },
-  {
-    id: "dfy-lumina",
-    name: "Lumina Labs",
-    niche: "Agency / Saas",
-    description: "Next-gen digital solutions for high-growth startups and enterprises. Built with a modern tech stack.",
-    type: "Service",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800",
-    posts: 200,
-    theme: "Dark Mode"
-  },
-  {
-    id: "dfy-expert",
-    name: "Expert Academy",
-    niche: "Education / LMS",
-    description: "A complete learning management platform to host your courses and grow your community.",
-    type: "Education",
-    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=800",
-    posts: 200,
-    theme: "Clean Theme"
-  },
-  ...Array.from({ length: 177 }).map((_, i) => {
-    const type = TYPES[i % TYPES.length];
-    const images = TYPE_IMAGES[type];
-    const image = images[i % images.length];
-    const verb = SITE_VERBS[Math.floor(i / TYPES.length) % SITE_VERBS.length];
-    const adj = SITE_ADJECTIVES[(i + 3) % SITE_ADJECTIVES.length];
-    return {
-      id: `dfy-${i + 3}`,
-      name: `${adj} ${type} ${verb}`,
-      niche: `${type} - ${verb}`,
-      description: `A fully optimized ${type.toLowerCase()} platform with ${adj.toLowerCase()} features and pre-written SEO content.`,
-      type: type,
-      image: image,
-      posts: 200,
-      theme: "Clean Theme"
-    };
-  })
-];
+const ALL_SITES = getDfySites();
 
 export default function DFYPage() {
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -151,8 +46,8 @@ export default function DFYPage() {
   const [claimedProjectMap, setClaimedProjectMap] = useState<Record<string, string>>({}); // Site ID -> Project Slug
   const [claiming, setClaiming] = useState<string | null>(null);
   
-  const [activePreview, setActivePreview] = useState<typeof ALL_SITES[0] | null>(null);
-  const [activePosts, setActivePosts] = useState<typeof ALL_SITES[0] | null>(null);
+  const [activePreview, setActivePreview] = useState<DfySite | null>(null);
+  const [activePosts, setActivePosts] = useState<DfySite | null>(null);
   const [expandedPostId, setExpandedPostId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -194,7 +89,7 @@ export default function DFYPage() {
     checkAccess();
   }, []);
 
-  const handleClaim = async (site: typeof ALL_SITES[0]) => {
+  const handleClaim = async (site: DfySite) => {
     setClaiming(site.id);
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -215,7 +110,15 @@ export default function DFYPage() {
         product_name: site.name,
         product_description: site.description,
         status: "published",
-        project_type: "service"
+        project_type: "service",
+        theme_id: site.theme_id,
+        primary_color: site.primary_color,
+        secondary_color: site.secondary_color,
+        font_family: site.font_family,
+        keywords: site.keywords,
+        target_audience: site.target_audience,
+        custom_images: { hero: site.image },
+        selected_templates: site.selected_templates,
       }).select().single();
       
       if (pError || !project) throw pError || new Error("Project creation failed");
@@ -226,14 +129,14 @@ export default function DFYPage() {
         slug: "index",
         page_type: "landing",
         is_published: true,
-        content: {
-          heroTitle: site.name,
-          heroSubtitle: site.description,
-          features: [
-            { title: "Premium Design", description: "Fully optimized for speed and conversion." },
-            { title: "Done-For-You", description: "Complete content and SEO-ready structure." }
-          ]
-        }
+        meta_description: site.description.slice(0, 160),
+        content: site.landingContent,
+        schema_markup: {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          name: site.name,
+          description: site.description.slice(0, 300),
+        },
       });
 
       if (pgError) throw pgError;
@@ -302,7 +205,7 @@ export default function DFYPage() {
               >
                 All
               </button>
-              {TYPES.map((type) => (
+              {DFY_SITE_TYPES.map((type) => (
                 <button
                   key={type}
                   onClick={() => { setActiveType(type); setVisibleCount(12); }}
@@ -333,10 +236,20 @@ export default function DFYPage() {
                   <img 
                     src={site.image} 
                     alt={site.name}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
-                  <div className="absolute top-4 left-4 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-gray-100">
-                    <span className="text-[10px] font-black text-brand-600 uppercase tracking-widest">{site.type}</span>
+                  <div
+                    className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full border"
+                    style={{ borderColor: `${site.primary_color}40` }}
+                  >
+                    <span
+                      className="text-[10px] font-black uppercase tracking-widest"
+                      style={{ color: site.primary_color }}
+                    >
+                      {site.type}
+                    </span>
                   </div>
                   {isClaimed && (
                     <div className="absolute inset-0 bg-emerald-500/20 backdrop-blur-[2px] flex flex-col items-center justify-center">
@@ -453,49 +366,9 @@ export default function DFYPage() {
             <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/50">
                {Array.from({ length: 15 }).map((_, i) => {
                  const isOpen = expandedPostId === i;
-                 const title = [
-                   `How to optimize your ${activePosts.niche} strategy for 2024`,
-                   `The Secrets of successful ${activePosts.type} platforms`,
-                   `10 Tips to grow your ${activePosts.name} ecosystem`,
-                   `Why ${activePosts.niche} is the future of digital assets`,
-                   `${activePosts.name}: A complete guide to 10X growth`
-                 ][i % 5];
-
-                 const contentTemplate = [
-                   `In today's competitive landscape, understanding and implementing the right strategies is what separates successful businesses from the rest. This guide breaks down everything you need to know about this topic and how ${activePosts.name} can help you get ahead.
-
-Key takeaways:
-• Focus on delivering real value to your audience
-• Consistency compounds — small improvements lead to big results
-• Measure what matters and iterate based on data
-• Build trust through transparency and expertise
-
-Whether you're just getting started or looking to scale, the principles in this article will help you make informed decisions and see tangible results.`,
-
-                   `Are you looking to take your ${activePosts.niche} to the next level? Many people struggle with the initial setup, but success is closer than you think. By following a proven framework, you can unlock consistent growth.
-
-Here is the step-by-step process:
-1. Audit your current ${activePosts.type} strategy.
-2. Identify the gaps in your ${activePosts.name} workflow.
-3. Implement automated solutions for better efficiency.
-4. Scale up once you find a winning formula.
-
-Start applying these steps today and watch your metrics soar.`,
-
-                   `Common questions about ${activePosts.niche}:
-Q: How long does it take to see results?
-A: Typically 4-6 weeks with consistent effort using ${activePosts.name}.
-
-Q: Is this suitable for beginners?
-A: Absolutely. Our ${activePosts.type} structures are designed for all skill levels.
-
-Q: What is the main benefit?
-A: Automation and high-converting content are at the core of what we do.
-
-Don't wait for success to find you—go out and build it with the right tools.`
-                 ][i % 3];
-
-                 const content = `${contentTemplate}\n\nTags: #${activePosts.type.toLowerCase().replace(/ /g, '')} #sales #conversion #marketing #growth`;
+                 const title = dfyPostTitle(activePosts, i);
+                 const content = dfyPostBody(activePosts, i);
+                 const tagList = dfyPostTags(activePosts, i);
 
                  return (
                    <div key={i} className={cn(
@@ -535,9 +408,18 @@ Don't wait for success to find you—go out and build it with the right tools.`
                               </div>
 
                               <div className="flex items-center justify-between pt-6 border-t border-gray-200">
-                                <div className="flex gap-2">
-                                  {["#ecommerce", "#sales", "#conversion"].map(tag => (
-                                    <span key={tag} className="px-2 py-1 rounded bg-brand-50 text-brand-600 text-[10px] font-bold">{tag}</span>
+                                <div className="flex gap-2 flex-wrap">
+                                  {tagList.map((tag) => (
+                                    <span
+                                      key={tag}
+                                      className="px-2 py-1 rounded text-[10px] font-bold"
+                                      style={{
+                                        backgroundColor: `${activePosts.primary_color}18`,
+                                        color: activePosts.primary_color,
+                                      }}
+                                    >
+                                      {tag}
+                                    </span>
                                   ))}
                                 </div>
                                 <button 
@@ -589,31 +471,55 @@ Don't wait for success to find you—go out and build it with the right tools.`
             <div className="flex-1 overflow-y-auto bg-[#FDFDFF] p-10 pt-20">
                <div className="max-w-4xl mx-auto space-y-20">
                   <div className="text-center space-y-6">
-                     <span className="px-4 py-2 rounded-full bg-brand-50 text-brand-600 text-[10px] font-black uppercase tracking-widest">{activePreview.niche}</span>
-                     <h1 className="text-6xl font-black tracking-tighter text-gray-950 leading-none italic">Discover. Shop. Love.</h1>
-                     <p className="text-lg text-gray-500 font-medium max-w-2xl mx-auto">{activePreview.description}</p>
+                     <span
+                       className="px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest"
+                       style={{
+                         backgroundColor: `${activePreview.primary_color}20`,
+                         color: activePreview.primary_color,
+                       }}
+                     >
+                       {activePreview.niche}
+                     </span>
+                     <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter text-gray-950 leading-tight italic">
+                       {activePreview.previewHeadline}
+                     </h1>
+                     <p className="text-lg text-gray-500 font-medium max-w-2xl mx-auto">{activePreview.previewSubhead}</p>
                      <div className="pt-4">
-                        <button className="px-8 py-4 rounded-2xl bg-brand-600 text-white font-black uppercase tracking-widest shadow-xl shadow-brand-500/20">Get Started Today</button>
+                        <button
+                          type="button"
+                          className="px-8 py-4 rounded-2xl text-white font-black uppercase tracking-widest shadow-xl"
+                          style={{
+                            backgroundColor: activePreview.primary_color,
+                            boxShadow: `0 20px 40px ${activePreview.primary_color}33`,
+                          }}
+                        >
+                          {activePreview.previewCta}
+                        </button>
                      </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10 py-20 border-t border-gray-100">
                     <div className="space-y-4">
                        <h2 className="text-3xl font-black italic">Why choose {activePreview.name}?</h2>
-                       <p className="text-gray-500 font-medium">Everything you need to launch your niche enterprise instantly.</p>
+                       <p className="text-gray-500 font-medium">
+                         Layout {activePreview.selected_templates.landing} of 5 · {activePreview.theme} palette
+                       </p>
                     </div>
                     <div className="grid grid-cols-1 gap-6">
-                       {[
-                         { t: "SEO Optimized", d: "Pre-written posts and metadata." },
-                         { t: "Premium Design", d: "High-end aesthetic for better conversion." }
-                       ].map((f, i) => (
+                       {activePreview.previewFeatures.map((f, i) => (
                          <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white border border-gray-100 shadow-sm">
-                            <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                            <div
+                              className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                              style={{
+                                backgroundColor: `${activePreview.primary_color}18`,
+                                color: activePreview.primary_color,
+                              }}
+                            >
                                <Check size={18} />
                             </div>
                             <div>
-                               <h4 className="font-bold text-gray-950">{f.t}</h4>
-                               <p className="text-xs text-gray-500">{f.d}</p>
+                               <h4 className="font-bold text-gray-950">{f.title}</h4>
+                               <p className="text-xs text-gray-500">{f.description}</p>
                             </div>
                          </div>
                        ))}
@@ -627,7 +533,8 @@ Don't wait for success to find you—go out and build it with the right tools.`
                <button 
                  onClick={() => { handleClaim(activePreview); setActivePreview(null); }}
                  disabled={claiming === activePreview.id}
-                 className="px-8 py-4 rounded-2xl bg-brand-600 text-white font-black uppercase tracking-widest shadow-xl shadow-brand-600/20 flex items-center gap-2 hover:bg-brand-500 transition-all"
+                 className="px-8 py-4 rounded-2xl text-white font-black uppercase tracking-widest shadow-xl flex items-center gap-2 transition-all hover:opacity-90"
+                 style={{ backgroundColor: activePreview.primary_color, boxShadow: `0 20px 40px ${activePreview.primary_color}44` }}
                >
                  <Plus size={18} /> {claiming === activePreview.id ? "Claiming..." : "Add to my websites"}
                </button>

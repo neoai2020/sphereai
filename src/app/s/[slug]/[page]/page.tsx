@@ -75,6 +75,8 @@ export default async function SubPage({ params }: Props) {
   if (!page) notFound();
 
   const content = page.content as Record<string, unknown>;
+  const projectTpls = (project as { selected_templates?: Record<string, number> }).selected_templates || {};
+  const templateId = Number(projectTpls[pageSlug as PageType] ?? 1) || 1;
 
   return (
     <>
@@ -91,6 +93,7 @@ export default async function SubPage({ params }: Props) {
           slug={project.slug}
           themeId={project.theme_id}
           primaryColor={project.primary_color}
+          templateId={templateId}
         />
       )}
       {pageSlug === "faq" && (
@@ -99,6 +102,7 @@ export default async function SubPage({ params }: Props) {
           slug={project.slug}
           themeId={project.theme_id}
           primaryColor={project.primary_color}
+          templateId={templateId}
         />
       )}
       {pageSlug === "blog" && (
@@ -107,6 +111,7 @@ export default async function SubPage({ params }: Props) {
           slug={project.slug}
           themeId={project.theme_id}
           primaryColor={project.primary_color}
+          templateId={templateId}
         />
       )}
       {pageSlug === "reviews" && (
@@ -115,6 +120,7 @@ export default async function SubPage({ params }: Props) {
           slug={project.slug}
           themeId={project.theme_id}
           primaryColor={project.primary_color}
+          templateId={templateId}
         />
       )}
     </>

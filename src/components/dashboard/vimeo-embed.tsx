@@ -19,7 +19,7 @@ export function VimeoEmbed({
   className,
   variant = "none",
 }: VimeoEmbedProps) {
-  const src = `https://player.vimeo.com/video/${videoId}?badge=0&autopause=0&player_id=0&app_id=58479`;
+  const src = `https://player.vimeo.com/video/${videoId}?badge=0&autopause=0&player_id=0&app_id=58479&byline=0&portrait=0`;
 
   const frame = (
     <div className="relative aspect-video w-full overflow-hidden bg-black">
