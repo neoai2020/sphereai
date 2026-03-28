@@ -27,6 +27,13 @@ import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import { createClient } from "@/lib/supabase/client";
 import { VideoPlaceholder } from "@/components/dashboard/video-placeholder";
 
+type TenXProjectRow = {
+  id: string;
+  name: string;
+  product_name: string;
+  slug: string;
+};
+
 export default function TenXPage() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [checkingAccess, setCheckingAccess] = useState(true);
@@ -36,6 +43,10 @@ export default function TenXPage() {
   const [posts, setPosts] = useState<string[]>([]);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const progressRef = useRef<NodeJS.Timeout | null>(null);
+  const [projects, setProjects] = useState<TenXProjectRow[]>([]);
+  const [projectsLoading, setProjectsLoading] = useState(false);
+  /** Empty string = manual entry; otherwise a project id */
+  const [selectedProjectId, setSelectedProjectId] = useState("");
 
   const PROGRESS_STEPS = [
     "Analyzing Prompt...",
@@ -68,6 +79,16 @@ export default function TenXPage() {
       
       const hasAccess = sub?.has_10x || user.user_metadata?.plan === 'infinite';
       setIsSubscribed(hasAccess);
+      if (hasAccess) {
+        setProjectsLoading(true);
+        const { data: rows } = await supabase
+          .from("projects")
+          .select("id, name, product_name, slug")
+          .eq("user_id", user.id)
+          .order("updated_at", { ascending: false });
+        setProjects((rows as TenXProjectRow[]) || []);
+        setProjectsLoading(false);
+      }
       setCheckingAccess(false);
     }
     checkAccess();
@@ -121,8 +142,8 @@ export default function TenXPage() {
   ];
 
   async function handleGenerate() {
-    if (!form.name || !form.url) {
-      setError("Please provide both a link name and a promotional link.");
+    if (!selectedProjectId && (!form.name || !form.url)) {
+      setError("Please provide both a link name and a promotional link, or pick a website from the list.");
       return;
     }
 
@@ -141,17 +162,23 @@ export default function TenXPage() {
     }, 1800);
 
     try {
+      const body = selectedProjectId
+        ? { projectId: selectedProjectId }
+        : {
+            productName: form.name,
+            productDescription:
+              form.description ||
+              `Promotional link for ${form.name}. The target landing page URL is ${form.url}. Generate 10 high-converting Facebook posts to drive traffic.`,
+            productLink: form.url,
+          };
+
       const res = await fetch("/api/ai/10x", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          productName: form.name,
-          productDescription: form.description || `Promotional link for ${form.name}. The target landing page URL is ${form.url}. Generate 10 high-converting Facebook posts to drive traffic.`,
-          productLink: form.url,
-        }),
+        body: JSON.stringify(body),
       });
 
-      let data;
+      let data: { posts?: string[]; linkUsed?: string; error?: string };
       const text = await res.text();
       try {
         data = JSON.parse(text);
@@ -164,8 +191,10 @@ export default function TenXPage() {
         if (!data.posts || !Array.isArray(data.posts) || data.posts.length === 0) {
           throw new Error("AI service didn't return any posts — please try a more detailed name or description.");
         }
-        const processedPosts = data.posts.map((p: string) => 
-          p.replace(/\[YOUR LINK HERE\]/g, form.url)
+        const linkForReplace =
+          (typeof data.linkUsed === "string" && data.linkUsed) || form.url || "";
+        const processedPosts = data.posts.map((p: string) =>
+          p.replace(/\[YOUR LINK HERE\]/g, linkForReplace)
         );
         setTimeout(() => {
           setPosts(processedPosts);
@@ -283,44 +312,74 @@ export default function TenXPage() {
               </div>
             )}
 
-            {/* Form Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <label className="text-sm font-black text-gray-900 uppercase tracking-widest ml-1">Link Name/Goal</label>
-                <input 
-                  type="text"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="e.g. My Website, My New Product, eBook Launch"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium"
-                />
-              </div>
-              <div className="space-y-3">
-                <label className="text-sm font-black text-gray-900 uppercase tracking-widest ml-1">Promotional Link</label>
-                <div className="relative group">
-                  <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors">
-                    <LinkIcon size={20} />
-                  </div>
-                  <input 
-                    type="url"
-                    value={form.url}
-                    onChange={(e) => setForm({ ...form, url: e.target.value })}
-                    placeholder="https://example.com/product"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl pl-12 pr-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium"
-                  />
-                </div>
-              </div>
+            {/* Source: existing website vs manual */}
+            <div className="space-y-3">
+              <label className="text-sm font-black text-gray-900 uppercase tracking-widest ml-1">
+                Use your generated website
+              </label>
+              <select
+                value={selectedProjectId}
+                onChange={(e) => setSelectedProjectId(e.target.value)}
+                disabled={projectsLoading}
+                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 text-gray-900 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium appearance-none cursor-pointer disabled:opacity-60"
+              >
+                <option value="">Enter link and details manually</option>
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.product_name || p.name}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 font-medium ml-1">
+                {selectedProjectId
+                  ? "AI will use your Site Forge data and landing page copy to write posts. The link will be your product URL if set, otherwise your public site URL."
+                  : projects.length === 0 && !projectsLoading
+                    ? "No websites yet — create one in Site Forge, or use manual entry below."
+                    : "Or leave this on “manual” and fill in the fields below."}
+              </p>
             </div>
 
-            <div className="space-y-3">
-              <label className="text-sm font-black text-gray-900 uppercase tracking-widest ml-1">Product Description (Optional)</label>
-              <textarea 
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="Briefly describe the product, its key benefits, or the target audience to get better AI results..."
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium h-32 resize-none"
-              />
-            </div>
+            {!selectedProjectId && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-sm font-black text-gray-900 uppercase tracking-widest ml-1">Link Name/Goal</label>
+                    <input
+                      type="text"
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      placeholder="e.g. My Website, My New Product, eBook Launch"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-sm font-black text-gray-900 uppercase tracking-widest ml-1">Promotional Link</label>
+                    <div className="relative group">
+                      <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors">
+                        <LinkIcon size={20} />
+                      </div>
+                      <input
+                        type="url"
+                        value={form.url}
+                        onChange={(e) => setForm({ ...form, url: e.target.value })}
+                        placeholder="https://example.com/product"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl pl-12 pr-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-sm font-black text-gray-900 uppercase tracking-widest ml-1">Product Description (Optional)</label>
+                  <textarea
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    placeholder="Briefly describe the product, its key benefits, or the target audience to get better AI results..."
+                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium h-32 resize-none"
+                  />
+                </div>
+              </>
+            )}
 
             {/* Generate Button */}
             <button 
