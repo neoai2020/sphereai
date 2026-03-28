@@ -8,6 +8,7 @@ import { Globe, Menu, X, ExternalLink } from "lucide-react";
 interface Project {
   id: string;
   name: string;
+  product_name?: string | null;
   product_description: string;
   primary_color?: string | null;
   site_logo?: string | null;
@@ -55,7 +56,9 @@ export function SiteShell({ project, slug, children }: SiteShellProps) {
                 <Globe size={15} />
               )}
             </div>
-            <span className="text-sm font-black text-gray-900 tracking-tight">{project.name}</span>
+            <span className="text-sm font-black text-gray-900 tracking-tight">
+              {project.product_name || project.name}
+            </span>
           </Link>
 
           {/* Desktop Nav */}
@@ -161,7 +164,7 @@ export function SiteShell({ project, slug, children }: SiteShellProps) {
                     <Globe size={15} />
                   )}
                 </div>
-                <span className="font-black text-sm">{project.name}</span>
+                <span className="font-black text-sm">{project.product_name || project.name}</span>
               </div>
               <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
                 {project.product_description.slice(0, 120)}...
@@ -212,7 +215,7 @@ export function SiteShell({ project, slug, children }: SiteShellProps) {
           {/* Bottom bar */}
           <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-              © {new Date().getFullYear()} {project.name}. All rights reserved.
+              © {new Date().getFullYear()} {project.product_name || project.name}. All rights reserved.
             </p>
             <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">
               Built with <span style={{ color: primaryColor }}>SiteForge AI</span>

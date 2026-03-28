@@ -1,9 +1,16 @@
 /**
  * DFY Library: 180 unique catalog entries aligned with Site Forge (theme_id, colors, templates).
- * Hero images are static files under /public/dfy/heroes/{id}.webp (pre-generated; same for every user).
- * Run once before ship (or in CI): npm run generate:dfy-heroes
- * (Default: bake photos from Picsum per id; optional Pollinations via DFY_HERO_SOURCE=pollinations.)
+ * Hero + section images: /public/dfy/heroes/{id}.webp, {id}-benefits.webp, {id}-social.webp
+ * Run: npm run generate:dfy-heroes
  */
+
+import {
+  buildDfyAboutContent,
+  buildDfyBlogContent,
+  buildDfyFaqContent,
+  buildDfyReviewsContent,
+  DFY_RELATED_NAV,
+} from "@/lib/dfy-page-contents";
 
 export const DFY_SITE_TYPES = [
   "E-commerce",
@@ -222,13 +229,21 @@ export type DfySelectedTemplates = {
   reviews: number;
 };
 
+export type DfyCustomImages = {
+  hero: string;
+  benefits: string;
+  social: string;
+};
+
 export type DfySite = {
   id: string;
   name: string;
   niche: string;
   description: string;
   type: DfySiteType;
+  /** Same as custom_images.hero — card + preview */
   image: string;
+  custom_images: DfyCustomImages;
   posts: number;
   theme: string;
   theme_id: string;
@@ -241,6 +256,10 @@ export type DfySite = {
   previewCta: string;
   previewFeatures: Array<{ title: string; description: string }>;
   landingContent: Record<string, unknown>;
+  aboutContent: Record<string, unknown>;
+  faqContent: Record<string, unknown>;
+  blogContent: Record<string, unknown>;
+  reviewsContent: Record<string, unknown>;
   keywords: string[];
   target_audience: string;
   /** Stable integer for derived copy (posts modal, etc.) */
@@ -265,6 +284,14 @@ export function pollinationsHeroUrl(seed: number, type: DfySiteType, brandName: 
 
 export function dfyHeroStaticPath(siteId: string): string {
   return `/dfy/heroes/${siteId}.webp`;
+}
+
+export function dfyBenefitsStaticPath(siteId: string): string {
+  return `/dfy/heroes/${siteId}-benefits.webp`;
+}
+
+export function dfySocialStaticPath(siteId: string): string {
+  return `/dfy/heroes/${siteId}-social.webp`;
 }
 
 function templatesForIndex(i: number): DfySelectedTemplates {
@@ -349,6 +376,7 @@ function buildLandingPayload(site: {
       description: "Claim this asset, open Site Forge, and swap copy, colors, or templates in minutes.",
       buttonText: site.previewCta,
     },
+    relatedNav: DFY_RELATED_NAV,
   };
 }
 
@@ -387,7 +415,12 @@ function buildSiteAtIndex(i: number): DfySite {
     `${descPool[i % descPool.length]} ${PREFIXES[(i * 19) % PREFIXES.length]} positioning keeps your offer memorable.`;
 
   const variantSeed = stableSeedFromId(id);
-  const image = dfyHeroStaticPath(id);
+  const custom_images: DfyCustomImages = {
+    hero: dfyHeroStaticPath(id),
+    benefits: dfyBenefitsStaticPath(id),
+    social: dfySocialStaticPath(id),
+  };
+  const image = custom_images.hero;
 
   const headlineTpl = HEADLINE_PATTERNS[(i + variantSeed) % HEADLINE_PATTERNS.length]
     .replace("{name}", name)
@@ -407,6 +440,11 @@ function buildSiteAtIndex(i: number): DfySite {
     variantSeed,
   });
 
+  const aboutContent = buildDfyAboutContent({ name, type, description, niche, variantSeed });
+  const faqContent = buildDfyFaqContent({ name, type, description, variantSeed });
+  const blogContent = buildDfyBlogContent({ name, type, description, niche, variantSeed });
+  const reviewsContent = buildDfyReviewsContent({ name, type: String(type), variantSeed });
+
   return {
     id,
     name,
@@ -414,6 +452,7 @@ function buildSiteAtIndex(i: number): DfySite {
     description,
     type,
     image,
+    custom_images,
     posts: 200,
     theme: preset.name,
     theme_id: preset.themeId,
@@ -426,6 +465,10 @@ function buildSiteAtIndex(i: number): DfySite {
     previewCta,
     previewFeatures,
     landingContent,
+    aboutContent,
+    faqContent,
+    blogContent,
+    reviewsContent,
     keywords: keywordsFor({ name, type, niche }),
     target_audience: audienceFor(type),
     variantSeed,
@@ -438,6 +481,10 @@ export function getDfySites(): DfySite[] {
   if (cachedSites) return cachedSites;
   cachedSites = Array.from({ length: 180 }, (_, i) => buildSiteAtIndex(i));
   return cachedSites;
+}
+
+export function getDfySiteById(siteId: string): DfySite | undefined {
+  return getDfySites().find((s) => s.id === siteId);
 }
 
 const POST_OPENERS = [

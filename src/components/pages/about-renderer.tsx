@@ -1,4 +1,6 @@
+import type { ReactNode } from "react";
 import { getThemeStyles } from "@/lib/themes";
+import { SiteRelatedNavStrip } from "@/components/pages/site-related-nav";
 import { cn } from "@/lib/utils";
 import { Shield, Users, Target, Star, ArrowRight, Zap } from "lucide-react";
 
@@ -7,6 +9,7 @@ interface AboutContent {
   mission?: { headline?: string; text?: string } | string;
   values?: Array<{ title: string; description: string }>;
   team?: { headline?: string; description?: string } | Array<{ name: string; role: string }>;
+  relatedNav?: Array<{ label: string; path: string }>;
 }
 
 function getString(val: any): string {
@@ -426,6 +429,7 @@ export function AboutRenderer({
   themeId = "1",
   primaryColor = "#4F46E5",
   templateId = 1,
+  catalogPreviewSiteId,
 }: {
   content: AboutContent;
   productName: string;
@@ -433,6 +437,8 @@ export function AboutRenderer({
   themeId?: string;
   primaryColor?: string;
   templateId?: number;
+  /** DFY library preview: correct internal nav targets */
+  catalogPreviewSiteId?: string;
 }) {
   const styles = getThemeStyles(themeId, primaryColor);
   const isDark = themeId === "4";
@@ -452,11 +458,34 @@ export function AboutRenderer({
 
   const props: TemplateProps = { content, productName, slug, themeId, primaryColor, styles, storyParagraphs, missionText, teamData, isDark };
 
+  let body: ReactNode;
   switch (templateId) {
-    case 2: return <Template2 {...props} />;
-    case 3: return <Template3 {...props} />;
-    case 4: return <Template4 {...props} />;
-    case 5: return <Template5 {...props} />;
-    default: return <Template1 {...props} />;
+    case 2:
+      body = <Template2 {...props} />;
+      break;
+    case 3:
+      body = <Template3 {...props} />;
+      break;
+    case 4:
+      body = <Template4 {...props} />;
+      break;
+    case 5:
+      body = <Template5 {...props} />;
+      break;
+    default:
+      body = <Template1 {...props} />;
   }
+
+  return (
+    <>
+      {body}
+      <SiteRelatedNavStrip
+        relatedNav={content.relatedNav}
+        slug={slug}
+        primaryColor={primaryColor}
+        isDark={isDark}
+        catalogPreviewSiteId={catalogPreviewSiteId}
+      />
+    </>
+  );
 }

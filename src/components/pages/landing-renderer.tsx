@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { getThemeStyles } from "@/lib/themes";
+import { SiteRelatedNavStrip } from "@/components/pages/site-related-nav";
 import { cn } from "@/lib/utils";
 import { Check, ArrowRight, Zap, Star, ShieldCheck, Sparkles, Rocket, Target } from "lucide-react";
 
@@ -73,6 +75,7 @@ interface LandingContent {
     description: string;
     buttonText: string;
   };
+  relatedNav?: Array<{ label: string; path: string }>;
 }
 
 function StarRow() {
@@ -85,10 +88,10 @@ function StarRow() {
 
 // Template 1: Split hero (left text, right image), 3-col feature cards, 2-col benefits, stats bar, dark CTA
 function Template1({
-  content, ctaHref, themeId, primaryColor, heroImage, productName, styles,
+  content, ctaHref, themeId, primaryColor, heroImage, benefitsImage, productName, styles,
 }: {
   content: LandingContent; ctaHref: string; themeId: string; primaryColor: string;
-  heroImage?: string; productName?: string; styles: ReturnType<typeof getThemeStyles>;
+  heroImage?: string; benefitsImage?: string; productName?: string; styles: ReturnType<typeof getThemeStyles>;
 }) {
   return (
     <div className={cn("overflow-x-hidden", themeId === "4" ? "bg-gray-950 text-white" : "bg-white")}>
@@ -172,7 +175,7 @@ function Template1({
         <section className={cn(styles.section)}>
           <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
             <div className="relative rounded-2xl overflow-hidden aspect-[4/3]">
-              <Image src={heroImage || getHeroImage((productName || "") + "_benefits")} alt="Benefits" fill className="object-cover" />
+              <Image src={benefitsImage || heroImage || getHeroImage((productName || "") + "_benefits")} alt="Benefits" fill className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
             </div>
             <div className="space-y-8">
@@ -234,9 +237,10 @@ function Template1({
 // Template 2: "Centered" — centered hero text, image below hero, 2-col features, stats bar, light CTA
 function Template2({
   content, ctaHref, themeId, primaryColor, heroImage, productName, styles,
+  benefitsImage: _benefitsImage,
 }: {
   content: LandingContent; ctaHref: string; themeId: string; primaryColor: string;
-  heroImage?: string; productName?: string; styles: ReturnType<typeof getThemeStyles>;
+  heroImage?: string; benefitsImage?: string; productName?: string; styles: ReturnType<typeof getThemeStyles>;
 }) {
   const isDark = themeId === "4";
   return (
@@ -344,9 +348,10 @@ function Template2({
 // Template 3: "Bold" — full dark hero with gradient + image overlay, accent-colored feature section, dark CTA
 function Template3({
   content, ctaHref, themeId, primaryColor, heroImage, productName, styles,
+  benefitsImage: _benefitsImage,
 }: {
   content: LandingContent; ctaHref: string; themeId: string; primaryColor: string;
-  heroImage?: string; productName?: string; styles: ReturnType<typeof getThemeStyles>;
+  heroImage?: string; benefitsImage?: string; productName?: string; styles: ReturnType<typeof getThemeStyles>;
 }) {
   const isDark = themeId === "4";
   return (
@@ -457,9 +462,11 @@ function Template3({
 // Template 4: "Minimal" — no hero image, large centered headline, horizontal feature list, minimal CTA
 function Template4({
   content, ctaHref, themeId, primaryColor, productName, styles,
+  heroImage: _heroImage,
+  benefitsImage: _benefitsImage,
 }: {
   content: LandingContent; ctaHref: string; themeId: string; primaryColor: string;
-  productName?: string; styles: ReturnType<typeof getThemeStyles>;
+  heroImage?: string; benefitsImage?: string; productName?: string; styles: ReturnType<typeof getThemeStyles>;
 }) {
   const isDark = themeId === "4";
   const textColor = isDark ? "white" : "#0f172a";
@@ -560,9 +567,10 @@ function Template4({
 // Template 5: "Magazine" — large full-width image header with text overlay, alternating content sections, colored stats
 function Template5({
   content, ctaHref, themeId, primaryColor, heroImage, productName, styles,
+  benefitsImage: _benefitsImage,
 }: {
   content: LandingContent; ctaHref: string; themeId: string; primaryColor: string;
-  heroImage?: string; productName?: string; styles: ReturnType<typeof getThemeStyles>;
+  heroImage?: string; benefitsImage?: string; productName?: string; styles: ReturnType<typeof getThemeStyles>;
 }) {
   const isDark = themeId === "4";
   return (
@@ -683,7 +691,9 @@ export function LandingRenderer({
   themeId = "1",
   primaryColor = "#4F46E5",
   heroImage,
+  benefitsImage,
   templateId = 1,
+  catalogPreviewSiteId,
 }: {
   content: LandingContent;
   productUrl: string | null;
@@ -692,17 +702,43 @@ export function LandingRenderer({
   themeId?: string;
   primaryColor?: string;
   heroImage?: string;
+  benefitsImage?: string;
   templateId?: number;
+  catalogPreviewSiteId?: string;
 }) {
   const ctaHref = productUrl || "#";
   const styles = getThemeStyles(themeId, primaryColor);
-  const props = { content, ctaHref, themeId, primaryColor, heroImage, productName, styles };
+  const props = { content, ctaHref, themeId, primaryColor, heroImage, benefitsImage, productName, styles };
+  const isDark = themeId === "4";
 
+  let body: ReactNode;
   switch (templateId) {
-    case 2: return <Template2 {...props} />;
-    case 3: return <Template3 {...props} />;
-    case 4: return <Template4 {...props} />;
-    case 5: return <Template5 {...props} />;
-    default: return <Template1 {...props} />;
+    case 2:
+      body = <Template2 {...props} />;
+      break;
+    case 3:
+      body = <Template3 {...props} />;
+      break;
+    case 4:
+      body = <Template4 {...props} />;
+      break;
+    case 5:
+      body = <Template5 {...props} />;
+      break;
+    default:
+      body = <Template1 {...props} />;
   }
+
+  return (
+    <>
+      {body}
+      <SiteRelatedNavStrip
+        relatedNav={content.relatedNav}
+        slug={slug}
+        primaryColor={primaryColor}
+        isDark={isDark}
+        catalogPreviewSiteId={catalogPreviewSiteId}
+      />
+    </>
+  );
 }

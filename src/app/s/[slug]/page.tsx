@@ -92,6 +92,7 @@ export default async function LandingPage({ params }: Props) {
         themeId={project.theme_id}
         primaryColor={project.primary_color}
         heroImage={(project as { custom_images?: { hero?: string } }).custom_images?.hero}
+        benefitsImage={(project as { custom_images?: { benefits?: string } }).custom_images?.benefits}
         templateId={landingTemplateId}
       />
     </>

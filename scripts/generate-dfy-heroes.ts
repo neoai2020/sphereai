@@ -1,5 +1,6 @@
 /**
- * One-time / CI: build DFY hero WebP files under public/dfy/heroes/{id}.webp.
+ * One-time / CI: build DFY WebP assets under public/dfy/heroes/
+ *   {id}.webp, {id}-benefits.webp, {id}-social.webp
  * End users only load these static assets (nothing generated at claim or page view).
  *
  *   npm run generate:dfy-heroes
@@ -37,8 +38,8 @@ async function fallbackGradientWebp(id: string, outFile: string): Promise<void> 
   console.warn("[fallback gradient]", id);
 }
 
-function picsumHeroUrl(id: string): string {
-  const safe = id.replace(/[^a-zA-Z0-9_-]/g, "");
+function picsumForSeed(seed: string): string {
+  const safe = seed.replace(/[^a-zA-Z0-9_-]/g, "");
   return `https://picsum.photos/seed/${encodeURIComponent(safe)}/${WIDTH}/${HEIGHT}`;
 }
 
@@ -68,26 +69,36 @@ async function main() {
 
   for (let i = 0; i < pollinationsTasks.length; i++) {
     const { id, sourceUrl } = pollinationsTasks[i];
-    const outFile = path.join(outDir, `${id}.webp`);
-    if (!force && existsSync(outFile)) {
-      console.log("[skip exists]", id);
-      continue;
+    const assets: { file: string; picSeed: string; pollUrl: string | null }[] = [
+      { file: `${id}.webp`, picSeed: id, pollUrl: sourceUrl },
+      { file: `${id}-benefits.webp`, picSeed: `${id}-benefits`, pollUrl: null },
+      { file: `${id}-social.webp`, picSeed: `${id}-social`, pollUrl: null },
+    ];
+
+    for (const asset of assets) {
+      const outFile = path.join(outDir, asset.file);
+      if (!force && existsSync(outFile)) {
+        console.log("[skip exists]", asset.file);
+        continue;
+      }
+      if (gradientOnly) {
+        await fallbackGradientWebp(asset.picSeed, outFile);
+        console.log("[ok gradient]", asset.file);
+        continue;
+      }
+      const url =
+        source === "pollinations" && asset.pollUrl ? asset.pollUrl : picsumForSeed(asset.picSeed);
+      try {
+        await downloadAndOptimize(asset.picSeed, url, outFile);
+        console.log(`[ok ${source}]`, asset.file);
+      } catch (e) {
+        console.error("[fetch failed]", asset.file, e);
+        await fallbackGradientWebp(asset.picSeed, outFile);
+        console.log("[ok fallback]", asset.file);
+      }
+      await new Promise((r) => setTimeout(r, delayMs));
     }
-    if (gradientOnly) {
-      await fallbackGradientWebp(id, outFile);
-      console.log("[ok gradient]", id, `${i + 1}/${pollinationsTasks.length}`);
-      continue;
-    }
-    const url = source === "pollinations" ? sourceUrl : picsumHeroUrl(id);
-    try {
-      await downloadAndOptimize(id, url, outFile);
-      console.log(`[ok ${source}]`, id, `${i + 1}/${pollinationsTasks.length}`);
-    } catch (e) {
-      console.error("[fetch failed]", id, e);
-      await fallbackGradientWebp(id, outFile);
-      console.log("[ok fallback]", id, `${i + 1}/${pollinationsTasks.length}`);
-    }
-    if (i < pollinationsTasks.length - 1) await new Promise((r) => setTimeout(r, delayMs));
+    console.log(`[site ${i + 1}/${pollinationsTasks.length}]`, id);
   }
 }
 

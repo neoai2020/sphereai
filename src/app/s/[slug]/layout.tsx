@@ -13,7 +13,7 @@ export default async function PublicPageLayout({ children, params }: LayoutProps
 
   const { data: project } = await supabase
     .from("projects")
-    .select("id, name, product_description, primary_color, site_logo, product_url")
+    .select("id, name, product_name, product_description, primary_color, site_logo, product_url")
     .eq("slug", slug)
     .single();
 

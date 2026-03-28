@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
 import { getThemeStyles } from "@/lib/themes";
 import { cn } from "@/lib/utils";
 import { Star, Quote } from "lucide-react";
+import { SiteRelatedNavStrip } from "@/components/pages/site-related-nav";
 
 interface ReviewsContent {
   headline?: string;
@@ -18,6 +20,7 @@ interface ReviewsContent {
     headline: string;
     text: string;
   };
+  relatedNav?: Array<{ label: string; path: string }>;
 }
 
 interface TemplateProps {
@@ -401,22 +404,47 @@ export function ReviewsRenderer({
   themeId = "1",
   primaryColor = "#4F46E5",
   templateId = 1,
+  catalogPreviewSiteId,
 }: {
   content: ReviewsContent;
   slug: string;
   themeId?: string;
   primaryColor?: string;
   templateId?: number;
+  catalogPreviewSiteId?: string;
 }) {
   const styles = getThemeStyles(themeId, primaryColor);
   const isDark = themeId === "4";
   const props: TemplateProps = { content, slug, themeId, primaryColor, styles, isDark };
 
+  let body: ReactNode;
   switch (templateId) {
-    case 2: return <Template2 {...props} />;
-    case 3: return <Template3 {...props} />;
-    case 4: return <Template4 {...props} />;
-    case 5: return <Template5 {...props} />;
-    default: return <Template1 {...props} />;
+    case 2:
+      body = <Template2 {...props} />;
+      break;
+    case 3:
+      body = <Template3 {...props} />;
+      break;
+    case 4:
+      body = <Template4 {...props} />;
+      break;
+    case 5:
+      body = <Template5 {...props} />;
+      break;
+    default:
+      body = <Template1 {...props} />;
   }
+
+  return (
+    <>
+      {body}
+      <SiteRelatedNavStrip
+        relatedNav={content.relatedNav}
+        slug={slug}
+        primaryColor={primaryColor}
+        isDark={isDark}
+        catalogPreviewSiteId={catalogPreviewSiteId}
+      />
+    </>
+  );
 }

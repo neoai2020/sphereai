@@ -117,27 +117,79 @@ export default function DFYPage() {
         font_family: site.font_family,
         keywords: site.keywords,
         target_audience: site.target_audience,
-        custom_images: { hero: site.image },
+        custom_images: site.custom_images,
         selected_templates: site.selected_templates,
       }).select().single();
       
       if (pError || !project) throw pError || new Error("Project creation failed");
 
-      const { error: pgError } = await supabase.from("pages").insert({
-        project_id: project.id,
-        title: site.name,
-        slug: "index",
-        page_type: "landing",
-        is_published: true,
-        meta_description: site.description.slice(0, 160),
-        content: site.landingContent,
-        schema_markup: {
-          "@context": "https://schema.org",
-          "@type": "WebPage",
-          name: site.name,
-          description: site.description.slice(0, 300),
+      const baseSchema = {
+        "@context": "https://schema.org",
+        "@type": "WebPage" as const,
+      };
+
+      const pagesPayload = [
+        {
+          project_id: project.id,
+          title: site.name,
+          slug: "index",
+          page_type: "landing" as const,
+          is_published: true,
+          meta_description: site.description.slice(0, 160),
+          content: site.landingContent,
+          schema_markup: {
+            ...baseSchema,
+            name: site.name,
+            description: site.description.slice(0, 300),
+          },
         },
-      });
+        {
+          project_id: project.id,
+          title: `About ${site.name}`,
+          slug: "about",
+          page_type: "about" as const,
+          is_published: true,
+          meta_description: `About ${site.name} — ${site.description.slice(0, 120)}`,
+          content: site.aboutContent,
+          schema_markup: { ...baseSchema, name: `About ${site.name}` },
+        },
+        {
+          project_id: project.id,
+          title: `FAQ — ${site.name}`,
+          slug: "faq",
+          page_type: "faq" as const,
+          is_published: true,
+          meta_description: `Frequently asked questions about ${site.name}.`,
+          content: site.faqContent,
+          schema_markup: { ...baseSchema, name: `FAQ — ${site.name}` },
+        },
+        {
+          project_id: project.id,
+          title:
+            (site.blogContent as { headline?: string }).headline || `Insights — ${site.name}`,
+          slug: "insights",
+          page_type: "blog" as const,
+          is_published: true,
+          meta_description: site.description.slice(0, 155),
+          content: site.blogContent,
+          schema_markup: {
+            ...baseSchema,
+            name: (site.blogContent as { headline?: string }).headline || site.name,
+          },
+        },
+        {
+          project_id: project.id,
+          title: `Reviews — ${site.name}`,
+          slug: "reviews",
+          page_type: "reviews" as const,
+          is_published: true,
+          meta_description: `Customer reviews for ${site.name}.`,
+          content: site.reviewsContent,
+          schema_markup: { ...baseSchema, name: `Reviews — ${site.name}` },
+        },
+      ];
+
+      const { error: pgError } = await supabase.from("pages").insert(pagesPayload);
 
       if (pgError) throw pgError;
 
@@ -450,82 +502,35 @@ export default function DFYPage() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-gray-950/90 backdrop-blur-sm" onClick={() => setActivePreview(null)} />
           <div className="relative w-full max-w-6xl bg-white rounded-3xl border border-gray-200 shadow-2xl overflow-hidden flex flex-col h-[90vh]">
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center">
+            <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50 gap-4 shrink-0">
+              <div className="flex items-center gap-4 min-w-0">
+                <div
+                  className="w-10 h-10 rounded-xl text-white flex items-center justify-center shrink-0"
+                  style={{ backgroundColor: activePreview.primary_color }}
+                >
                   <Globe size={20} />
                 </div>
-                <div>
-                  <h2 className="text-lg font-black text-gray-900 uppercase tracking-tight italic">{activePreview.name}</h2>
-                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{activePreview.niche} • {activePreview.theme}</p>
+                <div className="min-w-0">
+                  <h2 className="text-lg font-black text-gray-900 uppercase tracking-tight italic truncate">{activePreview.name}</h2>
+                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest truncate">
+                    Live preview · {activePreview.niche} · {activePreview.theme}
+                  </p>
                 </div>
               </div>
               <button 
                 onClick={() => setActivePreview(null)}
-                className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-950 shadow-sm transition-all"
+                className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-950 shadow-sm transition-all shrink-0"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto bg-[#FDFDFF] p-10 pt-20">
-               <div className="max-w-4xl mx-auto space-y-20">
-                  <div className="text-center space-y-6">
-                     <span
-                       className="px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest"
-                       style={{
-                         backgroundColor: `${activePreview.primary_color}20`,
-                         color: activePreview.primary_color,
-                       }}
-                     >
-                       {activePreview.niche}
-                     </span>
-                     <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter text-gray-950 leading-tight italic">
-                       {activePreview.previewHeadline}
-                     </h1>
-                     <p className="text-lg text-gray-500 font-medium max-w-2xl mx-auto">{activePreview.previewSubhead}</p>
-                     <div className="pt-4">
-                        <button
-                          type="button"
-                          className="px-8 py-4 rounded-2xl text-white font-black uppercase tracking-widest shadow-xl"
-                          style={{
-                            backgroundColor: activePreview.primary_color,
-                            boxShadow: `0 20px 40px ${activePreview.primary_color}33`,
-                          }}
-                        >
-                          {activePreview.previewCta}
-                        </button>
-                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10 py-20 border-t border-gray-100">
-                    <div className="space-y-4">
-                       <h2 className="text-3xl font-black italic">Why choose {activePreview.name}?</h2>
-                       <p className="text-gray-500 font-medium">
-                         Layout {activePreview.selected_templates.landing} of 5 · {activePreview.theme} palette
-                       </p>
-                    </div>
-                    <div className="grid grid-cols-1 gap-6">
-                       {activePreview.previewFeatures.map((f, i) => (
-                         <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white border border-gray-100 shadow-sm">
-                            <div
-                              className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-                              style={{
-                                backgroundColor: `${activePreview.primary_color}18`,
-                                color: activePreview.primary_color,
-                              }}
-                            >
-                               <Check size={18} />
-                            </div>
-                            <div>
-                               <h4 className="font-bold text-gray-950">{f.title}</h4>
-                               <p className="text-xs text-gray-500">{f.description}</p>
-                            </div>
-                         </div>
-                       ))}
-                    </div>
-                  </div>
-               </div>
+            <div className="relative flex-1 min-h-0 bg-gray-100">
+              <iframe
+                title={`Preview ${activePreview.name}`}
+                src={`/preview/dfy/${encodeURIComponent(activePreview.id)}?page=landing`}
+                className="absolute inset-0 h-full w-full border-0 bg-white"
+              />
             </div>
 
             <div className="p-6 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">

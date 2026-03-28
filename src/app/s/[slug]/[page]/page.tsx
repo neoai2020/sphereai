@@ -83,7 +83,14 @@ export default async function SubPage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(page.schema_markup),
+          __html: JSON.stringify(
+            page.schema_markup || {
+              "@context": "https://schema.org",
+              "@type": "WebPage",
+              name: page.title,
+              description: page.meta_description,
+            },
+          ),
         }}
       />
       {pageSlug === "about" && (

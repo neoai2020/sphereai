@@ -170,6 +170,7 @@ export default async function SoftwarePage({ params, searchParams }: Props) {
           themeId={effectiveThemeId}
           primaryColor={effectiveColor}
           heroImage={(project.custom_images as any)?.hero}
+          benefitsImage={(project.custom_images as any)?.benefits}
           templateId={effectiveTemplate}
         />
       )}
