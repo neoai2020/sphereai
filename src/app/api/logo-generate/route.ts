@@ -1,6 +1,20 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+/** RapidAPI / providers often return JSON error shapes instead of image payloads. */
+function upstreamErrorMessage(parsed: unknown): string | null {
+  if (!parsed || typeof parsed !== "object") return null;
+  const o = parsed as Record<string, unknown>;
+  if (o.status === "error" && typeof o.message === "string") return o.message;
+  if (typeof o.error === "string") return o.error;
+  const data = o.data;
+  if (data && typeof data === "object" && data !== null) {
+    const d = data as Record<string, unknown>;
+    if (d.status === "error" && typeof d.message === "string") return d.message;
+  }
+  return null;
+}
+
 export async function POST(req: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -43,6 +57,12 @@ export async function POST(req: Request) {
     try { parsed = JSON.parse(text2); } catch {}
 
     if (parsed) {
+      const errMsg = upstreamErrorMessage(parsed);
+      if (errMsg) {
+        const statusOut = response.ok ? 502 : response.status;
+        return NextResponse.json({ error: errMsg }, { status: statusOut });
+      }
+
       // Handle image_base64 field
       const base64 =
         parsed.image_base64 || parsed.data?.image_base64 ||

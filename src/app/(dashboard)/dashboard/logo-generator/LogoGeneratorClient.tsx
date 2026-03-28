@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Check, Loader2, Wand2, Download, Link2, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { VimeoEmbed } from "@/components/dashboard/vimeo-embed";
+import { SITE_FORGE_VIMEO_ID } from "@/lib/vimeo-config";
 
 interface Project {
   id: string;
@@ -89,11 +91,21 @@ export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
       if (data.image) {
         setAiLogo(data.image);
       } else if (data.error) {
-        setAiError(data.error);
+        setAiError(typeof data.error === "string" ? data.error : JSON.stringify(data.error));
       } else {
-        // Show raw debug so we know what the API returns
-        setAiDebug(JSON.stringify(data, null, 2));
-        setAiError("API returned unexpected format — see debug below");
+        const dbg = data.debug;
+        if (
+          dbg &&
+          typeof dbg === "object" &&
+          dbg !== null &&
+          (dbg as { status?: string; message?: string }).status === "error" &&
+          typeof (dbg as { message?: string }).message === "string"
+        ) {
+          setAiError((dbg as { message: string }).message);
+        } else {
+          setAiDebug(JSON.stringify(data, null, 2));
+          setAiError("API returned unexpected format — see debug below");
+        }
       }
     } catch (e: any) {
       setAiError(e.message);
@@ -152,6 +164,18 @@ export function LogoGeneratorClient({ projects }: { projects: Project[] }) {
           Logo Generator
         </h1>
         <p className="text-gray-400 font-medium text-sm mt-1 ml-16">Design or AI-generate a logo and apply it to any of your websites</p>
+      </div>
+
+      <div>
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">2 — Site Forge</h2>
+        <p className="text-sm text-gray-500 mb-3">
+          Walkthrough for building your site in Site Forge before you attach a logo.
+        </p>
+        <VimeoEmbed
+          videoId={SITE_FORGE_VIMEO_ID}
+          title="2 — Site Forge"
+          variant="training"
+        />
       </div>
 
       {/* Mode Tabs */}
