@@ -18,12 +18,11 @@ import {
   PawPrint,
   Home,
   MousePointer2,
-  Lock,
   Clock,
   Check,
   Loader2
 } from "lucide-react";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import { createClient } from "@/lib/supabase/client";
 
@@ -49,11 +48,14 @@ export default function AutomationPage() {
   /** Empty = paste your own link; otherwise use project URL */
   const [selectedProjectId, setSelectedProjectId] = useState("");
   const [publicBaseUrl, setPublicBaseUrl] = useState("");
+  const [automationUserId, setAutomationUserId] = useState<string | null>(null);
+  /** True after server (or one-time localStorage) hydration; avoids clobbering DB before load */
+  const [automationHydrated, setAutomationHydrated] = useState(false);
+  const saveSeq = useRef(0);
 
-  // Persistence and Access Control
+  // Access control, projects, and server-side automation state
   useEffect(() => {
-    const saved = localStorage.getItem("automation_completed_sources");
-    if (saved) setCompletedSources(JSON.parse(saved));
+    let cancelled = false;
 
     async function checkAccess() {
       const supabase = createClient();
@@ -63,27 +65,89 @@ export default function AutomationPage() {
         return;
       }
 
+      setAutomationUserId(user.id);
+
       const { data: sub } = await supabase
         .from("user_subscriptions")
         .select("has_automation")
         .eq("user_id", user.id)
         .single();
-      
-      const hasAccess = sub?.has_automation || user.user_metadata?.plan === 'infinite';
+
+      const hasAccess = sub?.has_automation || user.user_metadata?.plan === "infinite";
       setIsSubscribed(hasAccess);
+
       if (hasAccess) {
         setProjectsLoading(true);
-        const { data: rows } = await supabase
-          .from("projects")
-          .select("id, name, product_name, product_url, slug")
-          .eq("user_id", user.id)
-          .order("updated_at", { ascending: false });
-        setProjects((rows as AutomationProjectRow[]) || []);
+        const [projectsRes, stateRes] = await Promise.all([
+          supabase
+            .from("projects")
+            .select("id, name, product_name, product_url, slug")
+            .eq("user_id", user.id)
+            .order("updated_at", { ascending: false }),
+          supabase
+            .from("user_automation_state")
+            .select("*")
+            .eq("user_id", user.id)
+            .maybeSingle(),
+        ]);
+
+        if (cancelled) return;
+
+        if (projectsRes.error) {
+          console.error("[automation] load projects:", projectsRes.error.message);
+        }
+        setProjects((projectsRes.data as AutomationProjectRow[]) || []);
+
+        const migrateLocalCompleted = () => {
+          const raw = typeof window !== "undefined" ? localStorage.getItem("automation_completed_sources") : null;
+          if (!raw) return;
+          try {
+            const parsed = JSON.parse(raw) as unknown;
+            if (Array.isArray(parsed)) {
+              setCompletedSources(parsed.filter((x): x is string => typeof x === "string"));
+            }
+          } catch {
+            /* ignore */
+          }
+          localStorage.removeItem("automation_completed_sources");
+        };
+
+        if (stateRes.error) {
+          console.error("[automation] load state:", stateRes.error.message);
+          migrateLocalCompleted();
+        } else {
+          const row = stateRes.data as {
+            completed_source_ids?: string[] | null;
+            selected_project_id?: string | null;
+            promo_link_manual?: string | null;
+            search_query?: string | null;
+            selected_category?: string | null;
+          } | null;
+
+          if (row) {
+            setCompletedSources(Array.isArray(row.completed_source_ids) ? row.completed_source_ids : []);
+            setSelectedProjectId(row.selected_project_id ?? "");
+            setUserLink(row.promo_link_manual ?? "");
+            setSearchQuery(row.search_query ?? "");
+            setSelectedCategory(row.selected_category ?? "all");
+          } else {
+            migrateLocalCompleted();
+          }
+        }
+
+        setAutomationHydrated(true);
         setProjectsLoading(false);
+      } else {
+        setAutomationHydrated(false);
       }
-      setCheckingAccess(false);
+
+      if (!cancelled) setCheckingAccess(false);
     }
-    checkAccess();
+
+    void checkAccess();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -91,9 +155,40 @@ export default function AutomationPage() {
     setPublicBaseUrl(base || (typeof window !== "undefined" ? window.location.origin : ""));
   }, []);
 
+  // Persist automation UI to Supabase (debounced)
   useEffect(() => {
-    localStorage.setItem("automation_completed_sources", JSON.stringify(completedSources));
-  }, [completedSources]);
+    if (!isSubscribed || !automationUserId || !automationHydrated) return;
+
+    const supabase = createClient();
+    const seq = ++saveSeq.current;
+    const timer = window.setTimeout(async () => {
+      const { error } = await supabase.from("user_automation_state").upsert(
+        {
+          user_id: automationUserId,
+          completed_source_ids: completedSources,
+          selected_project_id: selectedProjectId,
+          promo_link_manual: userLink,
+          search_query: searchQuery,
+          selected_category: selectedCategory,
+        },
+        { onConflict: "user_id" }
+      );
+      if (error && seq === saveSeq.current) {
+        console.error("[automation] save state failed:", error.message);
+      }
+    }, 450);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    isSubscribed,
+    automationUserId,
+    automationHydrated,
+    completedSources,
+    selectedProjectId,
+    userLink,
+    searchQuery,
+    selectedCategory,
+  ]);
 
   const toggleSource = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -125,44 +220,166 @@ export default function AutomationPage() {
   ];
 
   const rawSources = useMemo(() => {
-    const base = [
-      // Weight Loss
-      { id: '1', name: 'MyFitnessPal Community', type: 'FORUM', visitors: '200-500/mo', time: '10 min', niche: 'Weight Loss', steps: ['Join the community and introduce yourself', 'Research threads', 'Post value-driven response', 'Link naturally'], snippet: 'Found this system helpful for weight loss: [LINK]' },
-      { id: '2', name: 'LoseIt Reddit', type: 'SOCIAL', visitors: '300-800/mo', time: '5 min', niche: 'Weight Loss', steps: ['Navigate to r/loseit', 'Find help request', 'Share success story', 'Link solution'], snippet: 'This tool helped me stay consistent: [LINK]' },
-      { id: '3', name: 'Weight Loss Support FB', type: 'SOCIAL', visitors: '400-1k/mo', time: '15 min', niche: 'Weight Loss', steps: ['Join group', 'Interact with posts', 'Share tip', 'Link in comments'], snippet: 'Useful for staying on track: [LINK]' },
-      { id: '4', name: 'Quora Weight Loss', type: 'Q&A', visitors: '500-1.2k/mo', time: '10 min', niche: 'Weight Loss', steps: ['Find question', 'Write answer', 'Insert link'], snippet: 'Here is the plan I used: [LINK]' },
-      { id: '5', name: 'r/WeightLossAdvice', type: 'SOCIAL', visitors: '200-600/mo', time: '5 min', niche: 'Weight Loss', steps: ['Search "struggling"', 'Offer advice', 'Link resource'], snippet: 'Lifesaver for me: [LINK]' },
-      
-      // MMO
-      { id: '11', name: 'Warrior Forum', type: 'FORUM', visitors: '500-1.5k/mo', time: '15 min', niche: 'Make Money Online', steps: ['Search "Traffic"', 'Provide tips', 'Link tool'], snippet: 'Automated my traffic using this: [LINK]' },
-      { id: '12', name: 'BlackHatWorld', type: 'FORUM', visitors: '1k-3k/mo', time: '20 min', niche: 'Make Money Online', steps: ['Search "Journey"', 'Comment', 'Invite to see setup'], snippet: 'My current setup: [LINK]' },
-      { id: '13', name: 'r/PassiveIncome', type: 'SOCIAL', visitors: '500-1k/mo', time: '10 min', niche: 'Make Money Online', steps: ['Filter Top', 'Reply', 'Share link'], snippet: 'Favorite passive source: [LINK]' },
-      { id: '14', name: 'r/SideHustle', type: 'SOCIAL', visitors: '400-900/mo', time: '5 min', niche: 'Make Money Online', steps: ['Answer question', 'Tell what you use', 'Link asset'], snippet: 'I use this for my side hustle: [LINK]' },
-      
-      // Health
-      { id: '21', name: 'Healthline Community', type: 'FORUM', visitors: '1k-5k/mo', time: '10 min', niche: 'Health & Fitness', steps: ['Find topic', 'Give advice', 'Mention link'], snippet: 'This link helps stay healthy: [LINK]' },
-      { id: '22', name: 'r/Fitness', type: 'SOCIAL', visitors: '2k-10k/mo', time: '5 min', niche: 'Health & Fitness', steps: ['Reply Daily Thread', 'Be helpful', 'Link resource'], snippet: 'Great fitness resource: [LINK]' }
+    type SourceSeed = {
+      name: string;
+      type: string;
+      visitors: string;
+      time: string;
+      niche: string;
+      steps: string[];
+      snippet: string;
+      /** Opens here in a new tab; otherwise Google search by name */
+      inspectUrl?: string;
+    };
+
+    const manual: SourceSeed[] = [
+      {
+        name: "MyFitnessPal Community",
+        type: "FORUM",
+        visitors: "200-500/mo",
+        time: "10 min",
+        niche: "Weight Loss",
+        steps: [
+          "Join the community and introduce yourself",
+          "Research threads",
+          "Post value-driven response",
+          "Link naturally",
+        ],
+        snippet: "Found this system helpful for weight loss: [LINK]",
+        inspectUrl: "https://community.myfitnesspal.com/",
+      },
+      {
+        name: "LoseIt Reddit",
+        type: "SOCIAL",
+        visitors: "300-800/mo",
+        time: "5 min",
+        niche: "Weight Loss",
+        steps: ["Navigate to r/loseit", "Find help request", "Share success story", "Link solution"],
+        snippet: "This tool helped me stay consistent: [LINK]",
+        inspectUrl: "https://www.reddit.com/r/loseit/",
+      },
+      {
+        name: "Weight Loss Support FB",
+        type: "SOCIAL",
+        visitors: "400-1k/mo",
+        time: "15 min",
+        niche: "Weight Loss",
+        steps: ["Join group", "Interact with posts", "Share tip", "Link in comments"],
+        snippet: "Useful for staying on track: [LINK]",
+        inspectUrl: "https://www.facebook.com/search/top?q=weight%20loss%20support%20group",
+      },
+      {
+        name: "Quora Weight Loss",
+        type: "Q&A",
+        visitors: "500-1.2k/mo",
+        time: "10 min",
+        niche: "Weight Loss",
+        steps: ["Find question", "Write answer", "Insert link"],
+        snippet: "Here is the plan I used: [LINK]",
+        inspectUrl: "https://www.quora.com/topic/Weight-Loss-1",
+      },
+      {
+        name: "r/WeightLossAdvice",
+        type: "SOCIAL",
+        visitors: "200-600/mo",
+        time: "5 min",
+        niche: "Weight Loss",
+        steps: ['Search "struggling"', "Offer advice", "Link resource"],
+        snippet: "Lifesaver for me: [LINK]",
+        inspectUrl: "https://www.reddit.com/r/WeightLossAdvice/",
+      },
+      {
+        name: "Warrior Forum",
+        type: "FORUM",
+        visitors: "500-1.5k/mo",
+        time: "15 min",
+        niche: "Make Money Online",
+        steps: ['Search "Traffic"', "Provide tips", "Link tool"],
+        snippet: "Automated my traffic using this: [LINK]",
+        inspectUrl: "https://www.warriorforum.com/",
+      },
+      {
+        name: "BlackHatWorld",
+        type: "FORUM",
+        visitors: "1k-3k/mo",
+        time: "20 min",
+        niche: "Make Money Online",
+        steps: ['Search "Journey"', "Comment", "Invite to see setup"],
+        snippet: "My current setup: [LINK]",
+        inspectUrl: "https://www.blackhatworld.com/",
+      },
+      {
+        name: "r/PassiveIncome",
+        type: "SOCIAL",
+        visitors: "500-1k/mo",
+        time: "10 min",
+        niche: "Make Money Online",
+        steps: ["Filter Top", "Reply", "Share link"],
+        snippet: "Favorite passive source: [LINK]",
+        inspectUrl: "https://www.reddit.com/r/passive_income/",
+      },
+      {
+        name: "r/SideHustle",
+        type: "SOCIAL",
+        visitors: "400-900/mo",
+        time: "5 min",
+        niche: "Make Money Online",
+        steps: ["Answer question", "Tell what you use", "Link asset"],
+        snippet: "I use this for my side hustle: [LINK]",
+        inspectUrl: "https://www.reddit.com/r/sidehustle/",
+      },
+      {
+        name: "Healthline Community",
+        type: "FORUM",
+        visitors: "1k-5k/mo",
+        time: "10 min",
+        niche: "Health & Fitness",
+        steps: ["Find topic", "Give advice", "Mention link"],
+        snippet: "This link helps stay healthy: [LINK]",
+        inspectUrl: "https://www.healthline.com/",
+      },
+      {
+        name: "r/Fitness",
+        type: "SOCIAL",
+        visitors: "2k-10k/mo",
+        time: "5 min",
+        niche: "Health & Fitness",
+        steps: ["Reply Daily Thread", "Be helpful", "Link resource"],
+        snippet: "Great fitness resource: [LINK]",
+        inspectUrl: "https://www.reddit.com/r/Fitness/",
+      },
     ];
 
-    // Generate remaining 40+ sources to hit 60
-    const niches = ['Weight Loss', 'Make Money Online', 'Health & Fitness', 'Beauty & Skincare', 'Pets', 'Home & Garden'];
-    const types = ['SOCIAL', 'FORUM', 'Q&A', 'BLOG'];
-    
-    for (let i = base.length + 1; i <= 60; i++) {
-        const niche = niches[i % niches.length];
-        const type = types[i % types.length];
-        base.push({
-            id: String(i),
-            name: `${niche} ${type} Source #${i}`,
-            type,
-            visitors: `${100 + (i * 10)}-${500 + (i * 20)}/mo`,
-            time: `${5 + (i % 15)} min`,
-            niche,
-            steps: [`Connect with users in ${niche}`, `Find a relevant discussion`, `Explain how you solve pain points`, `Introduce your link as the solution`],
-            snippet: `Checked this out recently for ${niche}, it is amazing: [LINK]`
-        });
+    const niches = ["Weight Loss", "Make Money Online", "Health & Fitness", "Beauty & Skincare", "Pets", "Home & Garden"];
+    const types = ["SOCIAL", "FORUM", "Q&A", "BLOG"];
+
+    const generated: SourceSeed[] = [];
+    const targetTotal = 60;
+    for (let k = manual.length; k < targetTotal; k++) {
+      const i = k + 1;
+      const niche = niches[i % niches.length];
+      const type = types[i % types.length];
+      generated.push({
+        name: `${niche} ${type} Source #${i}`,
+        type,
+        visitors: `${100 + i * 10}-${500 + i * 20}/mo`,
+        time: `${5 + (i % 15)} min`,
+        niche,
+        steps: [
+          `Connect with users in ${niche}`,
+          "Find a relevant discussion",
+          "Explain how you solve pain points",
+          "Introduce your link as the solution",
+        ],
+        snippet: `Checked this out recently for ${niche}, it is amazing: [LINK]`,
+      });
     }
-    return base;
+
+    // Stable unique ids (avoids duplicate keys — old code reused ids 12–14, 21–22)
+    return [...manual, ...generated].map((s, idx) => ({
+      ...s,
+      id: `src-${idx + 1}`,
+    }));
   }, []);
 
   const filteredSources = useMemo(() => {
@@ -200,9 +417,13 @@ export default function AutomationPage() {
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  const handleInspect = (name: string) => {
-    const query = encodeURIComponent(name);
-    window.open(`https://www.google.com/search?q=${query}`, "_blank");
+  const handleInspect = (source: { name: string; inspectUrl?: string }) => {
+    if (source.inspectUrl) {
+      window.open(source.inspectUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+    const query = encodeURIComponent(source.name);
+    window.open(`https://www.google.com/search?q=${query}`, "_blank", "noopener,noreferrer");
   };
 
   if (checkingAccess) {
@@ -454,7 +675,8 @@ export default function AutomationPage() {
                                 <CheckCircle2 size={16} />
                             </button>
                             <button 
-                              onClick={() => handleInspect(source.name)}
+                              type="button"
+                              onClick={() => handleInspect(source)}
                               className="flex-1 bg-gray-900 text-white font-black py-4 rounded-2xl shadow-xl hover:bg-black transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2 border border-gray-800"
                             >
                                 INSPECT SOURCE

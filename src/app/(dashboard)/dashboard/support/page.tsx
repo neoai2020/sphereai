@@ -5,7 +5,6 @@ import {
   MessageCircle, 
   ExternalLink, 
   Headphones, 
-  ShieldCheck, 
   FileText 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -87,17 +86,6 @@ export default function SupportPage() {
               >
                 <Mail size={14} /> Message Us
               </a>
-              <p className="text-[9px] text-gray-400 font-medium uppercase tracking-widest italic">Average Reply: 4.2 hours</p>
-            </div>
-
-            <div className="bg-brand-50/50 border border-brand-100 rounded-2xl p-5 flex items-center gap-4">
-               <div className="w-9 h-9 rounded-xl bg-white border border-brand-200/50 flex items-center justify-center text-brand-600 shadow-sm">
-                  <ShieldCheck size={18} />
-               </div>
-               <div>
-                 <p className="text-[10px] font-black text-brand-900 italic uppercase leading-none">VIP Priority Access</p>
-                 <p className="text-[9px] text-brand-600 font-medium pt-1">Subscribed users get 2h priority.</p>
-               </div>
             </div>
           </div>
         </div>
