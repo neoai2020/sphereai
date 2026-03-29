@@ -14,14 +14,10 @@ import { ProductFaqSection } from "@/components/dashboard/product-faq-section";
 export default function SupportPage() {
 
   return (
-    <div className="min-h-screen bg-[#FDFDFF] text-gray-900 pb-24 px-4 sm:px-8 relative overflow-hidden">
-      
-      {/* ─ Subtle Backdrop ─ */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-500/5 rounded-full blur-[120px]" />
-      </div>
+    <div className="max-w-6xl mx-auto space-y-12 pb-20 text-gray-900 relative">
+      <div className="pointer-events-none absolute -top-8 -left-8 w-[min(420px,90vw)] h-[420px] bg-indigo-500/[0.06] rounded-full blur-[100px]" aria-hidden />
 
-      <div className="max-w-6xl mx-auto pt-16 space-y-6 relative z-10">
+      <div className="space-y-6 relative z-10 pt-4">
         
         {/* Header */}
         <div className="space-y-1">
@@ -33,7 +29,12 @@ export default function SupportPage() {
 
         {/* Top Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <a href="#" className="group relative bg-white hover:bg-gray-50/50 border border-gray-100 rounded-2xl p-6 flex items-center justify-between transition-all overflow-hidden shadow-sm">
+          <a
+            href="https://neoai.freshdesk.com/support/home"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative bg-white hover:bg-gray-50/50 border border-gray-100 rounded-2xl p-6 flex items-center justify-between transition-all overflow-hidden shadow-sm"
+          >
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-xl bg-brand-50 border border-brand-100/50 flex items-center justify-center text-brand-600 group-hover:scale-110 transition-transform">
                 <Headphones size={24} />
@@ -80,9 +81,12 @@ export default function SupportPage() {
                   Reach out and we&apos;ll get back to you within 24-48 hours.
                 </p>
               </div>
-              <button className="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md shadow-brand-500/10 flex items-center justify-center gap-2 group-hover:-translate-y-0.5">
+              <a
+                href="mailto:sphere@neoai.freshdesk.com"
+                className="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md shadow-brand-500/10 flex items-center justify-center gap-2 group-hover:-translate-y-0.5"
+              >
                 <Mail size={14} /> Message Us
-              </button>
+              </a>
               <p className="text-[9px] text-gray-400 font-medium uppercase tracking-widest italic">Average Reply: 4.2 hours</p>
             </div>
 

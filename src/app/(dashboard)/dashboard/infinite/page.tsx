@@ -26,6 +26,7 @@ export default async function InfinitePage() {
       <RestrictedContent
         title="Infinite Plan Required"
         description="This area is exclusive to Infinite subscribers. Upgrade to unlock unlimited website generation and translation."
+        upgradeHref="/activate"
       />
     );
   }

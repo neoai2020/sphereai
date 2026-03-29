@@ -55,11 +55,10 @@ export async function POST(request: Request) {
 
       if (tokenErr || !dbToken) {
         console.error("Token lookup error:", tokenErr);
-        // Include the code in the error for debugging
-        return NextResponse.json({ 
-          error: `Activation code [${normalizedCode}] not found in records.`,
-          debug: { code: normalizedCode, masterKeys: Object.keys(MASTER_CODES) } 
-        }, { status: 400 });
+        return NextResponse.json(
+          { error: "Invalid or unknown activation code." },
+          { status: 400 }
+        );
       }
       token = dbToken;
     }

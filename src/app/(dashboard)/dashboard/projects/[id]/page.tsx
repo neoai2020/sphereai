@@ -20,6 +20,7 @@ import {
   User2
 } from "lucide-react";
 import { SiteCustomizer } from "@/components/dashboard/projects/SiteCustomizer";
+import { ContentQaPanel } from "@/components/dashboard/projects/ContentQaPanel";
 import { cn } from "@/lib/utils";
 
 const pageTypeConfig: Record<
@@ -162,6 +163,14 @@ export default async function ProjectDetailPage({
               </span>
             </h2>
           </div>
+
+          {pages && pages.length > 0 && (
+            <ContentQaPanel
+              pages={pages}
+              productDescription={project.product_description}
+              productUrl={project.product_url}
+            />
+          )}
 
           {!pages || pages.length === 0 ? (
             <div className="bg-white rounded-[2.5rem] border border-gray-100 p-16 text-center shadow-xl shadow-gray-200/20">

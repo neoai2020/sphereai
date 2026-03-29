@@ -5,13 +5,18 @@ import { Lock } from "lucide-react";
 interface RestrictedContentProps {
   title: string;
   description: string;
+  /** Client callback (e.g. `() => (window.location.href = "/activate")`) */
   onUpgrade?: () => void;
+  /** Use from Server Components when you cannot pass a function */
+  upgradeHref?: string;
   icon?: any;
 }
 
 export function RestrictedContent({
   title,
   description,
+  onUpgrade,
+  upgradeHref,
   icon: Icon = Lock,
 }: RestrictedContentProps) {
   return (
@@ -43,11 +48,28 @@ export function RestrictedContent({
           </p>
         </div>
 
-        {/* Action Button */}
-        <div className="pt-2">
-          <a 
+        {/* Actions */}
+        <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
+          {(onUpgrade || upgradeHref) &&
+            (upgradeHref ? (
+              <a
+                href={upgradeHref}
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all active:scale-[0.98] shadow-lg shadow-indigo-500/20"
+              >
+                Activate access
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={onUpgrade}
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all active:scale-[0.98] shadow-lg shadow-indigo-500/20"
+              >
+                Activate access
+              </button>
+            ))}
+          <a
             href="/dashboard/support"
-            className="inline-flex items-center gap-2 px-8 py-3.5 bg-slate-900 hover:bg-black text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all active:scale-[0.98] shadow-lg shadow-slate-200"
+            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-slate-900 hover:bg-black text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all active:scale-[0.98] shadow-lg shadow-slate-200"
           >
             Contact Support
           </a>

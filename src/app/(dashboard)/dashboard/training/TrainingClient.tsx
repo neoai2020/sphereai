@@ -61,15 +61,19 @@ export default function TrainingClient() {
   }, [modalVideo]);
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="mb-8">
+    <div className="max-w-6xl mx-auto space-y-8 pb-12 relative">
+      <div
+        className="pointer-events-none absolute -top-4 -left-4 w-[min(380px,85vw)] h-[380px] bg-indigo-500/[0.06] rounded-full blur-[100px]"
+        aria-hidden
+      />
+      <div className="relative z-10 mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Training & Resources</h1>
         <p className="text-gray-500 mt-1">
           Master the art of AI search optimization with our step-by-step guides
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-8 p-1 bg-gray-100 rounded-2xl w-fit">
+      <div className="relative z-10 flex flex-wrap gap-2 mb-8 p-1 bg-gray-100 rounded-2xl w-fit">
         <button
           type="button"
           onClick={() => setTab("videos")}
@@ -93,7 +97,7 @@ export default function TrainingClient() {
       </div>
 
       {tab === "videos" && (
-        <>
+        <div className="relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12 items-start">
             {videoBlocks.map((block) => (
               <div
@@ -173,11 +177,11 @@ export default function TrainingClient() {
               ))}
             </ul>
           </div>
-        </>
+        </div>
       )}
 
       {tab === "faqs" && (
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+        <div className="relative z-10 bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
           <ProductFaqSection />
         </div>
       )}

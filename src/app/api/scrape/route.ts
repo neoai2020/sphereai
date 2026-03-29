@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { extractProductFromHtml } from "@/lib/scrape-html";
+import { assertUrlSafeForServerFetch, fetchHtmlWithLimits } from "@/lib/scrape-url-safe";
 
 export async function POST(req: Request) {
   try {
@@ -15,25 +16,22 @@ export async function POST(req: Request) {
 
     const { url } = await req.json();
 
-    if (!url) {
+    if (!url || typeof url !== "string") {
       return NextResponse.json({ error: "URL is required" }, { status: 400 });
     }
 
-    const response = await fetch(url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept-Language": "en-US,en;q=0.9",
-        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      },
-    });
-
-    if (!response.ok) {
-      return NextResponse.json({ error: "Failed to fetch URL" }, { status: 500 });
+    const safe = assertUrlSafeForServerFetch(url);
+    if (!safe.ok) {
+      return NextResponse.json({ error: safe.error }, { status: 400 });
     }
 
-    const html = await response.text();
-    const { productName, productDescription, keywords } = extractProductFromHtml(html);
+    const fetched = await fetchHtmlWithLimits(safe.url);
+    if (!fetched.ok) {
+      const status = fetched.status ?? 502;
+      return NextResponse.json({ error: fetched.error }, { status: status >= 400 && status < 600 ? status : 502 });
+    }
+
+    const { productName, productDescription, keywords } = extractProductFromHtml(fetched.html);
 
     return NextResponse.json({
       productName,
