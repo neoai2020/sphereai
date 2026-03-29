@@ -78,6 +78,6 @@ export const SPHEREAI_FAQS: SphereAiFaq[] = [
   },
   {
     q: "Do you send email campaigns or validate leads for me?",
-    a: "SphereAI’s core product is site generation and related dashboard tools. Older FAQ copy about SMTP outreach and lead validation referred to different features; today’s app centers on Site Forge, Asset Vault, logo tools, and premium content modules (10x, Automation, Infinite, DFY). If you use third-party email tools, you connect them outside this dashboard unless a specific integration is documented.",
+    a: "No. SphereAI does not send email campaigns or validate leads for you. The product is site generation and dashboard tools: Site Forge, Asset Vault, logo tools, and premium modules (10x, Automation, Infinite, DFY). If you use email or CRM tools, you connect them outside this dashboard unless a specific integration is documented.",
   },
 ];
