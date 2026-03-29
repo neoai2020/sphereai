@@ -114,10 +114,9 @@ export default function SupportPage() {
              </div>
           </div>
           
-          <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+          <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
             {[
               { title: "30-DAY GUARANTEE", text: "Full refund available within 30 days of purchase. No interrogation required.", color: "text-brand-600", bg: "bg-brand-50/30" },
-              { title: "REQUEST PROCEDURE", text: "Email us at sphere@neoai.freshdesk.com with your account details.", color: "text-emerald-600", bg: "bg-emerald-50/30" },
               { title: "PROCESSING TIMELINE", text: "Refunds processed within 5-7 business days. Confirmation transmitted.", color: "text-orange-600", bg: "bg-orange-50/30" },
             ].map((item, i) => (
               <div key={i} className="bg-gray-50/20 border border-gray-50 rounded-xl p-6 space-y-3 hover:bg-white transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
