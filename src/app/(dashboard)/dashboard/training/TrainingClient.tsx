@@ -8,8 +8,13 @@ import {
   GETTING_STARTED_VIMEO_ID,
   SITE_FORGE_VIMEO_ID,
   LOGO_GENERATOR_VIMEO_ID,
+  TEN_X_TRAINING_VIMEO_ID,
+  AUTOMATION_TRAINING_VIMEO_ID,
+  INFINITE_TRAINING_VIMEO_ID,
+  DFY_TRAINING_VIMEO_ID,
 } from "@/lib/vimeo-config";
-import { GraduationCap, CheckCircle2, PlayCircle, X } from "lucide-react";
+import type { VimeoAspect } from "@/components/dashboard/vimeo-embed";
+import { GraduationCap, CheckCircle2, PlayCircle, X, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const steps = [
@@ -29,13 +34,20 @@ const steps = [
   },
 ];
 
-const videoBlocks = [
-  { title: "1 — Getting Started", videoId: GETTING_STARTED_VIMEO_ID },
-  { title: "2 — Site Forge", videoId: SITE_FORGE_VIMEO_ID },
-  { title: "3 — Logo Generator", videoId: LOGO_GENERATOR_VIMEO_ID },
+const coreVideoBlocks = [
+  { title: "1 — Getting Started", videoId: GETTING_STARTED_VIMEO_ID, aspect: "video" as const },
+  { title: "2 — Site Forge", videoId: SITE_FORGE_VIMEO_ID, aspect: "video" as const },
+  { title: "3 — Logo Generator", videoId: LOGO_GENERATOR_VIMEO_ID, aspect: "video" as const },
 ] as const;
 
-type ModalVideo = { videoId: string; title: string };
+const premiumVideoBlocks = [
+  { title: "4 — 10X Mode", videoId: TEN_X_TRAINING_VIMEO_ID, aspect: "4-3" as const },
+  { title: "5 — Automation", videoId: AUTOMATION_TRAINING_VIMEO_ID, aspect: "4-3" as const },
+  { title: "6 — Infinite", videoId: INFINITE_TRAINING_VIMEO_ID, aspect: "video" as const },
+  { title: "7 — DFY", videoId: DFY_TRAINING_VIMEO_ID, aspect: "4-3" as const },
+] as const;
+
+type ModalVideo = { videoId: string; title: string; aspect: VimeoAspect };
 
 export default function TrainingClient() {
   const [tab, setTab] = useState<"videos" | "faqs">("videos");
@@ -99,7 +111,7 @@ export default function TrainingClient() {
       {tab === "videos" && (
         <div className="relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12 items-start">
-            {videoBlocks.map((block) => (
+            {coreVideoBlocks.map((block) => (
               <div
                 key={block.title}
                 className="flex flex-col min-w-0 bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm"
@@ -114,12 +126,17 @@ export default function TrainingClient() {
                         videoId={block.videoId}
                         title={`${block.title} preview`}
                         shell="inner"
+                        aspect={block.aspect}
                       />
                     </div>
                     <button
                       type="button"
                       onClick={() =>
-                        setModalVideo({ videoId: block.videoId, title: block.title })
+                        setModalVideo({
+                          videoId: block.videoId,
+                          title: block.title,
+                          aspect: block.aspect,
+                        })
                       }
                       className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-black/40 hover:bg-black/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
                       aria-label={`Open ${block.title} full screen`}
@@ -137,6 +154,64 @@ export default function TrainingClient() {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="mb-12">
+            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-2">
+              <Sparkles size={20} className="text-indigo-600" />
+              Premium features
+            </h2>
+            <p className="text-sm text-gray-500 mb-6 max-w-2xl">
+              Walkthroughs for 10X, Automation, Infinite, and Done-For-You. Same player controls as the core lessons above.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 items-start">
+              {premiumVideoBlocks.map((block) => (
+                <div
+                  key={block.title}
+                  className="flex flex-col min-w-0 bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm"
+                >
+                  <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2">
+                    <h2 className="text-base font-semibold text-gray-900 min-w-0 truncate">{block.title}</h2>
+                    <span className="shrink-0 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-indigo-50 text-indigo-700 border border-indigo-100">
+                      Premium
+                    </span>
+                  </div>
+                  <div className="p-1 bg-white">
+                    <div className="relative rounded-[20px] overflow-hidden border border-gray-100">
+                      <div className="pointer-events-none select-none">
+                        <VimeoEmbed
+                          videoId={block.videoId}
+                          title={`${block.title} preview`}
+                          shell="inner"
+                          aspect={block.aspect}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setModalVideo({
+                            videoId: block.videoId,
+                            title: block.title,
+                            aspect: block.aspect,
+                          })
+                        }
+                        className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-black/40 hover:bg-black/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+                        aria-label={`Open ${block.title} full screen`}
+                      >
+                        <PlayCircle
+                          className="w-14 h-14 md:w-16 md:h-16 text-white drop-shadow-lg"
+                          strokeWidth={1.25}
+                          fill="rgba(255,255,255,0.15)"
+                        />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white drop-shadow">
+                          Watch full size
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="mb-12">
@@ -219,6 +294,7 @@ export default function TrainingClient() {
                   videoId={modalVideo.videoId}
                   title={modalVideo.title}
                   shell="full"
+                  aspect={modalVideo.aspect}
                   className="!shadow-none"
                 />
               </div>

@@ -9,12 +9,17 @@ const VIMEO_PLAYER_JS = "https://player.vimeo.com/api/player.js";
 /** `full` = same white card as the main dashboard hero. `inner` = inner frame only (inside another card). */
 export type VimeoShell = "full" | "inner";
 
+/** `video` = 16:9. `4-3` matches Vimeo’s 75% padding embeds for some training assets. */
+export type VimeoAspect = "video" | "4-3";
+
 type VimeoEmbedProps = {
   videoId: string;
   title: string;
   className?: string;
   /** Default `full` — dashboard-style white card, light borders, no black outer ring. */
   shell?: VimeoShell;
+  /** Default `video` (16:9). */
+  aspect?: VimeoAspect;
 };
 
 const OUTER =
@@ -26,16 +31,22 @@ export function VimeoEmbed({
   title,
   className,
   shell = "full",
+  aspect = "video",
 }: VimeoEmbedProps) {
   const src = buildVimeoEmbedSrc(videoId);
 
   const frame = (
-    <div className="relative aspect-video w-full overflow-hidden bg-neutral-950">
+    <div
+      className={cn(
+        "relative w-full overflow-hidden bg-neutral-950",
+        aspect === "4-3" ? "aspect-[4/3]" : "aspect-video"
+      )}
+    >
       <iframe
         src={src}
         className="absolute inset-0 h-full w-full"
         frameBorder={0}
-        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
         referrerPolicy="strict-origin-when-cross-origin"
         title={title}
         allowFullScreen

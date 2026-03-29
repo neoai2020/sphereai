@@ -26,7 +26,8 @@ import { createClient } from "@/lib/supabase/client";
 import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { VideoPlaceholder } from "@/components/dashboard/video-placeholder";
+import { PremiumTrainingEmbed } from "@/components/dashboard/premium-training-embed";
+import { DFY_TRAINING_VIMEO_ID } from "@/lib/vimeo-config";
 import {
   getDfySites,
   DFY_SITE_TYPES,
@@ -263,9 +264,10 @@ export default function DFYPage() {
         </p>
       </div>
 
-      <VideoPlaceholder
+      <PremiumTrainingEmbed
         title="DFY Library — How to Claim & Launch"
-        subtitle="Video training coming soon"
+        videoId={DFY_TRAINING_VIMEO_ID}
+        aspect="4-3"
       />
 
       <div className="bg-white border border-gray-100 rounded-[40px] shadow-sm p-6 md:p-8">

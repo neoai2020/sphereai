@@ -20,7 +20,8 @@ import {
 import { useState, useEffect, useRef } from "react";
 import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import { createClient } from "@/lib/supabase/client";
-import { VideoPlaceholder } from "@/components/dashboard/video-placeholder";
+import { PremiumTrainingEmbed } from "@/components/dashboard/premium-training-embed";
+import { TEN_X_TRAINING_VIMEO_ID } from "@/lib/vimeo-config";
 
 type TenXProjectRow = {
   id: string;
@@ -262,9 +263,10 @@ export default function TenXPage() {
       </div>
 
       {/* Training Video */}
-      <VideoPlaceholder
+      <PremiumTrainingEmbed
         title="10X Facebook Strategy — Full Walkthrough"
-        subtitle="Video training coming soon"
+        videoId={TEN_X_TRAINING_VIMEO_ID}
+        aspect="4-3"
       />
 
       {/* Feature highlights — same shell pattern as Automation / Infinite stats */}

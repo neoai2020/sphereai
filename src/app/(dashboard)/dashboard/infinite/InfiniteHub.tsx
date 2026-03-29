@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Globe, Zap, Plus, Languages, ArrowLeft, Sparkles } from "lucide-react";
-import { VideoPlaceholder } from "@/components/dashboard/video-placeholder";
+import { PremiumTrainingEmbed } from "@/components/dashboard/premium-training-embed";
+import { INFINITE_TRAINING_VIMEO_ID } from "@/lib/vimeo-config";
 import { InfiniteClient } from "./InfiniteClient";
 
 export interface InfiniteHubProject {
@@ -86,9 +87,10 @@ export function InfiniteHub({ projects }: { projects: InfiniteHubProject[] }) {
         Back to Infinite options
       </button>
 
-      <VideoPlaceholder
+      <PremiumTrainingEmbed
         title="Infinite Plan — Full Strategy Walkthrough"
-        subtitle="Video training coming soon"
+        videoId={INFINITE_TRAINING_VIMEO_ID}
+        aspect="video"
       />
 
       <div className="bg-white border border-gray-100 rounded-[40px] shadow-sm p-8 md:p-10 space-y-8">

@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { RestrictedContent } from "@/components/dashboard/restricted-content";
+import { PremiumTrainingEmbed } from "@/components/dashboard/premium-training-embed";
+import { AUTOMATION_TRAINING_VIMEO_ID } from "@/lib/vimeo-config";
 import { createClient } from "@/lib/supabase/client";
 
 type AutomationProjectRow = {
@@ -463,6 +465,12 @@ export default function AutomationPage() {
           POST ONCE. GET TRAFFIC FOREVER. 60 FREE TRAFFIC SOURCES WITH STEP-BY-STEP INSTRUCTIONS.
         </p>
       </div>
+
+      <PremiumTrainingEmbed
+        title="Automation Traffic Machine — Full Walkthrough"
+        videoId={AUTOMATION_TRAINING_VIMEO_ID}
+        aspect="4-3"
+      />
 
       {/* Stats Dashboard */}
       <div className="bg-white border border-gray-100 rounded-[40px] shadow-sm p-8 md:p-10 space-y-10">
