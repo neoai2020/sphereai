@@ -2,6 +2,8 @@ import { Infinity as InfiniteIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { RestrictedContent } from "@/components/dashboard/restricted-content";
+import { PremiumTrainingEmbed } from "@/components/dashboard/premium-training-embed";
+import { INFINITE_TRAINING_VIMEO_ID } from "@/lib/vimeo-config";
 import { InfiniteHub } from "./InfiniteHub";
 import { userHasInfiniteAccess } from "@/lib/infinite-access";
 
@@ -59,6 +61,12 @@ export default async function InfinitePage() {
           Generate unlimited websites or translate your existing sites — no daily cap.
         </p>
       </div>
+
+      <PremiumTrainingEmbed
+        title="Infinite Plan — Full Strategy Walkthrough"
+        videoId={INFINITE_TRAINING_VIMEO_ID}
+        aspect="4-3"
+      />
 
       <InfiniteHub projects={projects || []} />
     </div>

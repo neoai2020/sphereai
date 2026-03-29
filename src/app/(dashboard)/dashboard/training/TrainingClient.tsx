@@ -43,7 +43,7 @@ const coreVideoBlocks = [
 const premiumVideoBlocks = [
   { title: "4 — 10X Mode", videoId: TEN_X_TRAINING_VIMEO_ID, aspect: "4-3" as const },
   { title: "5 — Automation", videoId: AUTOMATION_TRAINING_VIMEO_ID, aspect: "4-3" as const },
-  { title: "6 — Infinite", videoId: INFINITE_TRAINING_VIMEO_ID, aspect: "video" as const },
+  { title: "6 — Infinite", videoId: INFINITE_TRAINING_VIMEO_ID, aspect: "4-3" as const },
   { title: "7 — DFY", videoId: DFY_TRAINING_VIMEO_ID, aspect: "4-3" as const },
 ] as const;
 
@@ -164,19 +164,19 @@ export default function TrainingClient() {
             <p className="text-sm text-gray-500 mb-6 max-w-2xl">
               Walkthroughs for 10X, Automation, Infinite, and Done-For-You. Same player controls as the core lessons above.
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 items-start">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch">
               {premiumVideoBlocks.map((block) => (
                 <div
                   key={block.title}
-                  className="flex flex-col min-w-0 bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm"
+                  className="flex flex-col min-w-0 h-full bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm"
                 >
-                  <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2">
+                  <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2 shrink-0 min-h-[52px]">
                     <h2 className="text-base font-semibold text-gray-900 min-w-0 truncate">{block.title}</h2>
                     <span className="shrink-0 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-indigo-50 text-indigo-700 border border-indigo-100">
                       Premium
                     </span>
                   </div>
-                  <div className="p-1 bg-white">
+                  <div className="p-1 bg-white flex-1 flex flex-col min-h-0">
                     <div className="relative rounded-[20px] overflow-hidden border border-gray-100">
                       <div className="pointer-events-none select-none">
                         <VimeoEmbed

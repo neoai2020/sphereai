@@ -20,7 +20,6 @@ import {
   User2
 } from "lucide-react";
 import { SiteCustomizer } from "@/components/dashboard/projects/SiteCustomizer";
-import { ContentQaPanel } from "@/components/dashboard/projects/ContentQaPanel";
 import { PersonalPromoLinkCard } from "@/components/dashboard/projects/PersonalPromoLinkCard";
 import { cn } from "@/lib/utils";
 
@@ -169,14 +168,6 @@ export default async function ProjectDetailPage({
             projectId={project.id}
             initialUrl={project.product_url}
           />
-
-          {pages && pages.length > 0 && (
-            <ContentQaPanel
-              pages={pages}
-              productDescription={project.product_description}
-              productUrl={project.product_url}
-            />
-          )}
 
           {!pages || pages.length === 0 ? (
             <div className="bg-white rounded-[2.5rem] border border-gray-100 p-16 text-center shadow-xl shadow-gray-200/20">
