@@ -1,26 +1,21 @@
 "use client";
 
-import { 
-  Zap, 
-  Share2, 
-  Target, 
-  BarChart3, 
-  Facebook, 
-  Sparkles, 
-  FileText, 
-  Link as LinkIcon, 
-  Globe, 
-  ArrowRight,
+import {
+  Zap,
+  Share2,
+  Target,
+  BarChart3,
+  Facebook,
+  Sparkles,
+  FileText,
+  Link as LinkIcon,
   Info,
   Users,
   Clock,
   MessageSquare,
-  ShieldCheck,
-  MousePointer2,
-  ChevronRight,
   Loader2,
   Copy,
-  Check
+  Check,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { RestrictedContent } from "@/components/dashboard/restricted-content";
@@ -267,42 +262,63 @@ export default function TenXPage() {
       </div>
 
       {/* Training Video */}
-      <VideoPlaceholder 
+      <VideoPlaceholder
         title="10X Facebook Strategy — Full Walkthrough"
         subtitle="Video training coming soon"
       />
 
-      {/* Feature Highlights */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {features.map((f, i) => (
-          <div key={i} className="bg-white border border-gray-100 p-6 rounded-[32px] flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
-            <div className={`w-14 h-14 rounded-2xl ${f.bg} ${f.color} flex items-center justify-center`}>
-              <f.icon size={28} />
+      {/* Feature highlights — same shell pattern as Automation / Infinite stats */}
+      <div className="bg-white border border-gray-100 rounded-[40px] shadow-sm p-8 md:p-10 space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 text-white">
+              <Share2 size={24} className="text-white" strokeWidth={2.25} />
             </div>
             <div>
-              <h3 className="font-bold text-gray-900">{f.title}</h3>
-              <p className="text-sm text-gray-500 font-medium">{f.description}</p>
+              <h2 className="text-2xl font-black text-gray-900">What 10X gives you</h2>
+              <p className="text-sm font-black text-gray-400 uppercase tracking-[0.1em] mt-1">
+                Ten angles per link — built for reach, saves, and clicks
+              </p>
             </div>
           </div>
-        ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {features.map((f, i) => (
+            <div
+              key={i}
+              className={`${f.bg} p-8 rounded-[32px] border border-white/50 flex flex-col items-center text-center gap-4 shadow-sm`}
+            >
+              <div className={`w-14 h-14 rounded-2xl bg-white/80 ${f.color} flex items-center justify-center border border-gray-100`}>
+                <f.icon size={28} />
+              </div>
+              <div>
+                <h3 className="font-black text-gray-900">{f.title}</h3>
+                <p className="text-sm text-gray-500 font-medium mt-1 leading-relaxed">{f.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Main Generator Card */}
-      <div className="relative">
-        <div className={`bg-white border border-gray-100 rounded-[40px] shadow-sm overflow-hidden`}>
-          <div className="p-8 md:p-10 space-y-10">
-            {/* Card Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                  <Facebook className="text-white fill-white" size={24} />
-                </div>
-                <h2 className="text-2xl font-black text-gray-900">Generate 10 Facebook Posts</h2>
+      <div className="bg-white border border-gray-100 rounded-[40px] shadow-sm overflow-hidden">
+        <div className="p-8 md:p-10 space-y-10">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <Facebook className="text-white fill-white" size={24} />
               </div>
-              <div className="px-3 py-1.5 rounded-xl bg-gray-50 border border-gray-100 text-[10px] font-black text-gray-400 tracking-[0.2em] uppercase">
-                Premium
+              <div>
+                <h2 className="text-2xl font-black text-gray-900">Generate 10 Facebook Posts</h2>
+                <p className="text-sm font-black text-gray-400 uppercase tracking-[0.1em] mt-1">
+                  Use a Site Forge project or paste a link manually
+                </p>
               </div>
             </div>
+            <div className="px-3 py-1.5 rounded-xl bg-gray-50 border border-gray-100 text-[10px] font-black text-gray-400 tracking-[0.2em] uppercase w-fit">
+              Premium
+            </div>
+          </div>
 
             {/* Error Message */}
             {error && (
@@ -314,14 +330,14 @@ export default function TenXPage() {
 
             {/* Source: existing website vs manual */}
             <div className="space-y-3">
-              <label className="text-sm font-black text-gray-900 uppercase tracking-widest ml-1">
+              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
                 Use your generated website
               </label>
               <select
                 value={selectedProjectId}
                 onChange={(e) => setSelectedProjectId(e.target.value)}
                 disabled={projectsLoading}
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 text-gray-900 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium appearance-none cursor-pointer disabled:opacity-60"
+                className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-gray-900 focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all font-medium appearance-none cursor-pointer disabled:opacity-60 shadow-sm"
               >
                 <option value="">Enter link and details manually</option>
                 {projects.map((p) => (
@@ -343,17 +359,21 @@ export default function TenXPage() {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3">
-                    <label className="text-sm font-black text-gray-900 uppercase tracking-widest ml-1">Link Name/Goal</label>
+                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
+                      Link name / goal
+                    </label>
                     <input
                       type="text"
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       placeholder="e.g. My Website, My New Product, eBook Launch"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium"
+                      className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all font-medium shadow-sm"
                     />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-sm font-black text-gray-900 uppercase tracking-widest ml-1">Promotional Link</label>
+                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
+                      Promotional link
+                    </label>
                     <div className="relative group">
                       <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors">
                         <LinkIcon size={20} />
@@ -363,29 +383,31 @@ export default function TenXPage() {
                         value={form.url}
                         onChange={(e) => setForm({ ...form, url: e.target.value })}
                         placeholder="https://example.com/product"
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl pl-12 pr-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium"
+                        className="w-full bg-white border border-gray-200 rounded-2xl pl-12 pr-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all font-medium shadow-sm"
                       />
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-sm font-black text-gray-900 uppercase tracking-widest ml-1">Product Description (Optional)</label>
+                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
+                    Product description (optional)
+                  </label>
                   <textarea
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
                     placeholder="Briefly describe the product, its key benefits, or the target audience to get better AI results..."
-                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium h-32 resize-none"
+                    className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all font-medium h-32 resize-none shadow-sm"
                   />
                 </div>
               </>
             )}
 
             {/* Generate Button */}
-            <button 
+            <button
               onClick={handleGenerate}
               disabled={loading}
-              className="w-full group relative overflow-hidden bg-indigo-600 hover:bg-indigo-700 text-white font-black py-5 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed shadow-indigo-500/10"
+              className="w-full group relative overflow-hidden bg-indigo-600 hover:bg-indigo-500 text-white font-black py-5 rounded-2xl shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-xs disabled:opacity-70 disabled:cursor-not-allowed active:scale-[0.99]"
             >
               {loading ? (
                 <Loader2 size={20} className="animate-spin text-white/50" />
@@ -427,42 +449,59 @@ export default function TenXPage() {
 
           </div>
         </div>
-      </div>
 
       {/* Generated Posts Section */}
       {posts.length > 0 && (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
-          <div className="flex items-center justify-between px-2">
-             <h2 className="text-2xl font-black text-gray-900">Your AI-Generated Content Suite</h2>
-             <span className="text-xs font-black text-gray-400 uppercase tracking-widest">10 Results Ready</span>
+        <div className="bg-white border border-gray-100 rounded-[40px] shadow-sm p-8 md:p-10 space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 text-white">
+                <FileText size={24} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-black text-gray-900">Your generated posts</h2>
+                <p className="text-sm font-black text-gray-400 uppercase tracking-[0.1em] mt-1">
+                  10 angles ready to copy and paste
+                </p>
+              </div>
+            </div>
+            <div className="px-5 py-2 rounded-2xl bg-indigo-600 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-200 w-fit">
+              10 ready
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {posts.map((post, i) => (
-              <div key={i} className="group bg-white border border-gray-100 rounded-[32px] p-8 shadow-sm hover:shadow-xl transition-all relative overflow-hidden">
+              <div
+                key={i}
+                className="group bg-gray-50/80 border border-gray-100 rounded-[32px] p-8 shadow-sm hover:shadow-md transition-all relative overflow-hidden"
+              >
                 <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="flex items-center justify-between mb-6">
-                   <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-xs">
-                        {i + 1}
-                      </div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Angle {i + 1}</span>
-                   </div>
-                   <button 
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-xs border border-indigo-100">
+                      {i + 1}
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                      Angle {i + 1}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
                     onClick={() => handleCopy(post, i)}
                     className={`p-2.5 rounded-xl transition-all flex items-center gap-2 text-xs font-bold ${
-                      copiedIndex === i 
-                        ? "bg-emerald-50 text-emerald-600" 
-                        : "bg-gray-50 text-gray-500 hover:bg-gray-900 hover:text-white"
+                      copiedIndex === i
+                        ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                        : "bg-white border border-gray-100 text-gray-500 hover:bg-indigo-600 hover:text-white hover:border-indigo-600"
                     }`}
-                   >
-                     {copiedIndex === i ? <Check size={16} /> : <Copy size={16} />}
-                     {copiedIndex === i ? "Copied" : "Copy Post"}
-                   </button>
+                  >
+                    {copiedIndex === i ? <Check size={16} /> : <Copy size={16} />}
+                    {copiedIndex === i ? "Copied" : "Copy post"}
+                  </button>
                 </div>
                 <div className="prose prose-sm max-w-none">
-                   <p className="text-gray-700 font-medium whitespace-pre-wrap leading-relaxed italic">
-                     {post}
-                   </p>
+                  <p className="text-gray-700 font-medium whitespace-pre-wrap leading-relaxed">
+                    {post}
+                  </p>
                 </div>
               </div>
             ))}
@@ -471,12 +510,17 @@ export default function TenXPage() {
       )}
 
       {/* Pro Tips Section */}
-      <div className="bg-white border border-gray-100 rounded-[40px] p-8 md:p-12 shadow-sm space-y-12">
-        <div className="flex items-center gap-4 text-indigo-600">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
-            <Info size={28} />
+      <div className="bg-white border border-gray-100 rounded-[40px] shadow-sm p-8 md:p-10 space-y-10">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 text-white shrink-0">
+            <Info size={24} />
           </div>
-          <h2 className="text-3xl font-black text-gray-900 tracking-tight">Pro Tips: How to Go Viral on Facebook</h2>
+          <div>
+            <h2 className="text-2xl font-black text-gray-900">Pro tips: Facebook reach</h2>
+            <p className="text-sm font-black text-gray-400 uppercase tracking-[0.1em] mt-1">
+              Where to post, when to post, and how to get engagement
+            </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
