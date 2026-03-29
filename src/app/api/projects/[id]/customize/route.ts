@@ -15,9 +15,7 @@ export async function PATCH(
   }
 
   const body = await req.json();
-  const { theme_id, primary_color, secondary_color, font_family, navigation_style, site_logo, custom_images, name, product_url, selected_templates } = body;
-
-  const updatePayload: Record<string, any> = {
+  const {
     theme_id,
     primary_color,
     secondary_color,
@@ -25,17 +23,39 @@ export async function PATCH(
     navigation_style,
     site_logo,
     custom_images,
+    name,
+    product_url,
     selected_templates,
+  } = body;
+
+  // Only include keys that were sent — partial PATCH (e.g. promo link only) must not null out other columns.
+  const updatePayload: Record<string, unknown> = {
     updated_at: new Date().toISOString(),
   };
 
-  if (name) {
+  const optionalKeys = [
+    "theme_id",
+    "primary_color",
+    "secondary_color",
+    "font_family",
+    "navigation_style",
+    "site_logo",
+    "custom_images",
+    "selected_templates",
+  ] as const;
+
+  for (const key of optionalKeys) {
+    const v = body[key];
+    if (v !== undefined) updatePayload[key] = v;
+  }
+
+  if (name !== undefined && name !== "") {
     updatePayload.name = name;
-    updatePayload.product_name = name; // Sync with landing page renderer
+    updatePayload.product_name = name;
   }
 
   if (product_url !== undefined) {
-    updatePayload.product_url = product_url || null;
+    updatePayload.product_url = product_url === "" || product_url === null ? null : product_url;
   }
 
   const { data, error } = await supabase
@@ -50,6 +70,7 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
+  revalidatePath(`/dashboard/projects/${id}`);
   // Invalidate cache for all pages of this project
   revalidatePath(`/software/user/${id}`, "layout");
   revalidatePath(`/software/user/${id}/about`);

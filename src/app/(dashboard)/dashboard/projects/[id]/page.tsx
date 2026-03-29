@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { SiteCustomizer } from "@/components/dashboard/projects/SiteCustomizer";
 import { ContentQaPanel } from "@/components/dashboard/projects/ContentQaPanel";
+import { PersonalPromoLinkCard } from "@/components/dashboard/projects/PersonalPromoLinkCard";
 import { cn } from "@/lib/utils";
 
 const pageTypeConfig: Record<
@@ -163,6 +164,11 @@ export default async function ProjectDetailPage({
               </span>
             </h2>
           </div>
+
+          <PersonalPromoLinkCard
+            projectId={project.id}
+            initialUrl={project.product_url}
+          />
 
           {pages && pages.length > 0 && (
             <ContentQaPanel

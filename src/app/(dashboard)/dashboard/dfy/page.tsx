@@ -45,6 +45,8 @@ export default function DFYPage() {
   const [visibleCount, setVisibleCount] = useState(12);
   const [claimedProjectMap, setClaimedProjectMap] = useState<Record<string, string>>({}); // Site ID -> Project Slug
   const [claiming, setClaiming] = useState<string | null>(null);
+  /** Optional affiliate / checkout URL per template — saved only on this user's project row */
+  const [promoLinkDraft, setPromoLinkDraft] = useState<Record<string, string>>({});
   
   const [activePreview, setActivePreview] = useState<DfySite | null>(null);
   const [activePosts, setActivePosts] = useState<DfySite | null>(null);
@@ -89,7 +91,7 @@ export default function DFYPage() {
     checkAccess();
   }, []);
 
-  const handleClaim = async (site: DfySite) => {
+  const handleClaim = async (site: DfySite): Promise<boolean> => {
     setClaiming(site.id);
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -97,8 +99,11 @@ export default function DFYPage() {
     if (!user) {
       alert("Please login to claim websites.");
       setClaiming(null);
-      return;
+      return false;
     }
+
+    const promoTrimmed = (promoLinkDraft[site.id] ?? "").trim();
+    const productUrl = promoTrimmed.length > 0 ? promoTrimmed : null;
 
     try {
       const slug = `dfy-${site.id}-${Math.floor(Math.random() * 10000)}`;
@@ -109,6 +114,7 @@ export default function DFYPage() {
         slug: slug,
         product_name: site.name,
         product_description: site.description,
+        product_url: productUrl,
         status: "published",
         project_type: "service",
         theme_id: site.theme_id,
@@ -195,9 +201,11 @@ export default function DFYPage() {
 
       setClaimedProjectMap(prev => ({ ...prev, [site.id]: slug }));
       alert("Website successfully claimed! You can find it in your Asset Vault.");
+      return true;
     } catch (error) {
       console.error(error);
       alert("Failed to claim website. Please try again.");
+      return false;
     } finally {
       setClaiming(null);
     }
@@ -368,7 +376,7 @@ export default function DFYPage() {
                     </button>
                   </div>
 
-                  <div className="mt-2">
+                  <div className="mt-2 space-y-2">
                     {isClaimed ? (
                       <Link
                         href={`/s/${projectSlug}`}
@@ -379,14 +387,35 @@ export default function DFYPage() {
                         <ArrowRight size={14} />
                       </Link>
                     ) : (
-                      <button
-                        onClick={() => handleClaim(site)}
-                        disabled={claiming === site.id}
-                        className="w-full py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20"
-                      >
-                        <Plus size={14} /> {claiming === site.id ? "Claiming..." : "Claim Now"}
-                        <ArrowRight size={14} />
-                      </button>
+                      <>
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block pl-0.5">
+                            Your promo link (optional)
+                          </label>
+                          <input
+                            type="url"
+                            inputMode="url"
+                            placeholder="https://… affiliate or checkout"
+                            value={promoLinkDraft[site.id] ?? ""}
+                            onChange={(e) =>
+                              setPromoLinkDraft((prev) => ({ ...prev, [site.id]: e.target.value }))
+                            }
+                            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-xs font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300"
+                          />
+                          <p className="text-[9px] text-gray-400 font-medium leading-snug">
+                            Saved only on your account. You can change it anytime in Asset Vault.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => void handleClaim(site)}
+                          disabled={claiming === site.id}
+                          className="w-full py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20"
+                        >
+                          <Plus size={14} /> {claiming === site.id ? "Claiming..." : "Claim Now"}
+                          <ArrowRight size={14} />
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -560,16 +589,49 @@ export default function DFYPage() {
               />
             </div>
 
-            <div className="p-6 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
-               <button onClick={() => setActivePreview(null)} className="px-8 py-4 rounded-2xl bg-gray-200 text-gray-600 font-black uppercase tracking-widest hover:bg-gray-300 transition-all">Cancel</button>
-               <button 
-                 onClick={() => { handleClaim(activePreview); setActivePreview(null); }}
-                 disabled={claiming === activePreview.id}
-                 className="px-8 py-4 rounded-2xl text-white font-black uppercase tracking-widest shadow-xl flex items-center gap-2 transition-all hover:opacity-90"
-                 style={{ backgroundColor: activePreview.primary_color, boxShadow: `0 20px 40px ${activePreview.primary_color}44` }}
-               >
-                 <Plus size={18} /> {claiming === activePreview.id ? "Claiming..." : "Add to my websites"}
-               </button>
+            <div className="p-6 border-t border-gray-100 bg-gray-50/50 space-y-4">
+              <div className="space-y-1.5 max-w-xl">
+                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                  Your promo link (optional)
+                </label>
+                <input
+                  type="url"
+                  inputMode="url"
+                  placeholder="https://… — affiliate, checkout, or booking"
+                  value={promoLinkDraft[activePreview.id] ?? ""}
+                  onChange={(e) =>
+                    setPromoLinkDraft((prev) => ({ ...prev, [activePreview.id]: e.target.value }))
+                  }
+                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
+                />
+                <p className="text-[10px] text-gray-400 font-medium">
+                  Private to your account. Edit later under Asset Vault → this site.
+                </p>
+              </div>
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setActivePreview(null)}
+                  className="px-8 py-4 rounded-2xl bg-gray-200 text-gray-600 font-black uppercase tracking-widest hover:bg-gray-300 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const ok = await handleClaim(activePreview);
+                    if (ok) setActivePreview(null);
+                  }}
+                  disabled={claiming === activePreview.id}
+                  className="px-8 py-4 rounded-2xl text-white font-black uppercase tracking-widest shadow-xl flex items-center gap-2 transition-all hover:opacity-90 disabled:opacity-50"
+                  style={{
+                    backgroundColor: activePreview.primary_color,
+                    boxShadow: `0 20px 40px ${activePreview.primary_color}44`,
+                  }}
+                >
+                  <Plus size={18} /> {claiming === activePreview.id ? "Claiming..." : "Add to my websites"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
