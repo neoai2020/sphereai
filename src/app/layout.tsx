@@ -5,6 +5,13 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    noarchive: true,
+    nosnippet: true,
+    noimageindex: true,
+  },
   title: "SphereAI - AI-Optimized Page Generator",
   description:
     "Generate 5 AI-search-optimized pages for your service or affiliate product in minutes.",
