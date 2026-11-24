@@ -1,4 +1,5 @@
 import type { PageType } from "@/types/database";
+import { isOpenRouterConfigured, openRouterChat, setLastAiProvider } from "@/lib/openrouter";
 
 const RAPIDAPI_URL = "https://chatgpt-42.p.rapidapi.com/conversationgpt4-2";
 
@@ -16,7 +17,17 @@ function unescapeHTML(str: string): string {
     .replace(/&#39;/g, "'");
 }
 
-async function callAI(prompt: string, retries = 2): Promise<string> {
+export async function callAI(prompt: string, retries = 2): Promise<string> {
+  if (isOpenRouterConfigured()) {
+    try {
+      const text = await openRouterChat([{ role: "user", content: prompt }], { temperature: 0.3, maxTokens: 2000 });
+      setLastAiProvider("openrouter");
+      return text;
+    } catch (err: any) {
+      console.warn("[ai] OpenRouter failed, using RapidAPI:", err?.message || String(err));
+    }
+  }
+
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       const controller = new AbortController();
@@ -49,6 +60,7 @@ async function callAI(prompt: string, retries = 2): Promise<string> {
 
       const data: AIResponse = await response.json();
       if (!data.result) throw new Error("AI service returned empty response");
+      setLastAiProvider("rapidapi");
       return data.result;
     } catch (err: any) {
       const isAbort = err?.name === "AbortError";

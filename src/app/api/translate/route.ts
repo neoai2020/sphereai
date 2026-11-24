@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { isOpenRouterConfigured, openRouterChat, setLastAiProvider } from "@/lib/openrouter";
 
 export const maxDuration = 60;
 
@@ -33,7 +34,7 @@ export async function POST(req: Request) {
     }
 
     const apiKey = process.env.RAPIDAPI_KEY;
-    if (!apiKey) throw new Error("RapidAPI key not configured.");
+    if (!apiKey && !isOpenRouterConfigured()) throw new Error("RapidAPI key not configured.");
 
     // 1. Get existing pages (RLS + explicit ownership above)
     const { data: pages, error: fetchError } = await supabase
@@ -97,25 +98,49 @@ Return each line in the same format: KEY|||TRANSLATED_VALUE
 Content:
 ${textBlock}`;
 
-      const response = await fetch("https://chatgpt-42.p.rapidapi.com/conversationgpt4-2", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-rapidapi-host": "chatgpt-42.p.rapidapi.com",
-          "x-rapidapi-key": apiKey,
-        },
-        body: JSON.stringify({
-          messages: [{ role: "user", content: prompt }],
-          system_prompt: `You are a professional translator. Translate to ${language}. Keep KEY|||VALUE format. Only translate the VALUE. No extra text.`,
-          temperature: 0.3,
-          max_tokens: 4000,
-        }),
-      });
+      const systemPrompt = `You are a professional translator. Translate to ${language}. Keep KEY|||VALUE format. Only translate the VALUE. No extra text.`;
+      let resultText = "";
 
-      if (!response.ok) throw new Error(`RapidAPI responded with ${response.status}`);
+      if (isOpenRouterConfigured()) {
+        try {
+          resultText = await openRouterChat(
+            [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: prompt },
+            ],
+            { temperature: 0.3, maxTokens: 4000 }
+          );
+          setLastAiProvider("openrouter");
+        } catch (err: any) {
+          console.warn("[ai] OpenRouter failed, using RapidAPI:", err?.message || String(err));
+        }
+      }
 
-      const data = await response.json();
-      const resultText = (data.result || "") as string;
+      if (!resultText) {
+        if (!apiKey) throw new Error("RapidAPI key not configured.");
+
+        const response = await fetch("https://chatgpt-42.p.rapidapi.com/conversationgpt4-2", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-rapidapi-host": "chatgpt-42.p.rapidapi.com",
+            "x-rapidapi-key": apiKey,
+          },
+          body: JSON.stringify({
+            messages: [{ role: "user", content: prompt }],
+            system_prompt: systemPrompt,
+            temperature: 0.3,
+            max_tokens: 4000,
+          }),
+          signal: AbortSignal.timeout(90000),
+        });
+
+        if (!response.ok) throw new Error(`RapidAPI responded with ${response.status}`);
+
+        const data = await response.json();
+        resultText = (data.result || "") as string;
+        setLastAiProvider("rapidapi");
+      }
 
       const translations: Record<string, string> = {};
       resultText.split("\n").forEach((line: string) => {
