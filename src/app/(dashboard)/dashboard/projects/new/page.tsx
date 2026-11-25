@@ -22,6 +22,7 @@ import {
 import type { PageType } from "@/types/database";
 import { VimeoEmbed } from "@/components/dashboard/vimeo-embed";
 import { SITE_FORGE_VIMEO_ID } from "@/lib/vimeo-config";
+import { useSmoothProgress } from "@/hooks/useSmoothProgress";
 
 type ProjectType = "affiliate" | "service";
 const PAGE_TYPES: PageType[] = ["landing", "about", "faq", "blog", "reviews"];
@@ -318,6 +319,14 @@ export default function NewProjectPage() {
   const generationStatusSummary = Object.values(generationProgress);
   const completedCount = generationStatusSummary.filter(s => s === "done").length;
   const progressPercentage = (completedCount / PAGE_TYPES.length) * 100;
+  const allPagesDone = completedCount === PAGE_TYPES.length;
+  const smoothProgress = useSmoothProgress({
+    floor: progressPercentage,
+    ceiling: ((completedCount + 1) / PAGE_TYPES.length) * 100,
+    running: loading && !allPagesDone,
+    expectedMs: 30_000,
+  });
+  const barProgress = allPagesDone ? 100 : smoothProgress;
 
   return (
     <div className="max-w-4xl mx-auto pb-20">
@@ -738,12 +747,12 @@ export default function NewProjectPage() {
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Progress</span>
-                      <span className="text-[10px] font-black text-brand-600">{Math.round(progressPercentage)}%</span>
+                      <span className="text-[10px] font-black text-brand-600">{allPagesDone ? 100 : barProgress.toFixed(1)}%</span>
                     </div>
                     <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-brand-600 transition-all duration-700 rounded-full"
-                        style={{ width: `${progressPercentage}%` }}
+                        style={{ width: `${barProgress}%` }}
                       />
                     </div>
                   </div>

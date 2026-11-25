@@ -22,6 +22,7 @@ import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import { createClient } from "@/lib/supabase/client";
 import { PremiumTrainingEmbed } from "@/components/dashboard/premium-training-embed";
 import { TEN_X_TRAINING_VIMEO_ID } from "@/lib/vimeo-config";
+import { useSmoothProgress } from "@/hooks/useSmoothProgress";
 
 type TenXProjectRow = {
   id: string;
@@ -51,6 +52,13 @@ export default function TenXPage() {
     "Applying Final Touches...",
     "Almost Ready!",
   ];
+
+  const barProgress = useSmoothProgress({
+    floor: ((progressStep + 1) / PROGRESS_STEPS.length) * 100,
+    ceiling: 90,
+    running: loading,
+    expectedMs: 20_000,
+  });
 
   const [form, setForm] = useState({
     name: "",
@@ -427,13 +435,13 @@ export default function TenXPage() {
                     {PROGRESS_STEPS[progressStep]}
                   </span>
                   <span className="text-xs font-bold text-gray-400">
-                    {Math.round(((progressStep + 1) / PROGRESS_STEPS.length) * 100)}%
+                    {barProgress.toFixed(1)}%
                   </span>
                 </div>
                 <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full transition-all duration-700 ease-out"
-                    style={{ width: `${((progressStep + 1) / PROGRESS_STEPS.length) * 100}%` }}
+                    style={{ width: `${barProgress}%` }}
                   />
                 </div>
                 <div className="flex justify-between">
