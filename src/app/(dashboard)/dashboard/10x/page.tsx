@@ -20,6 +20,7 @@ import {
 import { useState, useEffect, useRef } from "react";
 import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import { createClient } from "@/lib/supabase/client";
+import { normalizeWebUrl } from "@/lib/normalize-url";
 import { PremiumTrainingEmbed } from "@/components/dashboard/premium-training-embed";
 import { TEN_X_TRAINING_VIMEO_ID } from "@/lib/vimeo-config";
 import { useSmoothProgress } from "@/hooks/useSmoothProgress";
@@ -150,6 +151,11 @@ export default function TenXPage() {
       setError("Please provide both a link name and a promotional link, or pick a website from the list.");
       return;
     }
+    const productLink = normalizeWebUrl(form.url);
+    if (!selectedProjectId && !productLink) {
+      setError("Enter a valid link, e.g. google.com");
+      return;
+    }
 
     setError("");
     setLoading(true);
@@ -172,8 +178,8 @@ export default function TenXPage() {
             productName: form.name,
             productDescription:
               form.description ||
-              `Promotional link for ${form.name}. The target landing page URL is ${form.url}. Generate 10 high-converting Facebook posts to drive traffic.`,
-            productLink: form.url,
+              `Promotional link for ${form.name}. The target landing page URL is ${productLink}. Generate 10 high-converting Facebook posts to drive traffic.`,
+            productLink,
           };
 
       const res = await fetch("/api/ai/10x", {
@@ -196,7 +202,7 @@ export default function TenXPage() {
           throw new Error("AI service didn't return any posts — please try a more detailed name or description.");
         }
         const linkForReplace =
-          (typeof data.linkUsed === "string" && data.linkUsed) || form.url || "";
+          (typeof data.linkUsed === "string" && data.linkUsed) || productLink || "";
         const processedPosts = data.posts.map((p: string) =>
           p.replace(/\[YOUR LINK HERE\]/g, linkForReplace)
         );
@@ -389,7 +395,11 @@ export default function TenXPage() {
                         <LinkIcon size={20} />
                       </div>
                       <input
-                        type="url"
+                        type="text"
+                        inputMode="url"
+                        autoCapitalize="off"
+                        autoCorrect="off"
+                        spellCheck={false}
                         value={form.url}
                         onChange={(e) => setForm({ ...form, url: e.target.value })}
                         placeholder="https://example.com/product"

@@ -27,6 +27,7 @@ import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import { PremiumTrainingEmbed } from "@/components/dashboard/premium-training-embed";
 import { AUTOMATION_TRAINING_VIMEO_ID } from "@/lib/vimeo-config";
 import { createClient } from "@/lib/supabase/client";
+import { normalizeWebUrl } from "@/lib/normalize-url";
 
 type AutomationProjectRow = {
   id: string;
@@ -396,15 +397,16 @@ export default function AutomationPage() {
   const progressPercent = Math.round((completedSources.length / rawSources.length) * 100);
 
   const effectivePromoLink = useMemo(() => {
+    const typedLink = normalizeWebUrl(userLink) || userLink.trim();
     if (selectedProjectId) {
       const p = projects.find((x) => x.id === selectedProjectId);
-      if (!p) return userLink.trim();
+      if (!p) return typedLink;
       const url = (p.product_url || "").trim();
       if (url) return url;
       if (publicBaseUrl && p.slug) return `${publicBaseUrl}/s/${p.slug}`;
-      return userLink.trim();
+      return typedLink;
     }
-    return userLink.trim();
+    return typedLink;
   }, [selectedProjectId, projects, userLink, publicBaseUrl]);
 
   const getSnippet = (rawSnippet: string) => {
@@ -554,7 +556,11 @@ export default function AutomationPage() {
                 <div className="relative group">
                   <LinkIcon className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" size={20} />
                   <input
-                    type="url"
+                    type="text"
+                    inputMode="url"
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                    spellCheck={false}
                     value={userLink}
                     onChange={(e) => setUserLink(e.target.value)}
                     placeholder="Link your asset here (e.g. https://your-site.com)"

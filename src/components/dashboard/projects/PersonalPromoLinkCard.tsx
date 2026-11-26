@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Link2, Loader2, Check, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { normalizeWebUrl } from "@/lib/normalize-url";
 
 export function PersonalPromoLinkCard({
   projectId,
@@ -25,6 +26,11 @@ export function PersonalPromoLinkCard({
   const dirty = url.trim() !== (initialUrl?.trim() ?? "");
 
   async function handleSave() {
+    const normalized = normalizeWebUrl(url);
+    if (url.trim() !== "" && !normalized) {
+      setError("Enter a valid link, e.g. google.com");
+      return;
+    }
     setSaving(true);
     setError(null);
     setSaved(false);
@@ -33,7 +39,7 @@ export function PersonalPromoLinkCard({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          product_url: url.trim() === "" ? null : url.trim(),
+          product_url: normalized === "" ? null : normalized,
         }),
       });
       const body = await res.json().catch(() => ({}));
@@ -41,6 +47,7 @@ export function PersonalPromoLinkCard({
         setError(typeof body.error === "string" ? body.error : "Could not save");
         return;
       }
+      setUrl(normalized);
       setSaved(true);
       router.refresh();
       setTimeout(() => setSaved(false), 2500);
@@ -78,8 +85,11 @@ export function PersonalPromoLinkCard({
         </label>
         <input
           id={`promo-url-${projectId}`}
-          type="url"
+          type="text"
           inputMode="url"
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
           autoComplete="url"
           placeholder="https://yoursite.com/offer?ref=you"
           value={url}

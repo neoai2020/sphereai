@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
+import { normalizeWebUrl } from "@/lib/normalize-url";
 
 export async function PATCH(
   req: Request,
@@ -55,7 +56,10 @@ export async function PATCH(
   }
 
   if (product_url !== undefined) {
-    updatePayload.product_url = product_url === "" || product_url === null ? null : product_url;
+    updatePayload.product_url =
+      product_url === "" || product_url === null
+        ? null
+        : (typeof product_url === "string" && normalizeWebUrl(product_url)) || product_url;
   }
 
   const { data, error } = await supabase

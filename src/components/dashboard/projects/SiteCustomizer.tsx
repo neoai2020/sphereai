@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Palette, Save, Loader2, Check, Globe, Upload, X, Image as ImageIcon, Link as LinkIcon, RefreshCw, ChevronDown, CheckCircle2, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { normalizeWebUrl } from "@/lib/normalize-url";
 import type { Project } from "@/types/database";
 
 // ─── Style Presets ────────────────────────────────────────────────────────────
@@ -225,12 +226,22 @@ export function SiteCustomizer({ project }: CustomizerProps) {
   }, []);
 
   async function handleSave() {
+    let payload = config;
+    if (config.product_url.trim() && !config.product_url.startsWith("mailto:")) {
+      const normalized = normalizeWebUrl(config.product_url);
+      if (!normalized) {
+        setErrorMsg("Enter a valid link, e.g. google.com");
+        return;
+      }
+      payload = { ...config, product_url: normalized };
+      setConfig(payload);
+    }
     setLoading(true); setSuccess(false); setErrorMsg(null);
     try {
       const res = await fetch(`/api/projects/${project.id}/customize`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(config),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         setSuccess(true);
@@ -339,6 +350,10 @@ export function SiteCustomizer({ project }: CustomizerProps) {
             </div>
             <input
               type={linkType === "email" ? "email" : "text"}
+              inputMode={linkType === "email" ? "email" : "url"}
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck={false}
               value={linkType === "email" ? config.product_url.replace("mailto:", "") : config.product_url}
               onChange={e => updateConfig({
                 product_url: linkType === "email" ? `mailto:${e.target.value}` : e.target.value

@@ -26,6 +26,7 @@ import { createClient } from "@/lib/supabase/client";
 import { RestrictedContent } from "@/components/dashboard/restricted-content";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { normalizeWebUrl } from "@/lib/normalize-url";
 import { PremiumTrainingEmbed } from "@/components/dashboard/premium-training-embed";
 import { DFY_TRAINING_VIMEO_ID } from "@/lib/vimeo-config";
 import {
@@ -104,7 +105,13 @@ export default function DFYPage() {
     }
 
     const promoTrimmed = (promoLinkDraft[site.id] ?? "").trim();
-    const productUrl = promoTrimmed.length > 0 ? promoTrimmed : null;
+    const promoNormalized = normalizeWebUrl(promoTrimmed);
+    if (promoTrimmed.length > 0 && !promoNormalized) {
+      alert("Enter a valid link, e.g. google.com");
+      setClaiming(null);
+      return false;
+    }
+    const productUrl = promoNormalized.length > 0 ? promoNormalized : null;
 
     try {
       const slug = `dfy-${site.id}-${Math.floor(Math.random() * 10000)}`;
@@ -395,8 +402,11 @@ export default function DFYPage() {
                             Your promo link (optional)
                           </label>
                           <input
-                            type="url"
+                            type="text"
                             inputMode="url"
+                            autoCapitalize="off"
+                            autoCorrect="off"
+                            spellCheck={false}
                             placeholder="https://… affiliate or checkout"
                             value={promoLinkDraft[site.id] ?? ""}
                             onChange={(e) =>
@@ -597,8 +607,11 @@ export default function DFYPage() {
                   Your promo link (optional)
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   inputMode="url"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  spellCheck={false}
                   placeholder="https://… — affiliate, checkout, or booking"
                   value={promoLinkDraft[activePreview.id] ?? ""}
                   onChange={(e) =>

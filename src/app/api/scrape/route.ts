@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { extractProductFromHtml } from "@/lib/scrape-html";
 import { assertUrlSafeForServerFetch, fetchHtmlWithLimits } from "@/lib/scrape-url-safe";
+import { normalizeWebUrl } from "@/lib/normalize-url";
 
 export async function POST(req: Request) {
   try {
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "URL is required" }, { status: 400 });
     }
 
-    const safe = assertUrlSafeForServerFetch(url);
+    const safe = assertUrlSafeForServerFetch(normalizeWebUrl(url) || url);
     if (!safe.ok) {
       return NextResponse.json({ error: safe.error }, { status: 400 });
     }

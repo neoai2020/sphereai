@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { isValidWebUrl, normalizeWebUrl } from "@/lib/normalize-url";
 import { useRouter } from "next/navigation";
 import { generateSlug, cn } from "@/lib/utils";
 import {
@@ -130,13 +131,18 @@ export default function NewProjectPage() {
 
   async function handleScrape() {
     if (!form.productUrl) return;
+    const productUrl = normalizeWebUrl(form.productUrl);
+    if (!productUrl) {
+      setError("Enter a valid link, e.g. google.com");
+      return;
+    }
     setError("");
     setScraping(true);
     try {
       const res = await fetch("/api/scrape", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: form.productUrl }),
+        body: JSON.stringify({ url: productUrl }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -214,6 +220,10 @@ export default function NewProjectPage() {
 
   async function handleSubmit() {
     setError("");
+    if (form.productUrl.trim() && !isValidWebUrl(form.productUrl)) {
+      setError("Enter a valid link, e.g. google.com");
+      return;
+    }
     setLoading(true);
 
     try {
@@ -242,7 +252,7 @@ export default function NewProjectPage() {
           slug,
           product_name: form.productName,
           product_description: form.productDescription,
-          product_url: form.productUrl || null,
+          product_url: normalizeWebUrl(form.productUrl) || null,
           project_type: form.projectType,
           keywords: form.keywords
             .split(",")
@@ -551,7 +561,11 @@ export default function NewProjectPage() {
                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Product / Affiliate URL</label>
                     <div className="flex gap-3">
                       <input
-                        type="url"
+                        type="text"
+                        inputMode="url"
+                        autoCapitalize="off"
+                        autoCorrect="off"
+                        spellCheck={false}
                         value={form.productUrl}
                         onChange={(e) => updateField("productUrl", e.target.value)}
                         className="flex-1 px-5 py-3.5 rounded-xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:ring-4 focus:ring-brand-500/5 focus:border-brand-200 outline-none text-base font-medium transition-all"
